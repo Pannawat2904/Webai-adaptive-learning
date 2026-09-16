@@ -14,14 +14,16 @@ import {
   Send,
   CheckCircle2,
   XCircle,
-  Sparkles,
   Bot,
   Loader2,
   Code2,
+  Layout,
+  Globe,
+  Sparkles
 } from 'lucide-react';
 
 function CodeLabContent() {
-  const { profile, auditLog } = useAuth();
+  const { auditLog } = useAuth();
   const searchParams = useSearchParams();
   const assignmentParam = searchParams.get('assignment');
   const subdomainParam = searchParams.get('subdomain');
@@ -35,8 +37,7 @@ function CodeLabContent() {
 
   const [currentAssignment, setCurrentAssignment] = useState<Assignment>(selectedAssignment);
   const [code, setCode] = useState<string>(selectedAssignment.starter_code);
-  const [activeTab, setActiveTab] = useState<'editor' | 'css'>('editor');
-  const [cssCode, setCssCode] = useState<string>('/* CSS พื้นฐานเพื่อความสวยงาม (อุปกรณ์เสริม) */\nbody { font-family: sans-serif; padding: 16px; }');
+  const [previewCode, setPreviewCode] = useState<string>(selectedAssignment.starter_code);
   const [iframeKey, setIframeKey] = useState<number>(0);
 
   const [checklistStatus, setChecklistStatus] = useState<Record<string, boolean>>({});
@@ -46,6 +47,7 @@ function CodeLabContent() {
 
   useEffect(() => {
     setCode(currentAssignment.starter_code);
+    setPreviewCode(currentAssignment.starter_code);
     setReviewResult(null);
     setIframeKey((prev) => prev + 1);
   }, [currentAssignment]);
@@ -80,28 +82,15 @@ function CodeLabContent() {
     setChecklistStatus(status);
   }, [code, currentAssignment]);
 
-  const fullHtmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          ${cssCode}
-        </style>
-      </head>
-      <body>
-        ${code}
-      </body>
-    </html>
-  `;
-
   const handleRun = () => {
+    setPreviewCode(code);
     setIframeKey((prev) => prev + 1);
   };
 
   const handleReset = () => {
     if (confirm('ต้องการรีเซ็ตโค้ดกลับเป็นค่าเริ่มต้นของโจทย์นี้ใช่หรือไม่?')) {
       setCode(currentAssignment.starter_code);
+      setPreviewCode(currentAssignment.starter_code);
       setReviewResult(null);
       setIframeKey((prev) => prev + 1);
     }
@@ -166,312 +155,190 @@ function CodeLabContent() {
   const isAllChecklistPassed = passedChecklistCount === totalChecklistCount;
 
   return (
-    <div className="space-y-6 pb-16">
-      {/* Code Lab Top Header */}
-      <div className="liquid-glass rounded-3xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <Terminal className="w-6 h-6" />
+    <div className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-6rem)] mx-auto px-2 sm:px-6 py-4 max-w-[1800px] overflow-hidden">
+      
+      {/* Top Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center shadow-sm">
+            <Terminal className="w-5 h-5" />
           </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <h1 className="font-black text-base sm:text-lg text-slate-900 dark:text-white">
-                Code Lab: พื้นที่จำลองการเขียนโค้ด HTML
-              </h1>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                Sandbox ปลอดภัย
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              เขียนโค้ดโครงสร้างภาษา HTML ตรวจเงื่อนไขแบบ Real-time พร้อมรับการรีวิวโดย AI
+          <div>
+            <h1 className="font-bold text-lg text-slate-800 dark:text-white leading-tight">
+              ห้องปฏิบัติการเขียนโค้ด
+            </h1>
+            <p className="text-xs text-slate-500 font-medium">
+              จำลองพื้นที่เขียนโค้ดและพรีวิวแบบ Real-time
             </p>
           </div>
         </div>
 
-        {/* Assignment Selector Dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-semibold hidden sm:inline">เลือกภารกิจ:</span>
+        <div className="flex items-center gap-3">
           <select
             value={currentAssignment.id}
             onChange={(e) => {
               const found = MOCK_ASSIGNMENTS.find((a) => a.id === e.target.value);
               if (found) setCurrentAssignment(found);
             }}
-            className="text-xs font-bold px-3.5 py-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-white/60 dark:border-white/10 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-2xs"
+            className="text-xs font-bold px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
           >
             {MOCK_ASSIGNMENTS.map((a) => (
               <option key={a.id} value={a.id}>
-                [{a.sub_domain_code}] {a.title}
+                ภารกิจ: {a.title}
               </option>
             ))}
           </select>
+          
+          <button
+            onClick={handleSubmitAssignment}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition-all"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>กำลังตรวจ...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                <span>ส่งตรวจโค้ด</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Main Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left 7 Columns: Code Editor + Controls */}
-        <div className="lg:col-span-7 flex flex-col space-y-3">
-          {/* Editor Header with Liquid Tabs */}
-          <div className="p-3 rounded-t-3xl bg-slate-900/90 text-slate-200 border border-slate-800 flex items-center justify-between backdrop-blur-md">
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setActiveTab('editor')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
-                  activeTab === 'editor'
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                index.html
-              </button>
-              <button
-                onClick={() => setActiveTab('css')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
-                  activeTab === 'css'
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                style.css (เสริม)
-              </button>
+      {/* Side-by-side IDE Workspace */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+        
+        {/* Left Side: IDE Editor */}
+        <div className="flex flex-col bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
+          {/* Editor Header (Mac Style) */}
+          <div className="bg-[#0d1117] px-4 py-3 flex items-center justify-between border-b border-slate-800 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+              </div>
+              
+              <div className="flex bg-slate-800/50 rounded-lg p-1">
+                <div className="flex items-center gap-2 px-3 py-1 bg-slate-700/50 rounded-md text-emerald-400 text-xs font-mono">
+                  <Code2 className="w-3.5 h-3.5" />
+                  <span>index.html</span>
+                </div>
+              </div>
             </div>
 
-            {/* Quick Action Buttons */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleRun}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/25 transition-all"
-                title="รันแสดงผล"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>รันโค้ด</span>
+              <button onClick={handleRun} className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/20 transition-colors" title="รันโค้ด">
+                <Play className="w-4 h-4" />
               </button>
-
-              <button
-                onClick={handleSaveDraft}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-all"
-                title="บันทึกฉบับร่าง"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">บันทึกร่าง</span>
+              <button onClick={handleSaveDraft} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="บันทึกร่าง">
+                <Save className="w-4 h-4" />
               </button>
-
-              <button
-                onClick={handleReset}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
-                title="รีเซ็ตโค้ด"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
+              <button onClick={handleReset} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="รีเซ็ต">
+                <RotateCcw className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Editor Area */}
-          <div className="relative rounded-b-3xl border border-slate-800 bg-[#07090e] overflow-hidden shadow-2xl">
-            {activeTab === 'editor' ? (
-              <textarea
+          {/* Editor Body */}
+          <div className="flex-1 relative bg-[#0d1117] flex flex-col overflow-hidden p-2">
+             <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 spellCheck={false}
-                className="w-full h-[410px] p-5 bg-transparent text-emerald-400 font-mono text-xs sm:text-sm resize-none focus:outline-none leading-relaxed selection:bg-indigo-900"
-                placeholder="เขียนโค้ด HTML ที่นี่..."
+                className="w-full h-full p-4 bg-transparent text-slate-300 font-mono text-[13px] leading-relaxed resize-none focus:outline-none selection:bg-purple-500/30"
+                placeholder="<!-- พิมพ์โค้ด HTML ที่นี่ -->"
               />
-            ) : (
-              <textarea
-                value={cssCode}
-                onChange={(e) => setCssCode(e.target.value)}
-                spellCheck={false}
-                className="w-full h-[410px] p-5 bg-transparent text-sky-400 font-mono text-xs sm:text-sm resize-none focus:outline-none leading-relaxed selection:bg-indigo-900"
-                placeholder="เขียนโค้ด CSS เสริมเพื่อการจัดวาง..."
-              />
-            )}
-
-            {savedDraftToast && (
-              <div className="absolute bottom-4 right-4 px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-lg animate-in fade-in">
-                บันทึกฉบับร่างเรียบร้อยแล้ว ✓
-              </div>
-            )}
-          </div>
-
-          {/* Submit Action Bar */}
-          <div className="liquid-glass rounded-2xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                สถานะ Checklist:
-              </span>
-              <span
-                className={`font-black ${
-                  isAllChecklistPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
-                }`}
-              >
-                {passedChecklistCount} / {totalChecklistCount} เงื่อนไข
-              </span>
-            </div>
-
-            <button
-              onClick={handleSubmitAssignment}
-              disabled={isSubmitting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>AI กำลังตรวจโค้ด...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5" />
-                  <span>ส่งงาน & ให้ AI ตรวจทาน</span>
-                </>
+              
+              {savedDraftToast && (
+                <div className="absolute bottom-6 right-6 px-4 py-2 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 animate-in slide-in-from-bottom-5">
+                  บันทึกร่างอัตโนมัติแล้ว ✓
+                </div>
               )}
-            </button>
           </div>
         </div>
 
-        {/* Right 5 Columns: Live Preview (Iframe Sandbox) + Requirement Checklist */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* Live Preview Box in Liquid Glass */}
-          <div className="liquid-glass rounded-3xl overflow-hidden shadow-xs">
-            <div className="p-3.5 bg-white/50 dark:bg-slate-800/50 border-b border-white/60 dark:border-white/10 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Live Preview (พื้นที่แสดงผล)</span>
+        {/* Right Side: Live Preview & AI Review */}
+        <div className="flex flex-col gap-4 min-h-0">
+          
+          {/* Live Preview Window */}
+          <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden min-h-0">
+            {/* Browser Header (Mac Style) */}
+            <div className="bg-slate-100 dark:bg-slate-950 px-4 py-3 flex items-center gap-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
               </div>
-              <span className="text-[10px] text-slate-400 font-mono">sandbox="allow-scripts"</span>
+              
+              <div className="flex-1 bg-white dark:bg-slate-800 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-mono text-slate-500 border border-slate-200 dark:border-slate-700">
+                <Globe className="w-3.5 h-3.5 text-blue-500" />
+                <span>Preview Code</span>
+              </div>
             </div>
 
-            {/* Sandboxed Iframe (Safe Sandbox) */}
-            <div className="w-full h-[270px] bg-white">
+            {/* Iframe Box */}
+            <div className="flex-1 bg-white relative">
               <iframe
                 key={iframeKey}
-                srcDoc={fullHtmlContent}
-                title="HTML Sandbox Preview"
+                srcDoc={previewCode}
+                title="Preview"
                 sandbox="allow-scripts"
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 absolute inset-0"
               />
             </div>
           </div>
 
-          {/* Requirement Checklist Panel */}
-          <div className="liquid-glass rounded-3xl p-6 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-indigo-600" />
-                <span>Requirement Checklist ของโจทย์</span>
-              </h3>
-              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
-                {passedChecklistCount}/{totalChecklistCount}
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              {currentAssignment.description}
-            </p>
-
-            {/* Checklist Items */}
-            <div className="space-y-2 pt-1">
-              {currentAssignment.checklist.map((item) => {
-                const passed = checklistStatus[item.id] || false;
-                return (
-                  <div
-                    key={item.id}
-                    className={`p-3 rounded-2xl border text-xs flex items-center justify-between transition-all ${
-                      passed
-                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 font-semibold'
-                        : 'border-slate-200/80 dark:border-white/10 bg-white/50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    {passed ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 ml-2" />
-                    ) : (
-                      <XCircle className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+          {/* Quick Checklist (Floating style) / AI Review */}
+          <div className="shrink-0 max-h-[40%] overflow-y-auto scrollbar-hide">
+             {reviewResult ? (
+               <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-5 space-y-3">
+                 <div className="flex items-center gap-2 text-purple-700 dark:text-purple-400 font-bold text-sm">
+                   <Bot className="w-5 h-5" />
+                   <span>AI Code Review ({reviewResult.score}/100)</span>
+                 </div>
+                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                   {reviewResult.summary}
+                 </p>
+               </div>
+             ) : (
+               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+                 <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-sm">
+                     <Layout className="w-4 h-4 text-blue-500" />
+                     <span>เงื่อนไขภารกิจ</span>
+                   </div>
+                   <span className={`text-xs font-bold px-2 py-1 rounded-md ${isAllChecklistPassed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                     {passedChecklistCount}/{totalChecklistCount}
+                   </span>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                   {currentAssignment.checklist.map((item) => {
+                     const passed = checklistStatus[item.id] || false;
+                     return (
+                       <div key={item.id} className="flex items-center gap-2 text-xs">
+                         {passed ? (
+                           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                         ) : (
+                           <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 shrink-0" />
+                         )}
+                         <span className={passed ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-500'}>
+                           {item.label}
+                         </span>
+                       </div>
+                     );
+                   })}
+                 </div>
+               </div>
+             )}
           </div>
         </div>
       </div>
-
-      {/* AI Code Review Modal / Card */}
-      {reviewResult && (
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-5 animate-in fade-in">
-          <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
-                <Bot className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
-                  ผลการตรวจประเมินโดย AI Code Review
-                </h3>
-                <span className="text-xs text-slate-400 font-medium">
-                  วิเคราะห์ไวยากรณ์ โครงสร้าง Semantic และมาตรฐาน W3C
-                </span>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                {reviewResult.score} / 100
-              </div>
-              <div className="text-xs font-bold text-emerald-600">
-                {reviewResult.passed ? 'ผ่านเกณฑ์มาตรฐาน ✓' : 'ควรปรับปรุงแก้ไข'}
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
-            {reviewResult.summary}
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 space-y-2">
-              <div className="font-bold text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>จุดเด่นของโค้ด:</span>
-              </div>
-              <ul className="text-xs text-emerald-800/90 dark:text-emerald-200/90 space-y-1">
-                {reviewResult.strengths?.map((str: string, i: number) => (
-                  <li key={i} className="flex items-start gap-1">
-                    <span>•</span>
-                    <span>{str}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-2">
-              <div className="font-bold text-xs text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>จุดที่ควรปรับปรุง:</span>
-              </div>
-              <ul className="text-xs text-amber-800/90 dark:text-amber-200/90 space-y-1">
-                {reviewResult.improvements?.map((imp: string, i: number) => (
-                  <li key={i} className="flex items-start gap-1">
-                    <span>•</span>
-                    <span>{imp}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {reviewResult.correctedSnippet && (
-            <div className="space-y-1.5 pt-2">
-              <span className="text-xs font-bold text-slate-500">
-                ตัวอย่างโค้ดที่ถูกต้องสมบูรณ์ตามหลักมาตรฐาน HTML5:
-              </span>
-              <pre className="p-4 rounded-2xl bg-[#07090e] text-slate-100 font-mono text-xs overflow-x-auto border border-slate-800">
-                {reviewResult.correctedSnippet}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -481,7 +348,7 @@ export default function CodeLabPage() {
     <Suspense
       fallback={
         <div className="text-center py-20">
-          <Terminal className="w-8 h-8 animate-spin text-emerald-600 mx-auto" />
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto" />
         </div>
       }
     >

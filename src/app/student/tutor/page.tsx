@@ -4,13 +4,13 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import {
-  MessageSquare,
-  Sparkles,
   Send,
   Bot,
   User,
   ShieldAlert,
   Loader2,
+  Terminal,
+  Code2
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -48,10 +48,9 @@ function TutorChatContent() {
 
   const quickQuestions = [
     '<!DOCTYPE html> มีความสำคัญอย่างไร?',
-    'ความแตกต่างเชิง Semantic ระหว่าง <strong> กับ <b> คืออะไร?',
-    'ทำไมแท็ก <img> ต้องใส่แอตทริบิวต์ alt เสมอ?',
-    'เหตุใดจึงควรผูก <label for> คู่กับ <input id>?',
-    'Semantic HTML5 อย่าง <header>, <main>, <nav> ช่วยเรื่องอะไร?',
+    'ความแตกต่างระหว่าง <strong> กับ <b> คืออะไร?',
+    'ทำไม <img> ต้องมีแอตทริบิวต์ alt เสมอ?',
+    'ทำไมควรผูก <label for> คู่กับ <input id>?',
   ];
 
   const handleSend = async (queryText?: string) => {
@@ -104,128 +103,146 @@ function TutorChatContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 pb-16">
-      {/* Header in Liquid Glass */}
-      <div className="liquid-glass rounded-3xl p-5 flex items-center justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
-            <Bot className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-              <span>ครูผู้ช่วย AI (AI HTML Tutor)</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                ออนไลน์
-              </span>
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              ผู้ช่วยตอบคำถามเฉพาะบุคคล เรื่อง โครงสร้างภาษา HTML (H1-H8) พร้อม Prompt Guard
-            </p>
-          </div>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full liquid-glass text-[11px] font-semibold text-slate-500">
-          <ShieldAlert className="w-3.5 h-3.5 text-indigo-500" />
-          <span>ไม่เฉลยข้อสอบตรงๆ</span>
-        </div>
-      </div>
-
-      {/* Chat Messages Container in Liquid Glass */}
-      <div className="min-h-[460px] max-h-[560px] overflow-y-auto p-5 sm:p-7 rounded-3xl liquid-glass space-y-4">
-        {messages.map((msg) => {
-          const isUser = msg.sender === 'user';
-          return (
-            <div
-              key={msg.id}
-              className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
-            >
-              <div
-                className={`w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 shadow-xs ${
-                  isUser
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white'
-                }`}
-              >
-                {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+    <div className="max-w-5xl mx-auto h-[calc(100vh-8rem)] flex flex-col font-sans">
+      
+      {/* Container */}
+      <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+        
+        {/* Mac OS Style Header */}
+        <div className="bg-slate-900 px-4 py-3 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-400"></div>
+              <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+              <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+            </div>
+            
+            <div className="flex bg-slate-800 rounded-lg p-1">
+              <div className="flex items-center gap-2 px-3 py-1 bg-slate-700/50 rounded-md text-blue-400 text-xs font-bold">
+                <Bot className="w-3.5 h-3.5" />
+                <span>AI HTML Tutor (Online)</span>
               </div>
+            </div>
+          </div>
 
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-800 text-[11px] font-bold text-slate-400">
+            <ShieldAlert className="w-3.5 h-3.5 text-blue-400" />
+            <span>Prompt Guard Active</span>
+          </div>
+        </div>
+
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 dark:bg-slate-950/50 space-y-6">
+          {messages.map((msg) => {
+            const isUser = msg.sender === 'user';
+            
+            return (
               <div
-                className={`max-w-[82%] sm:max-w-[75%] rounded-3xl p-4 text-xs sm:text-sm leading-relaxed ${
-                  isUser
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-tr-xs shadow-md shadow-indigo-500/20'
-                    : 'bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 rounded-tl-xs border border-white/80 dark:border-white/5 shadow-2xs'
-                }`}
+                key={msg.id}
+                className={`flex gap-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                <div className="whitespace-pre-wrap font-medium">{msg.text}</div>
+                {/* Avatar */}
                 <div
-                  className={`text-[10px] mt-1.5 text-right font-mono ${
-                    isUser ? 'text-indigo-200' : 'text-slate-400'
+                  className={`w-10 h-10 rounded-xl flex flex-shrink-0 items-center justify-center border-2 ${
+                    isUser
+                      ? 'bg-white border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'
+                      : 'bg-blue-600 border-blue-700 text-white'
                   }`}
                 >
-                  {msg.timestamp}
+                  {isUser ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                </div>
+
+                {/* Message Bubble */}
+                <div
+                  className={`max-w-[85%] sm:max-w-[75%] flex flex-col ${
+                    isUser ? 'items-end' : 'items-start'
+                  }`}
+                >
+                  <div
+                    className={`px-5 py-3.5 text-sm leading-relaxed ${
+                      isUser
+                        ? 'bg-slate-800 text-white rounded-2xl rounded-tr-none'
+                        : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-800 shadow-sm'
+                    }`}
+                  >
+                    <div className="whitespace-pre-wrap font-medium">{msg.text}</div>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400 mt-1.5 px-1">
+                    {msg.timestamp}
+                  </span>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
 
-        {loading && (
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white flex items-center justify-center shrink-0 animate-pulse">
-              <Bot className="w-4 h-4" />
+          {loading && (
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-blue-700 text-white flex items-center justify-center shrink-0 animate-pulse">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div className="px-5 py-3.5 rounded-2xl rounded-tl-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                <span className="text-sm font-medium text-slate-500">กำลังประมวลผลคำตอบ...</span>
+              </div>
             </div>
-            <div className="p-4 rounded-3xl bg-white/80 dark:bg-slate-800/80 text-xs text-slate-500 flex items-center gap-2 border border-white/80 dark:border-white/5 shadow-2xs">
-              <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-              <span>ครูกำลังคิดคำตอบและเตรียมตัวอย่างโค้ด HTML ให้ครับ...</span>
-            </div>
-          </div>
-        )}
+          )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Suggested Quick Questions */}
-      <div className="space-y-1.5">
-        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold px-1">
-          คำถามที่พบบ่อย (คลิกเพื่อถามทันที):
-        </span>
-        <div className="flex flex-wrap gap-1.5">
-          {quickQuestions.map((q, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSend(q)}
-              className="text-[11px] px-3.5 py-1.5 rounded-full liquid-glass hover:text-indigo-600 font-semibold text-slate-700 dark:text-slate-300 transition-all hover:scale-105"
-            >
-              {q}
-            </button>
-          ))}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
 
-      {/* Input Bar */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSend();
-        }}
-        className="flex items-center gap-2 p-2 rounded-3xl liquid-glass shadow-lg"
-      >
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="พิมพ์คำถามเกี่ยวกับโครงสร้างภาษา HTML เช่น DOCTYPE, img, form, table..."
-          className="flex-1 bg-transparent px-4 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none font-medium"
-        />
-        <button
-          type="submit"
-          disabled={!input.trim() || loading}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all shrink-0"
-        >
-          <span>ส่งคำถาม</span>
-          <Send className="w-3.5 h-3.5" />
-        </button>
-      </form>
+        {/* Input Area */}
+        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+          
+          {/* Quick Questions */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {quickQuestions.map((q, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSend(q)}
+                className="text-[10px] font-bold px-3 py-1.5 rounded-md bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-slate-200 hover:border-blue-200 transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex items-end gap-3"
+          >
+            <div className="flex-1 relative">
+              <div className="absolute top-3 left-3 text-slate-400">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="พิมพ์คำถามเกี่ยวกับ HTML ที่นี่... (กด Enter เพื่อส่ง)"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
+                rows={2}
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:bg-slate-300 text-white transition-colors shrink-0"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </form>
+        </div>
+
+      </div>
     </div>
   );
 }
@@ -234,8 +251,8 @@ export default function StudentTutorPage() {
   return (
     <Suspense
       fallback={
-        <div className="text-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
+        <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         </div>
       }
     >

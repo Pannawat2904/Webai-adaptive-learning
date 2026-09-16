@@ -10,13 +10,8 @@ import {
   TrendingUp,
   RotateCcw,
   Sparkles,
-  Award,
   AlertCircle,
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Terminal,
-  Layers,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function StudentLearningProfilePage() {
@@ -65,10 +60,10 @@ export default function StudentLearningProfilePage() {
   );
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-6 pb-16 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+        <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400">
           <BarChart3 className="w-4 h-4" />
           <span>Diagnostic Analytics & Learning Profile</span>
         </div>
@@ -76,30 +71,31 @@ export default function StudentLearningProfilePage() {
           โปรไฟล์ความเชี่ยวชาญเฉพาะบุคคล (HTML Structure)
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          ผลการวิเคราะห์ระดับความรู้ 8 Sub-domain โครงสร้างภาษา HTML ของ {profile.full_name}
+          ผลการวิเคราะห์ระดับความรู้ 8 Sub-domain โครงสร้างภาษา HTML ของ {profile.full_name || 'ผู้ใช้'}
         </p>
       </div>
 
-      {/* Main Grid: 8-Axis Radar Chart + AI Diagnostics in Liquid Glass */}
+      {/* Main Grid: 8-Axis Radar Chart + AI Diagnostics */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
         {/* Left: 8-Axis Radar Chart */}
-        <div className="lg:col-span-6 liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-between space-y-6">
+        <div className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col items-center space-y-6">
           <div className="w-full flex items-center justify-between">
             <h2 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-indigo-600" />
-              <span>เรดาร์ความสามารถ 8 มิติ (H1 - H8)</span>
+              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <span>เรดาร์ความสามารถ 8 มิติ</span>
             </h2>
-            <span className="text-[11px] font-bold text-indigo-600 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md">
               0 - 100%
             </span>
           </div>
 
-          <div className="relative w-full max-w-[340px] aspect-square flex items-center justify-center">
+          <div className="relative w-full max-w-[320px] aspect-square flex items-center justify-center">
             <svg width={size} height={size} className="overflow-visible">
               <defs>
                 <linearGradient id="radarGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#a855f7" stopOpacity="0.2" />
+                  <stop offset="0%" stopColor="#2563eb" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1" />
                 </linearGradient>
               </defs>
 
@@ -145,9 +141,9 @@ export default function StudentLearningProfilePage() {
               <polygon
                 points={polygonPoints}
                 fill="url(#radarGlow)"
-                stroke="#6366f1"
+                stroke="#2563eb"
                 strokeWidth="2.5"
-                className="transition-all duration-700 filter drop-shadow-md"
+                className="transition-all duration-700 filter drop-shadow-sm"
               />
 
               {/* Data points */}
@@ -159,8 +155,8 @@ export default function StudentLearningProfilePage() {
                     key={code}
                     cx={x}
                     cy={y}
-                    r="4.5"
-                    className="fill-indigo-600 stroke-white dark:stroke-slate-900 stroke-2"
+                    r="4"
+                    className="fill-blue-600 stroke-white dark:stroke-slate-900 stroke-2"
                   />
                 );
               })}
@@ -176,7 +172,7 @@ export default function StudentLearningProfilePage() {
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-[10px] font-black fill-slate-700 dark:fill-slate-300 font-mono"
+                    className="text-[10px] font-black fill-slate-600 dark:fill-slate-400 font-mono"
                   >
                     {code} ({score}%)
                   </text>
@@ -185,40 +181,30 @@ export default function StudentLearningProfilePage() {
             </svg>
           </div>
 
-          <div className="w-full pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              &ge;80% ระดับสูง
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-              60-79% ระดับดี
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              &lt;60% ควรพัฒนา
-            </span>
+          <div className="w-full pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-4 text-xs font-bold text-slate-500">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>&ge;80%</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>60-79%</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>&lt;60%</span>
           </div>
         </div>
 
         {/* Right: AI Diagnostic Summary & Recommendations */}
-        <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
-          <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
-                  ข้อความสรุปและวิเคราะห์โดย AI Advisor
-                </h2>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  สังเคราะห์จากข้อมูลการทำข้อสอบ Adaptive และ Code Lab
-                </span>
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex-1 space-y-5">
+            
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-sm text-slate-900 dark:text-white">ข้อความสรุปและวิเคราะห์โดย AI Advisor</h2>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">สังเคราะห์จากข้อมูลการทำข้อสอบ Adaptive</span>
+                </div>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-white/5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed space-y-2.5">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-700 dark:text-slate-300 leading-relaxed space-y-3">
               <p>
                 <strong>จุดเด่นของคุณ:</strong> มีความเชี่ยวชาญระดับสูงในหัวข้อ{' '}
                 <span className="text-emerald-600 dark:text-emerald-400 font-bold">
@@ -242,116 +228,106 @@ export default function StudentLearningProfilePage() {
             </div>
 
             {/* Personalized Action Plan */}
-            <div className="space-y-2.5 pt-1">
+            <div className="space-y-3 pt-2">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 แผนการเรียนเสริมเฉพาะบุคคล (Personalized Action Plan):
               </div>
-              {weakDomains.map((code) => {
-                const domain = SUB_DOMAINS[code];
-                return (
-                  <div
-                    key={code}
-                    className="p-3.5 rounded-2xl border border-amber-500/25 bg-amber-500/10 flex items-center justify-between gap-3"
-                  >
-                    <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                        <span>[{code}] {domain.name} ({skills[code]?.estimated_level ?? 0}%)</span>
-                      </div>
-                      <div className="text-[11px] text-amber-800/80 dark:text-amber-300 font-medium">
-                        ทบทวนบทเรียนและทำแบบทดสอบซ้ำเพื่อยกระดับความเชี่ยวชาญ
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/student/assessment?type=re_test&subdomain=${code}`}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shrink-0 shadow-xs transition-all"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {weakDomains.map((code) => {
+                  const domain = SUB_DOMAINS[code];
+                  return (
+                    <div
+                      key={code}
+                      className="p-3 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/10 flex flex-col gap-3"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>ทดสอบซ้ำ</span>
-                    </Link>
-                  </div>
-                );
-              })}
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                          <span>[{code}] {domain.name} ({skills[code]?.estimated_level ?? 0}%)</span>
+                        </div>
+                        <div className="text-[11px] text-amber-700 dark:text-amber-400">
+                          ทบทวนบทเรียนและทำแบบทดสอบซ้ำเพื่อยกระดับความเชี่ยวชาญ
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/student/assessment?type=re_test&subdomain=${code}`}
+                        className="flex justify-center items-center gap-1.5 w-full py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>ทดสอบซ้ำ</span>
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Pre-test vs Post-test Longitudinal Evaluation with Cohen's d */}
-      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <TrendingUp className="w-3.5 h-3.5" />
-              การประเมินพัฒนาการเชิงประจักษ์ (Pre-test vs Post-test)
-            </div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-              พัฒนาการรายบุคคลและขนาดอิทธิพล (Cohen&apos;s d Effect Size)
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              <span>พัฒนาการรายบุคคลและขนาดอิทธิพล (Cohen&apos;s d Effect Size)</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               เปรียบเทียบผลสัมฤทธิ์ก่อนเรียนและหลังเรียนด้วยระบบการเรียนรู้แบบปรับเหมาะเฉพาะบุคคล
             </p>
           </div>
 
-          <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-center sm:text-right shrink-0">
-            <span className="text-[11px] font-bold text-slate-400 uppercase">ค่า Effect Size ของคุณ</span>
-            <div className="text-2xl font-black gradient-text">
-              d = 1.65
-            </div>
-            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-              ระดับมาก (Large Effect: &ge; 0.80)
-            </span>
+          <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-center sm:text-right shrink-0">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">ค่า Effect Size ของคุณ</span>
+            <div className="text-2xl font-black text-blue-700 dark:text-blue-400">d = 1.65</div>
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">ระดับมาก (&ge; 0.80)</span>
           </div>
         </div>
 
         {/* 3 Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-2xl liquid-card border border-white/40 dark:border-white/5 space-y-1">
-            <span className="text-xs font-bold text-slate-400 uppercase">คะแนนก่อนเรียน (Pre-test)</span>
-            <div className="text-2xl font-black text-slate-700 dark:text-slate-300">
-              45%
-            </div>
-            <p className="text-[11px] text-slate-500">ทดสอบครั้งแรกเพื่อวินิจฉัย</p>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs font-bold text-slate-500 uppercase">คะแนนก่อนเรียน (Pre-test)</span>
+            <div className="text-2xl font-black text-slate-800 dark:text-white mt-1">45%</div>
+            <p className="text-[11px] text-slate-500 mt-1">ทดสอบครั้งแรกเพื่อวินิจฉัย</p>
           </div>
 
-          <div className="p-4 rounded-2xl liquid-card border border-white/40 dark:border-white/5 space-y-1">
-            <span className="text-xs font-bold text-slate-400 uppercase">คะแนนปัจจุบัน / หลังเรียน</span>
-            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-              75%
-            </div>
-            <p className="text-[11px] text-emerald-600 font-semibold">คะแนนเฉลี่ย 8 Sub-domain</p>
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs font-bold text-slate-500 uppercase">คะแนนปัจจุบัน / หลังเรียน</span>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">75%</div>
+            <p className="text-[11px] text-emerald-600 font-bold mt-1">คะแนนเฉลี่ย 8 Sub-domain</p>
           </div>
 
-          <div className="p-4 rounded-2xl liquid-card border border-white/40 dark:border-white/5 space-y-1">
-            <span className="text-xs font-bold text-slate-400 uppercase">พัฒนาการที่เพิ่มขึ้น (Gain)</span>
-            <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-              <TrendingUp className="w-5 h-5" />
-              +30%
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs font-bold text-slate-500 uppercase">พัฒนาการที่เพิ่มขึ้น (Gain)</span>
+            <div className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+              <TrendingUp className="w-5 h-5" />+30%
             </div>
-            <p className="text-[11px] text-slate-500">การเปลี่ยนแปลงของทักษะความรู้</p>
+            <p className="text-[11px] text-slate-500 mt-1">การเปลี่ยนแปลงของทักษะความรู้</p>
           </div>
         </div>
 
         {/* Academic Interpretation Alert */}
-        <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed space-y-1">
-          <div className="font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            คำอธิบายเกณฑ์วิจัยทางการศึกษา:
+        <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 text-xs text-blue-900 dark:text-blue-200 leading-relaxed">
+          <div className="font-bold mb-1 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />คำอธิบายเกณฑ์วิจัยทางการศึกษา:
           </div>
           <p>
-            ค่าขนาดอิทธิพล Cohen&apos;s d = 1.65 ของคุณอยู่ในเกณฑ์ <strong>&quot;ระดับมาก (Large Effect: d &ge; 0.80)&quot;</strong> แสดงให้เห็นว่าการเรียนรู้ผ่านเนื้อหาปรับเหมาะเฉพาะบุคคลและการจำลองโค้ด (Code Lab) ช่วยยกระดับความสามารถในการเข้าใจโครงสร้างภาษา HTML ได้อย่างมีนัยสำคัญเชิงปฏิบัติสูงมาก (เกณฑ์ทั่วไป: 0.20=น้อย, 0.50=ปานกลาง, 0.80=มาก ตามเกณฑ์ของ Cohen, 1988)
+            ค่าขนาดอิทธิพล Cohen&apos;s d = 1.65 ของคุณอยู่ในเกณฑ์ <strong>&quot;ระดับมาก (Large Effect: d &ge; 0.80)&quot;</strong> แสดงให้เห็นว่าการเรียนรู้ผ่านเนื้อหาปรับเหมาะเฉพาะบุคคลและการจำลองโค้ด (Code Lab) ช่วยยกระดับความสามารถในการเข้าใจโครงสร้างภาษา HTML ได้อย่างมีนัยสำคัญเชิงปฏิบัติสูงมาก
           </p>
         </div>
       </div>
 
       {/* Sub-domain Detailed Breakdown Table */}
-      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
-        <h2 className="font-extrabold text-base text-slate-900 dark:text-white">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        <h2 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+          <LayoutDashboard className="w-5 h-5 text-blue-600" />
           ตารางรายละเอียดระดับความเชี่ยวชาญแยกราย Sub-domain
         </h2>
 
-        <div className="divide-y divide-slate-200/60 dark:divide-slate-800/60">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {subDomainCodes.map((code) => {
             const domain = SUB_DOMAINS[code];
             const score = skills[code]?.estimated_level ?? 0;
@@ -359,13 +335,13 @@ export default function StudentLearningProfilePage() {
             const isMedium = score >= 60 && score < 80;
 
             return (
-              <div key={code} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div key={code} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       {code}
                     </span>
-                    <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                    <span className="font-bold text-sm text-slate-900 dark:text-white">
                       {domain.title}
                     </span>
                   </div>
@@ -374,17 +350,15 @@ export default function StudentLearningProfilePage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4 shrink-0">
+                <div className="flex items-center gap-6 shrink-0">
                   <div className="text-right">
-                    <div className="font-black text-sm text-slate-900 dark:text-white">
-                      {score}%
-                    </div>
+                    <div className="font-black text-sm text-slate-900 dark:text-white">{score}%</div>
                     <div
                       className={`text-[10px] font-bold ${
                         isHigh
                           ? 'text-emerald-600'
                           : isMedium
-                          ? 'text-indigo-600'
+                          ? 'text-blue-600'
                           : 'text-amber-600'
                       }`}
                     >
@@ -395,13 +369,13 @@ export default function StudentLearningProfilePage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/student/lessons/u-${code.toLowerCase()}`}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-white/60 dark:hover:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+                      className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
                     >
                       อ่านบทเรียน
                     </Link>
                     <Link
                       href={`/student/assessment?type=re_test&subdomain=${code}`}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs transition-colors"
+                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors"
                     >
                       ทดสอบซ้ำ
                     </Link>

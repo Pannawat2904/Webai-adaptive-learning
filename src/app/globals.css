@@ -1,211 +1,160 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+  --font-sans: var(--font-prompt), var(--font-inter), "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
-    --primary: #5b56d6;
-    --primary-hover: #4943c4;
-    --secondary: #8073e0;
-    --success: #0f9d78;
-    --warning: #e0983f;
-    --danger: #e05a6e;
-    --background: #f8f7fb;
-    --foreground: #1c1a2b;
+    --background: #fdfdfd;
+    --foreground: #2d3748;
+    
+    /* Pastel Palette from Reference */
+    --color-lavender: #d6bcfa;
+    --color-lavender-light: #e9d8fd;
+    --color-mint: #9ae6b4;
+    --color-mint-light: #c6f6d5;
+    --color-yellow: #fef08a;
+    --color-yellow-light: #fef9c3;
+    --color-text-dark: #1a202c;
+    --color-text-muted: #718096;
+    
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   }
 
   .dark {
-    --primary: #9691f0;
-    --primary-hover: #7d78e8;
-    --secondary: #b0a4f2;
-    --success: #3ecda0;
-    --warning: #f0b25f;
-    --danger: #f0879a;
-    --background: #0a0912;
-    --foreground: #f3f1fa;
+    --background: #111827;
+    --foreground: #f3f4f6;
+    
+    /* Darker muted pastels for dark mode */
+    --color-lavender: #805ad5;
+    --color-lavender-light: #553c9a;
+    --color-mint: #38a169;
+    --color-mint-light: #22543d;
+    --color-yellow: #b7791f;
+    --color-yellow-light: #744210;
+    --color-text-dark: #f7fafc;
+    --color-text-muted: #a0aec0;
+    
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    font-family: var(--font-prompt), var(--font-inter), "Prompt", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    transition: background-color 0.3s ease;
+  }
+
+  /* Fix mobile tap reliability */
+  a, button, input, select, textarea {
+    touch-action: manipulation;
+  }
+  
+  button {
+    cursor: pointer;
   }
 }
 
-/* Force unified typography everywhere */
-*, *::before, *::after, input, button, textarea, select {
-  font-family: var(--font-thai), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+@layer utilities {
+  .soft-card {
+    background-color: #ffffff;
+    border-radius: 32px;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .dark .soft-card {
+    background-color: #1f2937;
+  }
+
+  .soft-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .soft-card:hover {
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4);
+  }
+  
+  .card-lavender {
+    background-color: var(--color-lavender-light);
+    border-radius: 32px;
+    padding: 1.5rem;
+    color: var(--color-text-dark);
+  }
+  
+  .card-mint {
+    background-color: var(--color-mint-light);
+    border-radius: 32px;
+    padding: 1.5rem;
+    color: var(--color-text-dark);
+  }
+  
+  .card-yellow {
+    background-color: var(--color-yellow-light);
+    border-radius: 32px;
+    padding: 1.5rem;
+    color: var(--color-text-dark);
+  }
+
+  .pill-button {
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .pill-button:active {
+    transform: scale(0.96);
+  }
+  
+  .icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  
+  .dark .icon-circle {
+    background-color: #374151;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-  line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* =====================================================
-   LIQUID GLASS DESIGN SYSTEM (Liquid Glassmorphism 2.0)
-===================================================== */
-
-/* Ultra-refined Liquid Glass Surface */
-.liquid-glass {
-  background: rgba(255, 255, 255, 0.68);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 
-    0 16px 40px -14px rgba(30, 27, 60, 0.08),
-    0 24px 48px -12px rgba(91, 86, 214, 0.04),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.dark .liquid-glass {
-  background: rgba(16, 14, 28, 0.72);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 20px 48px -12px rgba(0, 0, 0, 0.65),
-    0 0 32px -4px rgba(91, 86, 214, 0.07),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.09);
-}
-
-/* Elevated Liquid Glass Card with gentle hover lift */
-.liquid-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 1.25rem;
-  box-shadow: 
-    0 2px 10px -2px rgba(30, 27, 60, 0.03),
-    0 16px 32px -8px rgba(91, 86, 214, 0.05),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.75);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, background 0.4s ease;
-}
-
-.liquid-card:hover {
-  transform: translateY(-1.5px);
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(91, 86, 214, 0.22);
-  box-shadow: 
-    0 18px 40px -10px rgba(91, 86, 214, 0.1),
-    0 4px 14px -4px rgba(30, 27, 60, 0.04),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.dark .liquid-card {
-  background: rgba(16, 14, 28, 0.68);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 
-    0 4px 16px -2px rgba(0, 0, 0, 0.45),
-    0 20px 40px -8px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.07);
-}
-
-.dark .liquid-card:hover {
-  transform: translateY(-1.5px);
-  background: rgba(22, 19, 38, 0.82);
-  border-color: rgba(150, 145, 240, 0.28);
-  box-shadow: 
-    0 24px 50px -10px rgba(0, 0, 0, 0.7),
-    0 0 28px -4px rgba(91, 86, 214, 0.2),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-/* Restrained two-stop gradient text — the one accent moment on a quiet page */
-.gradient-text {
-  background: linear-gradient(120deg, #4943c4 0%, #8073e0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.dark .gradient-text {
-  background: linear-gradient(120deg, #9691f0 0%, #cbc2f7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Liquid Pill Badge */
-.liquid-pill {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 9999px;
-  border-width: 1px;
-}
-
-/* Ambient Glow Orbs — one quiet accent family, kept low and diffuse so it never competes with content */
-.ambient-glow-1 {
-  position: fixed;
-  top: -12%;
-  left: 10%;
-  width: 620px;
-  height: 620px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(91, 86, 214, 0.1) 0%, rgba(128, 115, 224, 0.03) 55%, transparent 72%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ambient-glow-2 {
-  position: fixed;
-  top: 45%;
-  right: -8%;
-  width: 640px;
-  height: 640px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(128, 115, 224, 0.08) 0%, rgba(91, 86, 214, 0.02) 55%, transparent 72%);
-  filter: blur(90px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ambient-glow-3 {
-  position: fixed;
-  bottom: -12%;
-  left: -8%;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(91, 86, 214, 0.06) 0%, rgba(128, 115, 224, 0.02) 55%, transparent 72%);
-  filter: blur(90px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.dark .ambient-glow-1 {
-  background: radial-gradient(circle, rgba(150, 145, 240, 0.14) 0%, rgba(176, 164, 242, 0.05) 55%, transparent 72%);
-}
-
-.dark .ambient-glow-2 {
-  background: radial-gradient(circle, rgba(176, 164, 242, 0.11) 0%, rgba(150, 145, 240, 0.04) 55%, transparent 72%);
-}
-
-.dark .ambient-glow-3 {
-  background: radial-gradient(circle, rgba(150, 145, 240, 0.08) 0%, rgba(176, 164, 242, 0.03) 55%, transparent 72%);
-}
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 145, 168, 0.35);
-  border-radius: 9999px;
-  backdrop-filter: blur(4px);
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 10px;
 }
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(120, 115, 150, 0.4);
-}
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(91, 86, 214, 0.55);
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Background floating elements (Playful Tech Stars/Tags) */
+.playful-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at top left, var(--color-lavender-light) 0%, transparent 40%),
+              radial-gradient(circle at bottom right, var(--color-mint-light) 0%, transparent 40%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.dark .playful-bg {
+  background: radial-gradient(circle at top left, var(--color-lavender-light) 0%, transparent 30%),
+              radial-gradient(circle at bottom right, var(--color-mint-light) 0%, transparent 30%);
+  opacity: 0.15;
 }

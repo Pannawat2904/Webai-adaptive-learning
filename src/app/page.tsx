@@ -1,320 +1,141 @@
-'use client';
-
-import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
-import { SUB_DOMAINS, SubDomainCode } from '@/types/database';
-import {
-  Sparkles,
-  ArrowRight,
-  BrainCircuit,
-  Terminal,
-  BarChart3,
-  BookOpen,
-  CheckCircle2,
-  Users,
-  Layers,
-  GraduationCap,
-  Code2,
-  ShieldCheck,
-  Lock,
-} from 'lucide-react';
+import { BookOpen, BrainCircuit, ChevronRight, Code2, LineChart, Play, UserCircle } from 'lucide-react';
+import { Navbar } from '@/components/layout/Navbar';
 
-export default function HomePage() {
-  const { role, switchRole } = useAuth();
-  const subDomainKeys = Object.keys(SUB_DOMAINS) as SubDomainCode[];
-
+export default function Home() {
   return (
-    <div className="space-y-16 pb-16">
-      {/* Hero Section with Liquid Glass Frame */}
-      <section className="relative pt-6 sm:pt-10 pb-8 text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 backdrop-blur-md shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-          <span>นวัตกรรมการศึกษาวิชาชีพ ระดับประกาศนียบัตรวิชาชีพ (ปวช.)</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight sm:leading-tight">
-          ระบบการเรียนรู้แบบปรับเหมาะเฉพาะบุคคล <br />
-          <span className="gradient-text">
-            เรื่อง โครงสร้างภาษา HTML
-          </span>
-        </h1>
-
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-          บูรณาการพื้นที่ฝึกเขียนโค้ดจริงเข้ากับแบบทดสอบที่ปรับระดับความยากให้เหมาะกับนักเรียนแต่ละคน
-          เพื่อส่งเสริมทักษะการพัฒนาเว็บไซต์สำหรับนักเรียน ปวช. ครอบคลุมเนื้อหา HTML ทั้ง 8 หัวข้อ
-        </p>
-
-        {/* Dual Entrance Portal Gateway (แยกฝั่งนักเรียนและครู/แอดมิน ชัดเจน) */}
-        <div className="pt-4 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
-          {/* Card 1: Student Portal */}
-          <div className="liquid-glass rounded-3xl p-6 sm:p-7 space-y-4 border border-emerald-500/30 hover:border-emerald-500/50 transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/25 group-hover:scale-105 transition-transform">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-                  สำหรับนักเรียน ปวช.
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                  ระบบการเรียนรู้ (Student Portal)
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  เรียนรู้โครงสร้างภาษา HTML 8 หน่วย, ทำแบบทดสอบที่ปรับเหมาะเฉพาะบุคคล, จำลองเขียนโค้ด Code Lab และรับคำแนะนำจาก AI Tutor
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300">
-                  ✓ เข้าเรียนได้ทันที
-                </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300">
-                  ✓ บันทึก Learning Profile
-                </span>
-              </div>
-            </div>
-
-            <Link
-              href="/student"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/25 transition-all group-hover:shadow-emerald-600/40"
-            >
-              <span>เข้าสู่ระบบการเรียนรู้ (นักเรียน)</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          {/* Card 2: Teacher & Admin Backoffice */}
-          <div className="liquid-glass rounded-3xl p-6 sm:p-7 space-y-4 border border-indigo-500/30 hover:border-indigo-500/50 transition-all flex flex-col justify-between group">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/25 group-hover:scale-105 transition-transform">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 flex items-center gap-1">
-                  <Lock className="w-3 h-3" />
-                  ครูผู้สอน &amp; แอดมิน
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                  ระบบหลังบ้าน (Teacher Backoffice)
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  แดชบอร์ดชั้นเรียน, กราฟ Trajectory รายข้อ, ความเที่ยง KR-20, พัฒนาการ Pre/Post Cohen&apos;s d, คลังข้อสอบ IOC และ Export ข้อมูล
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white/50 dark:bg-slate-800/50 text-indigo-600 dark:text-indigo-400">
-                  🔐 เข้าสู่ระบบด้วย Username &amp; Password
-                </span>
-              </div>
-            </div>
-
-            <Link
-              href="/admin/login"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/25 transition-all group-hover:shadow-indigo-600/40"
-            >
-              <span>เข้าสู่ระบบหลังบ้าน (ครู/แอดมิน)</span>
-              <Lock className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 4 Core Pillars */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="liquid-card p-6 space-y-3 group">
-          <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-            บทเรียน 8 Sub-domain
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            เนื้อหาโครงสร้างภาษา HTML ครบ 8 มิติ พร้อม Slide Viewer เลื่อนทีละสไลด์ วิดีโอ และสรุปสูตรลัด
-          </p>
-        </div>
-
-        <div className="liquid-card p-6 space-y-3 group">
-          <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <BrainCircuit className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-            Adaptive Assessment
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            ประเมินผลแบบปรับเหมาะ ปรับระดับความยากตามคำตอบรายข้อ ไม่กดดัน มีนาฬิกานุ่มนวล
-          </p>
-        </div>
-
-        <div className="liquid-card p-6 space-y-3 group">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <Terminal className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-            Code Lab + AI Review
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            พื้นที่จำลองเขียนโค้ด HTML แบบ Live Preview ปลอดภัย พร้อมตรวจ Requirement Checklist และ AI วิเคราะห์
-          </p>
-        </div>
-
-        <div className="liquid-card p-6 space-y-3 group">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <BarChart3 className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-            Learning Profile & Heatmap
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            เรดาร์ความสามารถ 8 แกนรายบุคคล และ Heatmap Matrix ของทั้งชั้นเรียนสำหรับครูผู้สอน
-          </p>
-        </div>
-      </section>
-
-      {/* 8 Sub-domains Showcase */}
-      <section className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            8 Sub-domain ของโครงสร้างภาษา HTML
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            แกนกลางของทั้งบทเรียน คลังข้อสอบ Rule-based Adaptive Testing และ Learning Profile
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {subDomainKeys.map((key, index) => {
-            const domain = SUB_DOMAINS[key];
-            return (
-              <div
-                key={key}
-                className="liquid-card p-5 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-                    {domain.code}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold">หน่วยที่ {index + 1}</span>
-                </div>
-                <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
-                  {domain.name}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                  {domain.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Role-Based Cards */}
-      <section className="liquid-glass rounded-3xl p-6 sm:p-10 space-y-6">
-        <div className="max-w-2xl space-y-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            เหมาะกับผู้ใช้งานทุกบทบาทในห้องเรียน
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-            ออกแบบเพื่อยกระดับการเรียนการสอนสายอาชีวะ
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-          <div className="p-5 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-white/60 dark:border-white/5 space-y-3">
-            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm">
-              <GraduationCap className="w-4 h-4" />
-              <span>สำหรับนักเรียน ปวช.</span>
-            </div>
-            <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>เรียนรู้บทเรียนพร้อมสไลด์และวิดีโอ</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ฝึกเขียนโค้ดใน Code Lab ทันที</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>สอบ Adaptive Test ไร้ความกดดัน</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ปรึกษา AI Tutor และรับคำแนะนำเฉพาะบุคคล</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-white/60 dark:border-white/5 space-y-3">
-            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm">
-              <Users className="w-4 h-4" />
-              <span>สำหรับครูผู้สอน</span>
-            </div>
-            <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ดูภาพรวมชั้นเรียนและ Heatmap 8 มิติ</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>จัดการสื่อการสอนและคลังข้อสอบ</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>วิเคราะห์ข้อสอบรายข้อยาก-ง่าย</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ส่งออกรายงานผลการเรียนเป็นไฟล์ CSV</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-white/60 dark:bg-slate-900/60 border border-white/60 dark:border-white/5 space-y-3">
-            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm">
-              <Layers className="w-4 h-4" />
-              <span>ผู้ดูแลระบบ (Admin)</span>
-            </div>
-            <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>กำหนดสิทธิ์และบทบาทผู้ใช้งาน</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ตรวจสอบ Audit Logs บันทึกการกระทำ</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>ระบบรักษาความปลอดภัย Server-side RLS</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Role Switcher — small and out of the way, for previewing each role's view */}
-      <div className="text-center text-[11px] text-slate-400 dark:text-slate-500 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
-        <span>ดูตัวอย่างมุมมอง:</span>
-        <button onClick={() => switchRole('student')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
-          นักเรียน
-        </button>
-        <span>·</span>
-        <button onClick={() => switchRole('teacher')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
-          ครูผู้สอน
-        </button>
-        <span>·</span>
-        <button onClick={() => switchRole('admin')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
-          ผู้ดูแลระบบ
-        </button>
+    <main className="relative min-h-screen flex flex-col font-sans">
+      {/* Playful Soft Background */}
+      <div className="playful-bg" aria-hidden="true" />
+      
+      {/* Floating HTML Tags Decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-10 dark:opacity-5">
+        <div className="absolute top-24 left-10 text-5xl font-mono text-purple-600 font-bold rotate-12">&lt;html&gt;</div>
+        <div className="absolute bottom-32 right-12 text-6xl font-mono text-emerald-600 font-bold -rotate-12">&lt;/div&gt;</div>
+        <div className="absolute top-1/2 left-20 text-4xl font-mono text-yellow-500 font-bold -rotate-6">&lt;body&gt;</div>
+        <div className="absolute top-40 right-20 text-5xl font-mono text-blue-500 font-bold rotate-6">&lt;style&gt;</div>
       </div>
-    </div>
+      
+      {/* Include the global Navbar just for the landing page */}
+      <Navbar />
+
+      <div className="relative z-10 flex-1 flex flex-col pt-8 pb-24">
+        {/* Hero Section */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mt-6 sm:mt-12 lg:mt-20">
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto space-y-8">
+            
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 text-sm font-bold text-purple-600 dark:text-purple-400 mb-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+              </span>
+              การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight text-slate-800 dark:text-white leading-[1.15]">
+              สนุกกับการเขียนโค้ด <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500">
+                โครงสร้างภาษา HTML
+              </span>
+            </h1>
+            
+            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
+              ระบบการเรียนรู้ที่ปรับระดับความยากให้เหมาะกับคุณโดยอัตโนมัติ พร้อม Code Lab ให้ฝึกปฏิบัติจริง สนุก เข้าใจง่าย เหมือนเล่นเกม!
+            </p>
+
+            {/* Entrance Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full sm:w-auto">
+              <Link 
+                href="/student" 
+                className="w-full sm:w-auto pill-button flex items-center justify-center gap-2 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg shadow-lg shadow-purple-500/30"
+              >
+                <Play className="w-5 h-5 fill-current" />
+                <span>เริ่มเรียนเลย (นักเรียน)</span>
+              </Link>
+              
+              <Link 
+                href="/teacher/login" 
+                className="w-full sm:w-auto pill-button flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-lg shadow-sm border border-slate-200 dark:border-slate-700"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>สำหรับผู้สอน</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Cards Section (Asymmetrical layout instead of strict bento grid) */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
+            
+            {/* Card 1: Adaptive Engine (Lavender) */}
+            <div className="soft-card card-lavender flex flex-col justify-between h-full group">
+              <div className="space-y-4">
+                <div className="icon-circle w-14 h-14 text-purple-600 dark:text-purple-400">
+                  <BrainCircuit className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black mb-2">ปรับความยากอัตโนมัติ</h3>
+                  <p className="text-purple-900/70 dark:text-purple-200/70 font-medium leading-relaxed">
+                    ระบบจะวิเคราะห์คำตอบและจัดสรรข้อสอบข้อถัดไปให้เหมาะกับระดับของคุณ ช่วยลดความตึงเครียดและวัดผลได้แม่นยำยิ่งขึ้น
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end">
+                <div className="w-12 h-12 rounded-full bg-white/50 dark:bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Code Lab (Mint) */}
+            <div className="soft-card card-mint flex flex-col justify-between h-full group md:translate-y-12">
+              <div className="space-y-4">
+                <div className="icon-circle w-14 h-14 text-emerald-600 dark:text-emerald-400">
+                  <Code2 className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black mb-2">ห้องปฏิบัติการเขียนโค้ด</h3>
+                  <p className="text-emerald-900/70 dark:text-emerald-200/70 font-medium leading-relaxed">
+                    เรียนรู้ HTML จากการลงมือทำจริง พิมพ์โค้ดปุ๊บ เห็นผลลัพธ์ปั๊บ พร้อมระบบตรวจไวยากรณ์อัตโนมัติ
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end">
+                <div className="w-12 h-12 rounded-full bg-white/50 dark:bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Analytics (Yellow) */}
+            <div className="soft-card card-yellow flex flex-col justify-between h-full group md:col-span-2 mt-8 md:mt-12">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 space-y-4">
+                  <div className="icon-circle w-14 h-14 text-yellow-600 dark:text-yellow-500">
+                    <LineChart className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black mb-2">วิเคราะห์ผลสำหรับผู้สอน</h3>
+                    <p className="text-yellow-900/70 dark:text-yellow-100/70 font-medium leading-relaxed max-w-xl">
+                      แดชบอร์ดสรุปผลการเรียน พร้อมวิเคราะห์ค่าความเชื่อมั่น KR-20 และ Effect Size (Cohen's d) ช่วยให้ครูเข้าใจพัฒนาการของนักเรียนได้อย่างลึกซึ้ง
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Decorative Chart Graphic */}
+                <div className="w-full md:w-64 h-40 bg-white/40 dark:bg-black/20 rounded-3xl p-4 flex items-end justify-between gap-3 border border-white/50 dark:border-white/5">
+                  <div className="w-full bg-yellow-300 dark:bg-yellow-600/60 rounded-t-xl h-[40%]"></div>
+                  <div className="w-full bg-yellow-400 dark:bg-yellow-500/70 rounded-t-xl h-[60%]"></div>
+                  <div className="w-full bg-yellow-500 dark:bg-yellow-400/80 rounded-t-xl h-[85%]"></div>
+                  <div className="w-full bg-yellow-600 dark:bg-yellow-300/90 rounded-t-xl h-[100%]"></div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
