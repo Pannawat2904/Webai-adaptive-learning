@@ -140,69 +140,86 @@ export function Navbar() {
             <button
               onClick={toggleDarkMode}
               title="สลับโหมดมืด/สว่าง"
-              className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-white/60 dark:border-white/10 shadow-2xs transition-all"
+              className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-white/60 dark:border-white/10 shadow-2xs transition-all cursor-pointer"
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
             </button>
 
-            {/* Quick Role Switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/80 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 text-xs font-semibold shadow-2xs hover:bg-white dark:hover:bg-slate-800 transition-all backdrop-blur-md"
-              >
-                <span className={`px-2 py-0.5 rounded-lg border text-[11px] font-bold ${roleLabels[role].badgeColor}`}>
-                  {roleLabels[role].label}
+            {/* Portal Action / Auth State */}
+            {role === 'student' ? (
+              // Student Portal: Direct access to admin login
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-bold">
+                  👨‍🎓 นักเรียน ปวช.
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
 
-              {roleMenuOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-60 liquid-glass rounded-2xl shadow-2xl border border-white/80 dark:border-white/10 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
-                  onClick={() => setRoleMenuOpen(false)}
+                <Link
+                  href="/admin/login"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold text-xs shadow-2xs transition-all"
                 >
-                  <div className="px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    สลับบทบาทจำลอง (Demo Role)
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>เข้าสู่ระบบครู/แอดมิน</span>
+                </Link>
+              </div>
+            ) : (
+              // Teacher / Admin Backoffice Mode
+              <div className="relative">
+                <button
+                  onClick={() => setRoleMenuOpen(!roleMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/80 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 text-xs font-semibold shadow-2xs hover:bg-white dark:hover:bg-slate-800 transition-all backdrop-blur-md cursor-pointer"
+                >
+                  <span className={`px-2 py-0.5 rounded-lg border text-[11px] font-bold ${roleLabels[role].badgeColor}`}>
+                    {role === 'teacher' ? '👨‍🏫 ครูผู้สอน' : '🛡️ ผู้ดูแลระบบ'}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </button>
+
+                {roleMenuOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-64 liquid-glass rounded-2xl shadow-2xl border border-white/80 dark:border-white/10 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    onClick={() => setRoleMenuOpen(false)}
+                  >
+                    <div className="px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      ระบบหลังบ้าน (Authenticated)
+                    </div>
+                    <div className="px-3.5 py-1 text-xs font-bold text-slate-900 dark:text-white">
+                      {profile.full_name}
+                    </div>
+                    <div className="px-3.5 pb-2 text-[11px] text-slate-500">
+                      {profile.email || 'เข้าสู่ระบบด้วยรหัสผ่านแล้ว'}
+                    </div>
+
+                    <div className="border-t border-slate-200/60 dark:border-slate-800/60 my-1"></div>
+
+                    <Link
+                      href="/student"
+                      className="w-full text-left px-3.5 py-2 text-xs flex items-center justify-between text-slate-700 dark:text-slate-200 hover:bg-indigo-50/70 dark:hover:bg-slate-800/70 font-semibold transition-colors"
+                    >
+                      <span>👨‍🎓 สลับไปมุมมองนักเรียน (Student Portal)</span>
+                    </Link>
+
+                    {role === 'admin' && (
+                      <Link
+                        href="/admin/users"
+                        className="w-full text-left px-3.5 py-2 text-xs flex items-center justify-between text-purple-700 dark:text-purple-300 hover:bg-purple-50/70 dark:hover:bg-slate-800/70 font-semibold transition-colors"
+                      >
+                        <span>⚙️ จัดการผู้ใช้ระบบ (Admin Users)</span>
+                      </Link>
+                    )}
+
+                    <div className="border-t border-slate-200/60 dark:border-slate-800/60 my-1"></div>
+
+                    <button
+                      onClick={() => signOut()}
+                      className="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      ออกจากระบบหลังบ้าน (Logout)
+                    </button>
                   </div>
-                  <button
-                    onClick={() => switchRole('student')}
-                    className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-indigo-50/70 dark:hover:bg-slate-800/70 transition-colors ${
-                      role === 'student' ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/40' : 'text-slate-700 dark:text-slate-200 font-medium'
-                    }`}
-                  >
-                    <span>👨‍🎓 นักเรียน ปวช. (สมชาย)</span>
-                    {role === 'student' && <span className="w-2 h-2 rounded-full bg-indigo-600"></span>}
-                  </button>
-                  <button
-                    onClick={() => switchRole('teacher')}
-                    className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-indigo-50/70 dark:hover:bg-slate-800/70 transition-colors ${
-                      role === 'teacher' ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/40' : 'text-slate-700 dark:text-slate-200 font-medium'
-                    }`}
-                  >
-                    <span>👩‍🏫 ครูผู้สอน (อ.กานต์รวี)</span>
-                    {role === 'teacher' && <span className="w-2 h-2 rounded-full bg-indigo-600"></span>}
-                  </button>
-                  <button
-                    onClick={() => switchRole('admin')}
-                    className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-indigo-50/70 dark:hover:bg-slate-800/70 transition-colors ${
-                      role === 'admin' ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/40' : 'text-slate-700 dark:text-slate-200 font-medium'
-                    }`}
-                  >
-                    <span>⚙️ ผู้ดูแลระบบ (Admin)</span>
-                    {role === 'admin' && <span className="w-2 h-2 rounded-full bg-indigo-600"></span>}
-                  </button>
-                  <div className="border-t border-slate-200/60 dark:border-slate-800/60 my-1.5"></div>
-                  <button
-                    onClick={() => signOut()}
-                    className="w-full text-left px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 transition-colors"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    ออกจากระบบ
-                  </button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button

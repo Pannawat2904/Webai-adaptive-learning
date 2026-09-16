@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { UserRole, Profile } from '@/types/database';
 import { MOCK_PROFILES } from '@/lib/mock-data';
 import { Users, Shield, UserCheck, Search, ArrowLeft } from 'lucide-react';
+import { TeacherAdminGuard } from '@/components/auth/TeacherAdminGuard';
 
 export default function AdminUsersPage() {
   const { auditLog } = useAuth();
@@ -44,7 +45,8 @@ export default function AdminUsersPage() {
   );
 
   return (
-    <div className="space-y-6 pb-12">
+    <TeacherAdminGuard allowedRoles={['admin']}>
+      <div className="space-y-6 pb-12">
       {/* Back Link */}
       <Link
         href="/"
@@ -133,5 +135,6 @@ export default function AdminUsersPage() {
         </div>
       </div>
     </div>
+    </TeacherAdminGuard>
   );
 }
