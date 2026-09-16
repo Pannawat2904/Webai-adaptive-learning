@@ -159,7 +159,7 @@ function AssessmentContent() {
             ทำแบบทดสอบเสร็จสิ้นเรียบร้อย! 🎉
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            ระบบ Rule-based Adaptive Testing (การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์) ได้คำนวณระดับความเชี่ยวชาญราย Sub-domain ของคุณแล้ว
+            ระบบได้คำนวณระดับความเชี่ยวชาญของคุณในแต่ละหัวข้อเรียบร้อยแล้ว
           </p>
         </div>
 
@@ -212,26 +212,14 @@ function AssessmentContent() {
   const maxQuestions = isRetest ? 10 : 20;
   const progressPercent = Math.round((engineState.questionIndex / maxQuestions) * 100);
 
-  const difficultyLabels: Record<QuestionDifficulty, { label: string; color: string }> = {
-    easy: { label: 'ระดับง่าย (Easy)', color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' },
-    medium: { label: 'ระดับปานกลาง (Medium)', color: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30' },
-    hard: { label: 'ระดับท้าทาย (Hard)', color: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
-  };
-
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-16">
       {/* Top Test Session Bar in Liquid Glass */}
       <div className="liquid-glass rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
-              ข้อที่ {engineState.questionIndex + 1} จาก {maxQuestions}
-            </span>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${difficultyLabels[currentQuestion.difficulty].color}`}>
-              {difficultyLabels[currentQuestion.difficulty].label}
-            </span>
-          </div>
+          <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
+            ข้อที่ {engineState.questionIndex + 1} จาก {maxQuestions}
+          </span>
 
           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
             <Clock className="w-3.5 h-3.5 text-indigo-500" />
@@ -252,21 +240,11 @@ function AssessmentContent() {
 
       {/* Question Card in Liquid Glass */}
       <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6">
-        {/* Sub-domain Tag */}
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-            <BookOpen className="w-3.5 h-3.5" />
-            {currentQuestion.sub_domain_code}: {domain?.name}
-          </span>
-          <button
-            onClick={() => setPrinciplesModalOpen(true)}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-all"
-            title="คลิกเพื่อดูหลักการทำงานของระบบ"
-          >
-            <HelpCircle className="w-3 h-3" />
-            Rule-based Adaptive Testing
-          </button>
-        </div>
+        {/* Topic Tag */}
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+          <BookOpen className="w-3.5 h-3.5" />
+          {domain?.name}
+        </span>
 
         {/* Question Text */}
         <div className="space-y-3">

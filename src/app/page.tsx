@@ -41,8 +41,8 @@ export default function HomePage() {
         </h1>
 
         <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-          บูรณาการพื้นที่จำลองการเขียนโค้ด (Code Lab) ร่วมกับระบบประเมินผลแบบปรับเหมาะ (Adaptive Assessment Engine)
-          เพื่อส่งเสริมทักษะทางวิชาชีพด้านการพัฒนาเว็บไซต์สำหรับนักเรียน ปวช. ครอบคลุม 8 Sub-domain อย่างเจาะลึก
+          บูรณาการพื้นที่ฝึกเขียนโค้ดจริงเข้ากับแบบทดสอบที่ปรับระดับความยากให้เหมาะกับนักเรียนแต่ละคน
+          เพื่อส่งเสริมทักษะการพัฒนาเว็บไซต์สำหรับนักเรียน ปวช. ครอบคลุมเนื้อหา HTML ทั้ง 8 หัวข้อ
         </p>
 
         {/* Dual Entrance Portal Gateway (แยกฝั่งนักเรียนและครู/แอดมิน ชัดเจน) */}
@@ -64,7 +64,7 @@ export default function HomePage() {
                   ระบบการเรียนรู้ (Student Portal)
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  เรียนรู้โครงสร้างภาษา HTML 8 หน่วย, ทำแบบทดสอบ Rule-based Adaptive Testing, จำลองเขียนโค้ด Code Lab และรับคำแนะนำจาก AI Tutor
+                  เรียนรู้โครงสร้างภาษา HTML 8 หน่วย, ทำแบบทดสอบที่ปรับเหมาะเฉพาะบุคคล, จำลองเขียนโค้ด Code Lab และรับคำแนะนำจาก AI Tutor
                 </p>
               </div>
 
@@ -219,7 +219,7 @@ export default function HomePage() {
       <section className="liquid-glass rounded-3xl p-6 sm:p-10 space-y-6">
         <div className="max-w-2xl space-y-1">
           <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            ระบบผู้ใช้งานและสิทธิ์ (RBAC)
+            เหมาะกับผู้ใช้งานทุกบทบาทในห้องเรียน
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
             ออกแบบเพื่อยกระดับการเรียนการสอนสายอาชีวะ
@@ -299,6 +299,22 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Demo Role Switcher — small and out of the way, for previewing each role's view */}
+      <div className="text-center text-[11px] text-slate-400 dark:text-slate-500 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
+        <span>ดูตัวอย่างมุมมอง:</span>
+        <button onClick={() => switchRole('student')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
+          นักเรียน
+        </button>
+        <span>·</span>
+        <button onClick={() => switchRole('teacher')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
+          ครูผู้สอน
+        </button>
+        <span>·</span>
+        <button onClick={() => switchRole('admin')} className="underline decoration-dotted underline-offset-2 hover:text-indigo-500 transition-colors cursor-pointer">
+          ผู้ดูแลระบบ
+        </button>
+      </div>
     </div>
   );
 }

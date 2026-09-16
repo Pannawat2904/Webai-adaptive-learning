@@ -63,7 +63,7 @@ export default function StudentDashboardPage() {
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-            <span>พื้นที่การเรียนรู้เฉพาะบุคคล (Personalized Learning)</span>
+            <span>พื้นที่การเรียนรู้เฉพาะบุคคลของคุณ</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -121,7 +121,7 @@ export default function StudentDashboardPage() {
               8 / 8
             </div>
             <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-              Sub-domains H1 ถึง H8 ครบถ้วน
+              ครบทุกหัวข้อ พร้อมให้เรียน
             </div>
           </div>
         </div>
@@ -148,11 +148,11 @@ export default function StudentDashboardPage() {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
-              การ์ดแนะนำสำหรับคุณ (Personalized Recommendations)
+              แนะนำสำหรับคุณ
             </h2>
           </div>
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">
-            วิเคราะห์โดย AI Advisor อิงตามผลคะแนนราย Sub-domain
+            อิงจากผลการเรียนล่าสุดของคุณ
           </span>
         </div>
 
@@ -209,7 +209,7 @@ export default function StudentDashboardPage() {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-violet-600"></div>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
-              ความเชี่ยวชาญราย Sub-domain ของโครงสร้าง HTML (H1 - H8)
+              ความเชี่ยวชาญแยกตามหัวข้อโครงสร้าง HTML
             </h2>
           </div>
           <Link
