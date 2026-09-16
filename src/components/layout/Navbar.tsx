@@ -94,7 +94,7 @@ export function Navbar() {
           {/* Logo with liquid glow */}
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all">
                 <Code2 className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
@@ -260,6 +260,39 @@ export function Navbar() {
               </Link>
             );
           })}
+
+          {role === 'student' ? (
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 mt-2">
+              <Link
+                href="/admin/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 transition-all"
+              >
+                <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                <span>เข้าสู่ระบบครู/แอดมิน (Admin Portal)</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 mt-2 space-y-1">
+              <Link
+                href="/student"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+              >
+                <span>👨‍🎓 สลับไปมุมมองนักเรียน</span>
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+                className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>ออกจากระบบหลังบ้าน (Logout)</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>

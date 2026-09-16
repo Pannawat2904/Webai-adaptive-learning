@@ -108,7 +108,7 @@ function TutorChatContent() {
       {/* Header in Liquid Glass */}
       <div className="liquid-glass rounded-3xl p-5 flex items-center justify-between">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
             <Bot className="w-6 h-6" />
           </div>
           <div>

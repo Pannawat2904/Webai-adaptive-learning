@@ -155,28 +155,30 @@ export default function TeacherQuestionsPage() {
         <span>กลับไปยังแดชบอร์ดครูผู้สอน</span>
       </Link>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-            <FileQuestion className="w-3.5 h-3.5" />
-            การควบคุมคุณภาพคลังข้อสอบ (Item Quality & IOC Control)
+      {/* Header in Liquid Glass */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+              <FileQuestion className="w-3.5 h-3.5 text-indigo-500" />
+              <span>การควบคุมคุณภาพคลังข้อสอบ (Item Quality & IOC Control)</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+              คลังข้อสอบโครงสร้างภาษา HTML ({questions.length} ข้อ)
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              จัดการข้อสอบ ตรวจสอบค่า IOC และสถิติจิตมิติ (p-value, D-value) สำหรับ Rule-based Adaptive Testing
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-            คลังข้อสอบโครงสร้างภาษา HTML ({questions.length} ข้อ)
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            จัดการข้อสอบ ตรวจสอบค่า IOC และสถิติจิตมิติ (p-value, D-value) สำหรับ Rule-based Adaptive Testing
-          </p>
-        </div>
 
-        <button
-          onClick={() => setIsAddingNew(!isAddingNew)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all self-start"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{isAddingNew ? 'ปิดฟอร์ม' : 'เพิ่มข้อสอบใหม่'}</span>
-        </button>
+          <button
+            onClick={() => setIsAddingNew(!isAddingNew)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all self-start cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{isAddingNew ? 'ปิดฟอร์ม' : 'เพิ่มข้อสอบใหม่'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Academic Safety Rule Callout */}
@@ -348,7 +350,7 @@ export default function TeacherQuestionsPage() {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 shadow-md transition-all"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-md shadow-indigo-500/25 transition-all cursor-pointer"
             >
               บันทึกลงคลังข้อสอบ
             </button>

@@ -63,12 +63,12 @@ export default function TeacherAnalyticsPage() {
         <span>กลับไปยังแดชบอร์ดครูผู้สอน</span>
       </Link>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-            <BarChart2 className="w-3.5 h-3.5" />
-            การวิเคราะห์คุณภาพข้อสอบรายข้อ (Item Analysis)
+      {/* Header in Liquid Glass */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+            <BarChart2 className="w-3.5 h-3.5 text-indigo-500" />
+            <span>การวิเคราะห์คุณภาพข้อสอบรายข้อ (Item Analysis)</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
             สถิติความยากง่าย (p) และอำนาจจำแนก (D)

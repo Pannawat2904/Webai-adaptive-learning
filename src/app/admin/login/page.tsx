@@ -81,7 +81,7 @@ function AdminLoginContent() {
 
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
             <ShieldCheck className="w-7 h-7" />
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">

@@ -85,47 +85,49 @@ export default function TeacherLessonsManagerPage() {
         <span>กลับไปยังภาพรวมชั้นเรียน</span>
       </Link>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-            <BookOpen className="w-4 h-4" />
-            <span>Learning Management & Media Organizer</span>
+      {/* Header in Liquid Glass */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+              <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Learning Management & Media Organizer</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+              จัดการบทเรียนและจัดลำดับสื่อการสอน
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              ครูผู้สอนสามารถสลับลำดับสไลด์ วิดีโอ และเอกสารประกอบการเรียนได้ตามแผนการสอน
+            </p>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            จัดการบทเรียนและจัดลำดับสื่อการสอน
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            ครูผู้สอนสามารถสลับลำดับสไลด์ วิดีโอ และเอกสารประกอบการเรียนได้
-          </p>
-        </div>
 
-        <button
-          onClick={handleSaveOrder}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm transition-colors"
-        >
-          <Save className="w-4 h-4" />
-          <span>บันทึกลำดับสื่อการสอน</span>
-        </button>
+          <button
+            onClick={handleSaveOrder}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span>บันทึกลำดับสื่อการสอน</span>
+          </button>
+        </div>
       </div>
 
       {isSavedToast && (
-        <div className="p-3 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4" />
+        <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>บันทึกลำดับสื่อการสอนเรียบร้อยแล้ว</span>
         </div>
       )}
 
       {/* Unit Selector Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {MOCK_UNITS.map((u) => (
           <button
             key={u.id}
             onClick={() => setSelectedUnitId(u.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0 transition-colors ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
               selectedUnitId === u.id
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25'
+                : 'liquid-glass text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:border-indigo-500/30'
             }`}
           >
             {u.sub_domain_code}: {u.title}
@@ -133,21 +135,21 @@ export default function TeacherLessonsManagerPage() {
         ))}
       </div>
 
-      {/* Media Organizer */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+      {/* Media Organizer in Liquid Glass */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
           <div>
             <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
               สื่อการสอนใน {currentUnit.title}
             </h2>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               นักเรียนจะเห็นสื่อเรียงตามลำดับ 1, 2, 3 ตามที่ครูกำหนดไว้
             </span>
           </div>
 
           <button
             onClick={() => setShowAddMedia(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 font-semibold text-xs transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-500/20 transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>เพิ่มสื่อใหม่</span>
@@ -163,28 +165,28 @@ export default function TeacherLessonsManagerPage() {
             return (
               <div
                 key={item.id}
-                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 flex items-center justify-between gap-4"
+                className="p-4 rounded-2xl border border-white/60 dark:border-white/5 bg-white/50 dark:bg-slate-800/50 flex items-center justify-between gap-4 backdrop-blur-md"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-indigo-600">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs">
                     {idx + 1}
                   </div>
 
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-2xs">
+                  <div className="p-2.5 rounded-xl bg-white/70 dark:bg-slate-900/70 shadow-2xs">
                     {isSlide ? (
-                      <Presentation className="w-4 h-4 text-indigo-600" />
+                      <Presentation className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                     ) : isVideo ? (
-                      <Tv className="w-4 h-4 text-violet-600" />
+                      <Tv className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                     ) : (
-                      <FileText className="w-4 h-4 text-emerald-600" />
+                      <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     )}
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white">
+                    <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
                       {item.title}
                     </h3>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-[11px] text-slate-400 font-medium">
                       ประเภท:{' '}
                       {isSlide
                         ? 'สไลด์การสอน (PDF/Slide Viewer)'
@@ -200,7 +202,7 @@ export default function TeacherLessonsManagerPage() {
                   <button
                     onClick={() => handleMoveUp(idx)}
                     disabled={idx === 0}
-                    className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300"
+                    className="p-2 rounded-xl liquid-glass border border-white/60 dark:border-white/10 hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 cursor-pointer transition-all"
                     title="เลื่อนขึ้น"
                   >
                     <MoveUp className="w-3.5 h-3.5" />
@@ -209,7 +211,7 @@ export default function TeacherLessonsManagerPage() {
                   <button
                     onClick={() => handleMoveDown(idx)}
                     disabled={idx === mediaList.length - 1}
-                    className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300"
+                    className="p-2 rounded-xl liquid-glass border border-white/60 dark:border-white/10 hover:border-indigo-500/40 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 cursor-pointer transition-all"
                     title="เลื่อนลง"
                   >
                     <MoveDown className="w-3.5 h-3.5" />
