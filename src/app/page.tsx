@@ -143,7 +143,7 @@ export default function HomePage() {
             8 Sub-domain ของโครงสร้างภาษา HTML
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            แกนกลางของทั้งบทเรียน คลังข้อสอบ Adaptive Engine และ Learning Profile
+            แกนกลางของทั้งบทเรียน คลังข้อสอบ Rule-based Adaptive Testing และ Learning Profile
           </p>
         </div>
 

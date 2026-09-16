@@ -1300,7 +1300,45 @@ export const MOCK_QUESTIONS: Question[] = [
     explanation: 'Semantic HTML มีความหมายในตัวเอง ช่วยเพิ่ม Accessibility สำหรับผู้ใช้อุปกรณ์ช่วยเหลือ (Assistive Technologies) และช่วยระบบ Search Engine Optimization (SEO) ในการจัดหมวดหมู่เนื้อหาอย่างมีประสิทธิภาพ',
     active: true,
   },
+  {
+    id: 'q-draft-unvalidated',
+    sub_domain_code: 'H1',
+    difficulty: 'medium',
+    cognitive_level: 'applying',
+    answer_type: 'single_choice',
+    question_text: '[ข้อสอบร่างยังไม่ผ่านการตรวจสอบ] ตัวอย่างข้อสอบทดสอบระบบความปลอดภัย (validated = false)',
+    choices: {
+      A: 'ตัวเลือกที่ 1 (ถูกต้อง)',
+      B: 'ตัวเลือกที่ 2',
+      C: 'ตัวเลือกที่ 3',
+      D: 'ตัวเลือกที่ 4',
+    },
+    correct_option: 'A',
+    explanation: 'ข้อสอบนี้มีสถานะ validated = false ตามข้อกำหนดเชิงวิชาการ ต้องไม่ถูกสุ่มให้นักเรียนทำใน Adaptive Test เด็ดขาด',
+    active: true,
+    ioc_score: 0.40,
+    validated: false,
+    difficulty_index: 0.50,
+    discrimination_index: 0.12,
+    total_attempts: 6,
+  },
 ];
+
+// กำหนดค่าเริ่มต้นทางจิตมิติ (Psychometric defaults) ให้กับคลังข้อสอบ
+MOCK_QUESTIONS.forEach((q, idx) => {
+  if (q.ioc_score === undefined) q.ioc_score = idx % 7 === 0 ? 0.80 : 1.0;
+  if (q.validated === undefined) q.validated = true;
+  if (q.difficulty_index === undefined) {
+    q.difficulty_index = q.difficulty === 'easy' ? 0.74 : q.difficulty === 'medium' ? 0.52 : 0.36;
+  }
+  if (q.discrimination_index === undefined) {
+    q.discrimination_index = q.difficulty === 'easy' ? 0.38 : q.difficulty === 'medium' ? 0.46 : 0.44;
+  }
+  if (q.total_attempts === undefined) {
+    q.total_attempts = 45;
+  }
+});
+
 
 // Initial realistic student skill profiles across H1-H8
 export const MOCK_STUDENT_SKILLS: Record<string, SkillProfile> = {

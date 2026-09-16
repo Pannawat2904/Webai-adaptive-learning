@@ -25,6 +25,8 @@ import {
   RotateCcw,
   BookOpen,
 } from 'lucide-react';
+import { SystemPrinciplesModal } from '@/components/modals/SystemPrinciplesModal';
+import { TestSession } from '@/types/database';
 
 function AssessmentContent() {
   const router = useRouter();
@@ -42,6 +44,7 @@ function AssessmentContent() {
   const [hasSubmittedAnswer, setHasSubmittedAnswer] = useState(false);
   const [isTestFinished, setIsTestFinished] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [principlesModalOpen, setPrinciplesModalOpen] = useState(false);
 
   // Soft question timer (gentle indicator, not flashing red)
   useEffect(() => {
@@ -102,11 +105,38 @@ function AssessmentContent() {
     });
 
     const newSkills = computeSkillProfiles(profile.id, finalAttempts);
+    const correctCount = finalAttempts.filter((a) => a.correct).length;
+    const totalCount = finalAttempts.length;
+    const scorePct = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    const completedSession: TestSession = {
+      id: `sess-${Date.now()}`,
+      student_id: profile.id,
+      student_name: profile.full_name,
+      test_type: isRetest ? 're_test' : 'adaptive',
+      target_sub_domain: targetSubDomain,
+      status: 'completed',
+      total_questions: totalCount,
+      correct_count: correctCount,
+      score_percentage: scorePct,
+      start_at: new Date(Date.now() - totalCount * 20000).toISOString(),
+      end_at: new Date().toISOString(),
+      stop_reason: isRetest
+        ? 'ครบจำนวนข้อประเมินเฉพาะจุดประสงค์ Re-test (10 ข้อ)'
+        : 'ครบเกณฑ์จำนวนข้อสอบสูงสุดตามแบบแผนความยาวคงที่ (Fixed-length Stopping Rule: 20 ข้อ ตามแนวคิด Kingsbury & Weiss, 1983)',
+      attempts: finalAttempts,
+    };
+
     try {
       localStorage.setItem('webai_student_skills', JSON.stringify(newSkills));
+      const existingSessions = JSON.parse(localStorage.getItem('webai_test_sessions') || '[]');
+      existingSessions.unshift(completedSession);
+      localStorage.setItem('webai_test_sessions', JSON.stringify(existingSessions));
+
       auditLog('complete_assessment', 'test_session', {
-        totalAttempts: finalAttempts.length,
-        correctCount: finalAttempts.filter((a) => a.correct).length,
+        totalAttempts: totalCount,
+        correctCount,
+        scorePercentage: scorePct,
       });
     } catch {
       // ignore
@@ -129,7 +159,7 @@ function AssessmentContent() {
             ทำแบบทดสอบเสร็จสิ้นเรียบร้อย! 🎉
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            ระบบ Adaptive Engine ได้คำนวณระดับความเชี่ยวชาญราย Sub-domain ของคุณแล้ว
+            ระบบ Rule-based Adaptive Testing (การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์) ได้คำนวณระดับความเชี่ยวชาญราย Sub-domain ของคุณแล้ว
           </p>
         </div>
 
@@ -228,9 +258,14 @@ function AssessmentContent() {
             <BookOpen className="w-3.5 h-3.5" />
             {currentQuestion.sub_domain_code}: {domain?.name}
           </span>
-          <span className="text-[11px] text-slate-400 font-medium">
-            Adaptive Engine
-          </span>
+          <button
+            onClick={() => setPrinciplesModalOpen(true)}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-all"
+            title="คลิกเพื่อดูหลักการทำงานของระบบ"
+          >
+            <HelpCircle className="w-3 h-3" />
+            Rule-based Adaptive Testing
+          </button>
         </div>
 
         {/* Question Text */}
@@ -319,6 +354,12 @@ function AssessmentContent() {
           </button>
         </div>
       </div>
+
+      {/* System Principles Academic Modal */}
+      <SystemPrinciplesModal
+        isOpen={principlesModalOpen}
+        onClose={() => setPrinciplesModalOpen(false)}
+      />
     </div>
   );
 }

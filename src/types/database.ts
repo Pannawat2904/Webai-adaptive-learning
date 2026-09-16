@@ -146,11 +146,18 @@ export interface Question {
   correct_option: string;
   explanation?: string;
   active: boolean;
+  // Academic Validation & Quality Metrics
+  ioc_score?: number; // Index of Item-Objective Congruence (expert score, e.g. 0.67 - 1.00)
+  validated?: boolean; // If false, question MUST NOT be selected in Rule-based Adaptive Testing for students
+  difficulty_index?: number; // p-value (สัดส่วนคนตอบถูก 0.0 - 1.0)
+  discrimination_index?: number; // D-value (อำนาจจำแนกกลุ่มสูง 27% vs ต่ำ 27%, -1.0 to 1.0)
+  total_attempts?: number;
 }
 
 export interface TestSession {
   id: string;
   student_id: string;
+  student_name?: string;
   test_type: 'adaptive' | 'pre_test' | 'post_test' | 're_test';
   target_sub_domain?: SubDomainCode | null;
   status: 'in_progress' | 'completed' | 'abandoned';
@@ -159,6 +166,8 @@ export interface TestSession {
   score_percentage: number;
   start_at: string;
   end_at?: string | null;
+  stop_reason?: string;
+  attempts?: Attempt[];
 }
 
 export interface Attempt {
@@ -172,6 +181,55 @@ export interface Attempt {
   sub_domain_code?: SubDomainCode;
   difficulty?: QuestionDifficulty;
   created_at: string;
+  // Audit Trail (ประวัติการตัดสินใจของ Rule-based Adaptive Engine)
+  previous_difficulty?: QuestionDifficulty;
+  selected_difficulty?: QuestionDifficulty;
+  selection_reason?: string;
+  domain_coverage_snapshot?: Record<SubDomainCode, number>;
+  stop_reason?: string;
+}
+
+// Psychometric Types for Item Analysis & Evaluation
+export interface ItemPsychometrics {
+  question_id: string;
+  question_text: string;
+  sub_domain_code: SubDomainCode;
+  difficulty: QuestionDifficulty;
+  p_value: number; // ความยากง่าย (0.20 - 0.80 ถือว่าเหมาะสม)
+  d_value: number; // อำนาจจำแนก (>= 0.20 ถือว่าใช้ได้, >= 0.40 ดีมาก)
+  ioc_score: number;
+  validated: boolean;
+  total_responses: number;
+  high_group_correct_pct: number;
+  low_group_correct_pct: number;
+  evaluation: string;
+}
+
+// Reliability KR-20 per Sub-domain
+export interface SubDomainReliability {
+  sub_domain_code: SubDomainCode;
+  sub_domain_title: string;
+  item_count: number;
+  sample_size: number;
+  kr20: number; // Formula: [k/(k-1)] * [1 - (sum_pq / variance)]
+  variance: number;
+  sum_pq: number;
+  is_acceptable: boolean; // >= 0.70
+  interpretation: 'ดีมาก (>= 0.80)' | 'ยอมรับได้ (0.70 - 0.79)' | 'ควรปรับปรุง (< 0.70)';
+}
+
+// Pre/Post-test Comparison & Cohen's d Effect Size
+export interface PrePostComparison {
+  student_id: string;
+  student_name: string;
+  sub_domain_code?: SubDomainCode | 'ALL';
+  sub_domain_title?: string;
+  pre_score: number;
+  post_score: number;
+  gain_score: number;
+  cohens_d: number;
+  effect_magnitude: 'น้อย (Small: 0.2)' | 'ปานกลาง (Medium: 0.5)' | 'มาก (Large: >= 0.8)' | 'ไม่มีนัยสำคัญ (< 0.2)';
+  interpretation: string;
 }
 
 export type MasteryStatus = 'mastery' | 'good' | 'needs_improvement';

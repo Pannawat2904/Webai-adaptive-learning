@@ -23,6 +23,9 @@ import {
   ChevronDown,
   LayoutDashboard,
   FileQuestion,
+  Activity,
+  Award,
+  TrendingUp,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -52,11 +55,13 @@ export function Navbar() {
   ];
 
   const teacherLinks = [
-    { href: '/teacher', label: 'แดชบอร์ดชั้นเรียน', icon: LayoutDashboard },
-    { href: '/teacher/heatmap', label: 'Heatmap H1-H8', icon: BarChart3 },
-    { href: '/teacher/questions', label: 'คลังข้อสอบ', icon: FileQuestion },
-    { href: '/teacher/lessons', label: 'จัดการสื่อการสอน', icon: BookOpen },
-    { href: '/teacher/analytics', label: 'วิเคราะห์ข้อสอบ', icon: Users },
+    { href: '/teacher', label: 'แดชบอร์ดภาพรวม', icon: LayoutDashboard },
+    { href: '/teacher/adaptive-logs', label: 'Log ตรวจสอบระบบ', icon: Activity },
+    { href: '/teacher/reliability', label: 'ความเที่ยง KR-20', icon: Award },
+    { href: '/teacher/effect-size', label: 'Pre/Post & Effect Size', icon: TrendingUp },
+    { href: '/teacher/questions', label: 'คลังข้อสอบ & IOC', icon: FileQuestion },
+    { href: '/teacher/analytics', label: 'วิเคราะห์ข้อสอบ', icon: BarChart3 },
+    { href: '/teacher/heatmap', label: 'Heatmap H1-H8', icon: Users },
   ];
 
   const adminLinks = [

@@ -3,6 +3,7 @@ import { Noto_Sans_Thai } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 
 const notoSansThai = Noto_Sans_Thai({
   weight: ['300', '400', '500', '600', '700'],
@@ -35,14 +36,7 @@ export default function RootLayout({
             <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
               {children}
             </main>
-            <footer className="border-t border-slate-200/60 dark:border-slate-800/60 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
-              <p className="font-semibold text-slate-700 dark:text-slate-300">
-                การพัฒนานวัตกรรมการเรียนรู้แบบปรับเหมาะเฉพาะบุคคลโดยบูรณาการพื้นที่จำลองการเขียนโค้ด เรื่อง โครงสร้างภาษา HTML
-              </p>
-              <p className="mt-1 text-slate-500 dark:text-slate-400">
-                เพื่อส่งเสริมทักษะทางวิชาชีพด้านการพัฒนาเว็บไซต์ สำหรับนักเรียนระดับชั้นประกาศนียบัตรวิชาชีพ (ปวช.)
-              </p>
-            </footer>
+            <Footer />
           </div>
         </AuthProvider>
       </body>

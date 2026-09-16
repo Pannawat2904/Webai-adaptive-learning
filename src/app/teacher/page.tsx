@@ -139,22 +139,62 @@ export default function TeacherOverviewPage() {
         </div>
       </div>
 
-      {/* Quick Navigation Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Quick Navigation Cards - Teacher Backoffice Suite */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Link
-          href="/teacher/heatmap"
+          href="/teacher/adaptive-logs"
           className="liquid-card p-5 flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                Log ตรวจสอบระบบ (Audit Trail)
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                กราฟ Trajectory &amp; Export หลักฐาน (CSV/PDF)
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
+        <Link
+          href="/teacher/reliability"
+          className="liquid-card p-5 flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                ความเที่ยงข้อสอบ (KR-20)
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                ความเชื่อมั่นราย Sub-domain H1-H8 (เกณฑ์ &ge; 0.70)
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
+        <Link
+          href="/teacher/effect-size"
+          className="liquid-card p-5 flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform">
               <BarChart3 className="w-5 h-5" />
             </div>
             <div>
               <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                Sub-domain Heatmap (H1-H8)
+                Pre/Post &amp; Cohen&apos;s d Effect Size
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                ตารางสี 8 คอลัมน์แสดงภาพรวมทั้งห้อง
+                วิเคราะห์ขนาดอิทธิพลรายห้องและรายคน
               </p>
             </div>
           </div>
@@ -166,15 +206,15 @@ export default function TeacherOverviewPage() {
           className="liquid-card p-5 flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform">
+            <div className="p-2.5 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
               <FileQuestion className="w-5 h-5" />
             </div>
             <div>
               <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                จัดการคลังข้อสอบ (Question Bank)
+                คลังข้อสอบ &amp; ควบคุม IOC
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                เพิ่ม/แก้ไขข้อสอบ 8 Sub-domain
+                IOC เกณฑ์ &ge; 0.67 &amp; สลับสถานะ Validated
               </p>
             </div>
           </div>
@@ -182,19 +222,39 @@ export default function TeacherOverviewPage() {
         </Link>
 
         <Link
-          href="/teacher/lessons"
+          href="/teacher/analytics"
           className="liquid-card p-5 flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-              <BookOpen className="w-5 h-5" />
+            <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+              <BarChart3 className="w-5 h-5" />
             </div>
             <div>
               <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                จัดการสื่อการสอน (Media Organizer)
+                วิเคราะห์ข้อสอบ (p &amp; D Value)
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                จัดลำดับสไลด์ วิดีโอ และเอกสาร
+                ดัชนีความยากง่ายและอำนาจจำแนก 27% กลุ่ม
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+        </Link>
+
+        <Link
+          href="/teacher/heatmap"
+          className="liquid-card p-5 flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                Sub-domain Heatmap (H1-H8)
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                ตารางสี 8 คอลัมน์แสดงภาพรวมทั้งห้อง
               </p>
             </div>
           </div>

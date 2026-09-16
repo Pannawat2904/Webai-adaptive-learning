@@ -8,20 +8,74 @@ import {
 } from '@/types/database';
 import { MOCK_QUESTIONS } from './mock-data';
 
+/**
+ * =========================================================================================
+ * Rule-based Adaptive Testing Engine (การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์)
+ * =========================================================================================
+ *
+ * กรอบแนวคิดทางวิชาการและการอ้างอิง (Theoretical Framework & Academic Citations):
+ *
+ * 1. โครงสร้าง 4 องค์ประกอบหลักของ Adaptive Testing:
+ *    - อ้างอิง: Wainer, H., Dorans, N. J., Flaugher, R., Green, B. F., & Mislevy, R. J. (2000).
+ *      "Computerized Adaptive Testing: A Primer." Lawrence Erlbaum Associates.
+ *    ระบบนี้ประกอบด้วย 4 เสาหลัก:
+ *      (1) คลังข้อสอบ (Calibrated Item Pool) ที่ระบุ Sub-domain H1-H8, ระดับความยาก (Easy/Medium/Hard)
+ *          และผ่านการประเมินความสอดคล้องเชิงเนื้อหา (IOC >= 0.67)
+ *      (2) กฎจุดเริ่มต้น (Starting Rule): กำหนดให้เริ่มต้นที่ระดับความยากปานกลาง (Medium)
+ *      (3) อัลกอริทึมเลือกข้อสอบ (Item Selection Algorithm): ปรับความยากขึ้น/ลงแบบ Stepwise
+ *          ผสานกับการกระจายเนื้อหา (Content Balancing)
+ *      (4) กฎการยุติการทดสอบ (Stopping Rule): กำหนดจำนวนข้อคงที่ (Fixed-length Stopping Rule)
+ *
+ * 2. หลักการควบคุมความสมดุลของเนื้อหา (Content Balancing):
+ *    - อ้างอิง: Kingsbury, G. G., & Zara, A. R. (1989).
+ *      "Procedures for selecting items for computerized adaptive tests."
+ *      Applied Measurement in Education, 2(4), 359-375.
+ *    - การคัดเลือกข้อสอบจะต้องครอบคลุมทุก Sub-domain H1-H8 ให้ครบถ้วนอย่างน้อย 1 รอบ
+ *      ก่อนจะวนรอบใหม่ เพื่อประกันความครอบคลุมของหลักสูตรและเนื้อหาวิชา
+ *
+ * 3. กฎการยุติการทดสอบ (Stopping Rule):
+ *    - อ้างอิง: Kingsbury, G. G., & Weiss, D. J. (1983).
+ *      "A comparison of adaptive and conventional testing for problems of bias,
+ *      content balance, and test length."
+ *    - อ้างอิง: Choi, S. W., Grady, M. W., & Dodd, B. G. (2011).
+ *      "A new stopping rule for computerized adaptive testing."
+ *      Educational and Psychological Measurement, 71(1), 80-100.
+ *    - ใช้เกณฑ์จำนวนข้อสอบคงที่ (Fixed-length Rule: 20 ข้อสำหรับแบบทดสอบรวม และ 10 ข้อสำหรับการ Re-test)
+ *      ซึ่งเหมาะสมกับการทดสอบเพื่อการวินิจฉัยในชั้นเรียนอาชีวศึกษา
+ *
+ * 4. การประยุกต์ใช้ Adaptive Testing ในบริบทการศึกษา:
+ *    - อ้างอิง: Weiss, D. J., & Kingsbury, G. G. (1984).
+ *      "Application of computerized adaptive testing to educational problems."
+ *      Journal of Educational Measurement, 21(4), 361-375.
+ *    - เน้นการให้ข้อมูลย้อนกลับเพื่อวินิจฉัยจุดแข็ง-จุดอ่อน (Diagnostic Assessment)
+ *      มากกว่าการจัดอันดับคะแนนเพียงอย่างเดียว
+ *
+ * หมายเหตุความน่าเชื่อถือทางวิชาการ:
+ * ระบบนี้ทำงานแบบ "Rule-based Heuristic Adaptive Testing" ปรับความยากตามกฎเกณฑ์ (Stepwise)
+ * ไม่ได้ประเมินค่าความสามารถ (Theta) ด้วยแบบจำลองทางสถิติ IRT (Item Response Theory)
+ * เพื่อความโปร่งใส ถูกต้อง และไม่กล่าวอ้างเกินจริงในรายงานวิจัยและงานนวัตกรรม
+ * =========================================================================================
+ */
+
 export interface AdaptiveEngineState {
   currentDifficulty: QuestionDifficulty;
-  questionIndex: number; // 1 to 20
+  questionIndex: number; // 0 to 20
   usedQuestionIds: string[];
   subDomainCounts: Record<SubDomainCode, number>;
   attempts: Attempt[];
   targetSubDomain?: SubDomainCode | null; // For Re-test mode
 }
 
-const ALL_SUB_DOMAINS: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+export const ALL_SUB_DOMAINS: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
 
+/**
+ * กำหนดสถานะเริ่มต้นของ Rule-based Adaptive Testing
+ * อ้างอิง: Wainer et al. (2000) - Component 2: Starting Rule
+ * กฎเริ่มต้น: เริ่มข้อแรกด้วยระดับความยากปานกลาง (Medium) เพื่อให้ผู้เรียนปรับตัวและประมาณการระดับความสามารถ
+ */
 export function createInitialAdaptiveState(targetSubDomain?: SubDomainCode | null): AdaptiveEngineState {
   return {
-    currentDifficulty: 'medium', // Rule 1: Starts at medium
+    currentDifficulty: 'medium', // Starting Rule: Wainer et al. (2000)
     questionIndex: 0,
     usedQuestionIds: [],
     subDomainCounts: {
@@ -40,41 +94,51 @@ export function createInitialAdaptiveState(targetSubDomain?: SubDomainCode | nul
 }
 
 /**
- * Select the next question based on Adaptive rules:
- * 1. If Re-test: prioritize targetSubDomain.
- * 2. If standard Adaptive:
- *    - Check which subdomains haven't been tested yet (Coverage Rule 3)
- *    - Match with current difficulty (medium -> hard / easy)
+ * อัลกอริทึมคัดเลือกข้อสอบถัดไป (Next Item Selection Algorithm)
+ *
+ * อ้างอิง:
+ * - Wainer et al. (2000) - Component 3: Item Selection Algorithm
+ * - Kingsbury & Zara (1989) - Content Balancing Algorithm
+ * - Kingsbury & Weiss (1983) - Fixed-length Stopping Rule
+ *
+ * ขั้นตอนการทำงาน:
+ * 1. ตรวจสอบ Stopping Rule (ครบ 20 ข้อสำหรับชุดรวม หรือ 10 ข้อสำหรับชุด Re-test)
+ * 2. กรองคลังข้อสอบเฉพาะข้อที่ validated !== false (ป้องกันข้อสอบที่ยังไม่ผ่านเกณฑ์การตรวจสอบ)
+ * 3. ใช้ Content Balancing ค้นหา Sub-domain ที่ยังไม่ถูกทดสอบ หรือมีจำนวนข้อทดสอบน้อยที่สุด
+ * 4. จับคู่ข้อสอบที่มีระดับความยากตรงกับ currentDifficulty
  */
 export function getNextAdaptiveQuestion(
   state: AdaptiveEngineState,
   questionPool: Question[] = MOCK_QUESTIONS
 ): Question | null {
-  // Check stop rules (Rule 4: Stop at 20 questions or pool exhausted)
-  if (state.questionIndex >= 20) {
+  const maxQuestions = state.targetSubDomain ? 10 : 20;
+
+  // Stopping Rule: Kingsbury & Weiss (1983); Choi et al. (2011)
+  if (state.questionIndex >= maxQuestions) {
     return null;
   }
 
-  const unusedQuestions = questionPool.filter(
-    (q) => !state.usedQuestionIds.includes(q.id) && q.active
+  // กรองเฉพาะข้อสอบที่ active และผ่านการตรวจสอบคุณภาพ (validated !== false)
+  const availableQuestions = questionPool.filter(
+    (q) => !state.usedQuestionIds.includes(q.id) && q.active && q.validated !== false
   );
 
-  if (unusedQuestions.length === 0) {
+  if (availableQuestions.length === 0) {
     return null;
   }
 
-  // If specific target sub-domain for Re-test
+  // กรณี Re-test มุ่งเน้น Sub-domain เป้าหมาย
   if (state.targetSubDomain) {
-    const targetPool = unusedQuestions.filter(
+    const targetPool = availableQuestions.filter(
       (q) => q.sub_domain_code === state.targetSubDomain
     );
-    // Find matching difficulty
     const diffMatch = targetPool.find((q) => q.difficulty === state.currentDifficulty);
     if (diffMatch) return diffMatch;
     if (targetPool.length > 0) return targetPool[0];
   }
 
-  // Rule 3: Find sub-domains that haven't been covered yet
+  // Content Balancing: Kingsbury & Zara (1989)
+  // ตรวจสอบ Sub-domain ที่ยังไม่เคยได้รับการทดสอบเลยในรอบนี้
   const uncoveredSubDomains = ALL_SUB_DOMAINS.filter(
     (sub) => (state.subDomainCounts[sub] || 0) === 0
   );
@@ -83,47 +147,57 @@ export function getNextAdaptiveQuestion(
   if (uncoveredSubDomains.length > 0) {
     candidateSubDomains = uncoveredSubDomains;
   } else {
-    // Pick the subdomains with the least attempts so far to ensure balanced rounds
+    // หากทดสอบครบทุก Sub-domain แล้ว ให้เลือกกลุ่มที่มีความถี่น้อยที่สุดเพื่อรักษาสมดุล
     const minCount = Math.min(...ALL_SUB_DOMAINS.map((s) => state.subDomainCounts[s] || 0));
     candidateSubDomains = ALL_SUB_DOMAINS.filter(
       (s) => (state.subDomainCounts[s] || 0) === minCount
     );
   }
 
-  // Try to find a question in candidate sub-domains matching current difficulty
-  let matchedQuestion = unusedQuestions.find(
+  // เลือกข้อสอบในกลุ่ม Sub-domain เป้าหมายที่มีระดับความยากตรงกับระดับปัจจุบัน
+  let matchedQuestion = availableQuestions.find(
     (q) =>
       candidateSubDomains.includes(q.sub_domain_code) &&
       q.difficulty === state.currentDifficulty
   );
 
-  // If no exact match for difficulty in preferred sub-domains, relax difficulty
+  // ผ่อนปรนระดับความยากหากไม่มีข้อสอบความยากที่ต้องการในกลุ่ม Sub-domain นั้น
   if (!matchedQuestion) {
-    matchedQuestion = unusedQuestions.find((q) =>
+    matchedQuestion = availableQuestions.find((q) =>
       candidateSubDomains.includes(q.sub_domain_code)
     );
   }
 
-  // Fallback to any matching difficulty in unused pool
+  // กรณีฉุกเฉิน: ดึงข้อสอบที่มีความยากตรงกันจาก Sub-domain ใดก็ได้
   if (!matchedQuestion) {
-    matchedQuestion = unusedQuestions.find(
+    matchedQuestion = availableQuestions.find(
       (q) => q.difficulty === state.currentDifficulty
     );
   }
 
-  // Last fallback: any unused question
+  // สำรองสุดท้าย: ดึงข้อสอบข้อแรกที่ยังไม่ได้ทำ
   if (!matchedQuestion) {
-    matchedQuestion = unusedQuestions[0];
+    matchedQuestion = availableQuestions[0];
   }
 
   return matchedQuestion || null;
 }
 
 /**
- * Update adaptive state after a student answers a question:
- * Rule 2:
- *  - Correct -> harder (medium -> hard)
- *  - Incorrect -> easier (medium -> easy)
+ * บันทึกผลการตอบและปรับระดับความยากสำหรับการทดสอบข้อถัดไป พร้อมบันทึก Audit Trail
+ *
+ * อ้างอิง:
+ * - Wainer et al. (2000) - Stepwise Difficulty Transition Rule:
+ *   * ตอบถูก -> ปรับระดับความยากขึ้น 1 ขั้น (Easy -> Medium -> Hard)
+ *   * ตอบผิด -> ปรับระดับความยากลง 1 ขั้น (Hard -> Medium -> Easy)
+ * - Weiss & Kingsbury (1984) - Continuous response tracking for diagnostic evidence
+ *
+ * ฟังก์ชันนี้บันทึกข้อมูล Audit Trail ครบถ้วน ได้แก่:
+ * - previous_difficulty (ระดับความยากของข้อปัจจุบัน)
+ * - selected_difficulty (ระดับความยากที่จะใช้ในข้อถัดไป)
+ * - selection_reason (เหตุผลเชิงกฎเกณฑ์ของการตัดสินใจ)
+ * - domain_coverage_snapshot (ภาพถ่ายจำนวนข้อสอบที่ทำไปแล้วในแต่ละ Sub-domain ณ ขณะนั้น)
+ * - stop_reason (เหตุผลการยุติการทดสอบเมื่อถึงข้อสุดท้าย)
  */
 export function recordAnswerAndUpdateState(
   state: AdaptiveEngineState,
@@ -132,15 +206,51 @@ export function recordAnswerAndUpdateState(
   responseTimeSec: number
 ): { newState: AdaptiveEngineState; isCorrect: boolean } {
   const isCorrect = selectedAnswer === question.correct_option;
+  const previousDifficulty = question.difficulty;
 
-  // Determine next difficulty level
+  // กฎการปรับเปลี่ยนระดับความยาก (Stepwise Transition Rule)
   let nextDifficulty: QuestionDifficulty = state.currentDifficulty;
+  let selectionReason = '';
+
   if (isCorrect) {
-    if (state.currentDifficulty === 'easy') nextDifficulty = 'medium';
-    else if (state.currentDifficulty === 'medium') nextDifficulty = 'hard';
+    if (state.currentDifficulty === 'easy') {
+      nextDifficulty = 'medium';
+      selectionReason = 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Easy เป็น Medium (Stepwise Up)';
+    } else if (state.currentDifficulty === 'medium') {
+      nextDifficulty = 'hard';
+      selectionReason = 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)';
+    } else {
+      nextDifficulty = 'hard';
+      selectionReason = 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)';
+    }
   } else {
-    if (state.currentDifficulty === 'hard') nextDifficulty = 'medium';
-    else if (state.currentDifficulty === 'medium') nextDifficulty = 'easy';
+    if (state.currentDifficulty === 'hard') {
+      nextDifficulty = 'medium';
+      selectionReason = 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)';
+    } else if (state.currentDifficulty === 'medium') {
+      nextDifficulty = 'easy';
+      selectionReason = 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Medium เป็น Easy (Stepwise Down)';
+    } else {
+      nextDifficulty = 'easy';
+      selectionReason = 'ตอบไม่ถูกต้อง -> คงระดับความยากต่ำสุด Easy (Floor Retained)';
+    }
+  }
+
+  // ปรับปรุงสถิติความครอบคลุมของเนื้อหา (Content Balancing Snapshot)
+  const newSubDomainCounts = {
+    ...state.subDomainCounts,
+    [question.sub_domain_code]: (state.subDomainCounts[question.sub_domain_code] || 0) + 1,
+  };
+
+  const nextQuestionIndex = state.questionIndex + 1;
+  const maxQuestions = state.targetSubDomain ? 10 : 20;
+
+  // ตรวจสอบ Stopping Rule สำหรับบันทึก stop_reason
+  let stopReason: string | undefined = undefined;
+  if (nextQuestionIndex >= maxQuestions) {
+    stopReason = state.targetSubDomain
+      ? 'ครบจำนวนข้อประเมินเฉพาะจุดประสงค์ Re-test (10 ข้อ)'
+      : 'ครบเกณฑ์จำนวนข้อสอบสูงสุดตามแบบแผนความยาวคงที่ (Fixed-length Stopping Rule: 20 ข้อ ตามแนวคิด Kingsbury & Weiss, 1983)';
   }
 
   const attempt: Attempt = {
@@ -150,21 +260,22 @@ export function recordAnswerAndUpdateState(
     answer: selectedAnswer,
     correct: isCorrect,
     response_time: responseTimeSec,
-    sequence: state.questionIndex + 1,
+    sequence: nextQuestionIndex,
     sub_domain_code: question.sub_domain_code,
     difficulty: question.difficulty,
     created_at: new Date().toISOString(),
-  };
-
-  const newSubDomainCounts = {
-    ...state.subDomainCounts,
-    [question.sub_domain_code]: (state.subDomainCounts[question.sub_domain_code] || 0) + 1,
+    // Audit Trail Fields
+    previous_difficulty: previousDifficulty,
+    selected_difficulty: nextDifficulty,
+    selection_reason: selectionReason,
+    domain_coverage_snapshot: { ...newSubDomainCounts },
+    stop_reason: stopReason,
   };
 
   const newState: AdaptiveEngineState = {
     ...state,
     currentDifficulty: nextDifficulty,
-    questionIndex: state.questionIndex + 1,
+    questionIndex: nextQuestionIndex,
     usedQuestionIds: [...state.usedQuestionIds, question.id],
     subDomainCounts: newSubDomainCounts,
     attempts: [...state.attempts, attempt],
@@ -174,12 +285,13 @@ export function recordAnswerAndUpdateState(
 }
 
 /**
- * Diagnostic Analytics (Module D):
- * Compute skill profiles per sub-domain H1-H8 from test attempts.
- * Status:
- *  >=80% -> mastery
- *  60-79% -> good
- *  <60% -> needs_improvement
+ * วินิจฉัยระดับความรอบรู้ (Mastery Level) ราย Sub-domain H1-H8
+ *
+ * อ้างอิง: Weiss & Kingsbury (1984) - Diagnostic Criterion-Referenced Evaluation
+ * เกณฑ์ประเมินระดับความรอบรู้ (Mastery Criteria):
+ *  - >= 80% : ความเชี่ยวชาญระดับสูง (Mastery)
+ *  - 60% - 79% : ความเชี่ยวชาญระดับดี (Good)
+ *  - < 60% : ต้องการพัฒนาเพิ่มเติม (Needs Improvement)
  */
 export function computeSkillProfiles(
   studentId: string,
@@ -213,7 +325,7 @@ export function computeSkillProfiles(
     if (data.total > 0) {
       percentage = Math.round((data.correct / data.total) * 100);
     } else {
-      // Default baseline if not yet tested
+      // ค่าฐานเริ่มต้นสำหรับหน่วยที่ยังไม่เคยมีข้อสอบทดสอบ
       percentage = 70;
     }
 
