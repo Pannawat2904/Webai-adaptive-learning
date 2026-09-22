@@ -37,115 +37,120 @@ export default function QuestMapPage() {
   const completedQuests = 1;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16">
+    <div className="w-full max-w-[1500px] mx-auto pb-12 px-4 sm:px-6 font-sans">
       
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
-        
-        <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2 text-blue-400 font-bold text-sm">
-            <Gamepad2 className="w-5 h-5" />
-            <span>โหมดตะลุยด่าน (Quest Mode)</span>
+      {/* Top Header */}
+      <header className="flex items-center justify-between mb-8">
+        <div className="inline-flex items-center gap-2 bg-[#cdf9e7] dark:bg-[#0ba57d]/20 text-[#06966f] dark:text-[#39d6ad] px-4 py-2.5 rounded-lg font-mono font-bold text-sm">
+          &gt;_ · /ตะลุยด่าน_Quests
+        </div>
+      </header>
+
+      {/* Heading */}
+      <section className="mb-7">
+        <h1 className="text-[clamp(42px,5.5vw,76px)] leading-[0.98] tracking-[-2.8px] font-bold m-0 mb-4 text-ink">
+          โหมดตะลุยด่าน <span className="text-theme-blue">:</span>
+        </h1>
+        <p className="text-lg text-muted m-0 leading-relaxed max-w-2xl">
+          เขียนโค้ดแก้โจทย์ปัญหาในแต่ละ World เพื่อปลดล็อคเนื้อหาใหม่ สะสมดาวและมุ่งสู่การเป็นเซียนโค้ด!
+        </p>
+      </section>
+
+      {/* Main Window */}
+      <section className="mac-window">
+        {/* Window Bar */}
+        <div className="mac-window-bar">
+          <div className="mac-dots">
+            <i className="mac-dot r"></i>
+            <i className="mac-dot y"></i>
+            <i className="mac-dot g"></i>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            แผนที่การเรียนรู้ HTML
-          </h1>
-          <p className="text-slate-400 max-w-lg text-sm sm:text-base">
-            เขียนโค้ดแก้โจทย์ปัญหาในแต่ละ World เพื่อปลดล็อคเนื้อหาใหม่ สะสมดาวและมุ่งสู่การเป็นเซียนโค้ด!
-          </p>
+          <div className="mac-file-title">
+            <em>&lt;/&gt;</em> quest-map.html
+          </div>
         </div>
 
-        <div className="relative z-10 flex gap-4 shrink-0">
-          <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 border border-slate-700 text-center min-w-[100px]">
-            <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">ความคืบหน้า</div>
-            <div className="text-2xl font-black text-white flex items-center justify-center gap-1">
-              <span>{completedQuests}</span>
-              <span className="text-slate-500 text-lg">/</span>
-              <span className="text-slate-500 text-lg">{totalQuests}</span>
+        {/* Window Body */}
+        <div className="mac-window-body">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="font-mono font-bold text-xs text-theme-green">&gt;_ SELECT_WORLD()</div>
+            
+            <div className="flex gap-4">
+              <div className="bg-white dark:bg-slate-900 border border-line rounded-xl px-4 py-2 text-center">
+                <div className="text-[10px] font-mono text-muted mb-1 uppercase">ความคืบหน้า</div>
+                <div className="text-lg font-mono font-bold text-ink">
+                  {completedQuests} <span className="text-muted">/ {totalQuests}</span>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-slate-900 border border-line rounded-xl px-4 py-2 text-center">
+                <div className="text-[10px] font-mono text-muted mb-1 uppercase">ดาวสะสม 🌟</div>
+                <div className="text-lg font-mono font-bold text-theme-orange">{completedQuests * 3}</div>
+              </div>
             </div>
           </div>
-          <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 border border-slate-700 text-center min-w-[100px]">
-            <div className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">ดาวสะสม 🌟</div>
-            <div className="text-2xl font-black text-amber-400">{completedQuests * 3}</div>
-          </div>
-        </div>
-      </div>
 
-      {/* Map Content */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 px-2">
-          <Map className="w-5 h-5 text-slate-500" />
-          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">เลือกด่านที่คุณต้องการผจญภัย</h2>
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {subDomainCodes.map((code, index) => {
+              const domain = SUB_DOMAINS[code];
+              const questsInWorld = MOCK_ASSIGNMENTS.filter(a => a.sub_domain_code === code);
+              const hasQuests = questsInWorld.length > 0;
+              
+              // Logic for mockup: World 1 is unlocked, others might be locked if no quests or if prior isn't done.
+              const isUnlocked = hasQuests || index === 0;
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {subDomainCodes.map((code, index) => {
-            const domain = SUB_DOMAINS[code];
-            const questsInWorld = MOCK_ASSIGNMENTS.filter(a => a.sub_domain_code === code);
-            const hasQuests = questsInWorld.length > 0;
-            
-            // Logic for mockup: World 1 is unlocked, others might be locked if no quests or if prior isn't done.
-            // For now, unlock if it has quests, otherwise lock.
-            const isUnlocked = hasQuests || index === 0;
-
-            return (
-              <div 
-                key={code}
-                className={`relative rounded-2xl p-6 transition-all duration-300 ${
-                  isUnlocked 
-                    ? 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500' 
-                    : 'bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 opacity-70 grayscale'
-                }`}
-              >
-                {!isUnlocked && (
-                  <div className="absolute top-4 right-4 p-2 bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-400">
-                    <Lock className="w-4 h-4" />
+              return (
+                <div 
+                  key={code}
+                  className={`bg-white dark:bg-slate-900 border border-line rounded-2xl overflow-hidden transition-all duration-300 ${
+                    isUnlocked ? 'hover:-translate-y-1 hover:shadow-lg' : 'opacity-70 grayscale'
+                  }`}
+                >
+                  <div className="flex justify-between items-center px-5 py-4 border-b border-line bg-slate-50 dark:bg-slate-800/50">
+                    <h3 className="m-0 text-sm font-bold text-theme-blue font-mono">WORLD_{index + 1}</h3>
+                    {!isUnlocked ? (
+                      <Lock className="w-4 h-4 text-muted" />
+                    ) : hasQuests ? (
+                      <div className="flex items-center gap-1">
+                        <Star className={`w-3.5 h-3.5 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                        <Star className={`w-3.5 h-3.5 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                        <Star className={`w-3.5 h-3.5 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-muted font-mono">COMING_SOON</div>
+                    )}
                   </div>
-                )}
-                {isUnlocked && hasQuests && (
-                  <div className="absolute top-4 right-4 flex items-center gap-1">
-                    <Star className={`w-4 h-4 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
-                    <Star className={`w-4 h-4 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
-                    <Star className={`w-4 h-4 ${index === 0 ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-600'}`} />
-                  </div>
-                )}
+                  
+                  <div className="p-5">
+                    <h4 className="text-base font-bold text-ink mb-2 line-clamp-1">{domain.title}</h4>
+                    <p className="text-xs text-muted line-clamp-2 min-h-[32px] mb-5">
+                      {domain.description}
+                    </p>
 
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-[10px] font-black tracking-widest text-blue-500 uppercase mb-1">
-                      World {index + 1}
-                    </div>
-                    <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white line-clamp-1">
-                      {domain.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 min-h-[32px]">
-                    {domain.description}
-                  </p>
-
-                  <div className="pt-2">
                     {hasQuests ? (
                       <Link
                         href={`/student/quests/${questsInWorld[0].id}`}
-                        className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors"
+                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-theme-navy text-white text-sm font-bold hover:bg-[#1d2b48] transition-colors"
                       >
                         <Gamepad2 className="w-4 h-4" />
                         <span>เริ่มเล่นด่านนี้</span>
                       </Link>
                     ) : (
-                      <button disabled className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-sm font-bold cursor-not-allowed">
-                        <span>เร็วๆ นี้</span>
+                      <button disabled className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#edf1f5] dark:bg-slate-800 text-muted text-sm font-bold cursor-not-allowed">
+                        <span>ล็อคอยู่</span>
                       </button>
                     )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
         </div>
+      </section>
+      
+      <div className="text-center text-[#8492a7] text-[10px] font-mono py-6">
+        &lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM
       </div>
     </div>
   );

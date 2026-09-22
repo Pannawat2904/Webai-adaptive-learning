@@ -155,24 +155,14 @@ function CodeLabContent() {
   const isAllChecklistPassed = passedChecklistCount === totalChecklistCount;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-6rem)] mx-auto px-2 sm:px-6 py-4 max-w-[1800px] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-6rem)] w-full max-w-[1500px] mx-auto pb-6 px-4 sm:px-6 font-sans">
       
-      {/* Top Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center shadow-sm">
-            <Terminal className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-slate-800 dark:text-white leading-tight">
-              ห้องปฏิบัติการเขียนโค้ด
-            </h1>
-            <p className="text-xs text-slate-500 font-medium">
-              จำลองพื้นที่เขียนโค้ดและพรีวิวแบบ Real-time
-            </p>
-          </div>
+      {/* Top Header */}
+      <header className="flex items-center justify-between mb-6 mt-2 shrink-0">
+        <div className="inline-flex items-center gap-2 bg-[#cdf9e7] dark:bg-[#0ba57d]/20 text-[#06966f] dark:text-[#39d6ad] px-4 py-2.5 rounded-lg font-mono font-bold text-sm">
+          &gt;_ · /ฝึกเขียนโค้ด_CodeLab
         </div>
-
+        
         <div className="flex items-center gap-3">
           <select
             value={currentAssignment.id}
@@ -180,7 +170,7 @@ function CodeLabContent() {
               const found = MOCK_ASSIGNMENTS.find((a) => a.id === e.target.value);
               if (found) setCurrentAssignment(found);
             }}
-            className="text-xs font-bold px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
+            className="text-xs font-mono font-bold px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-line text-ink focus:outline-none shadow-sm cursor-pointer"
           >
             {MOCK_ASSIGNMENTS.map((a) => (
               <option key={a.id} value={a.id}>
@@ -192,7 +182,7 @@ function CodeLabContent() {
           <button
             onClick={handleSubmitAssignment}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition-all"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-theme-navy hover:bg-[#1d2b48] disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all"
           >
             {isSubmitting ? (
               <>
@@ -207,10 +197,26 @@ function CodeLabContent() {
             )}
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Side-by-side IDE Workspace */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+      {/* Main Window */}
+      <section className="mac-window flex-1 flex flex-col min-h-0">
+        {/* Window Bar */}
+        <div className="mac-window-bar shrink-0">
+          <div className="mac-dots">
+            <i className="mac-dot r"></i>
+            <i className="mac-dot y"></i>
+            <i className="mac-dot g"></i>
+          </div>
+          <div className="mac-file-title">
+            <em>&lt;/&gt;</em> editor.html
+          </div>
+        </div>
+
+        {/* Window Body */}
+        <div className="mac-window-body p-0 flex-1 flex flex-col overflow-hidden">
+          {/* Side-by-side IDE Workspace */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
         
         {/* Left Side: IDE Editor */}
         <div className="flex flex-col bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
@@ -338,7 +344,9 @@ function CodeLabContent() {
              )}
           </div>
         </div>
-      </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

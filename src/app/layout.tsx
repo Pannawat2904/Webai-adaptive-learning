@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
-import { Prompt, Inter } from 'next/font/google';
+import { IBM_Plex_Sans_Thai, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 
-const prompt = Prompt({
-  weight: ['300', '400', '500', '600', '700', '800'],
+const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin', 'thai'],
-  variable: '--font-prompt',
+  variable: '--font-ibm-plex-sans-thai',
   display: 'swap',
 });
 
-const inter = Inter({
-  variable: '--font-inter',
+const jetbrainsMono = JetBrains_Mono({
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
   display: 'swap',
 });
@@ -27,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={`${prompt.variable} ${inter.variable} h-full antialiased font-sans scroll-smooth`} suppressHydrationWarning>
-      <body className="antialiased bg-slate-50 dark:bg-slate-900 font-sans transition-colors selection:bg-indigo-500/20 selection:text-indigo-600 dark:selection:text-indigo-300">
+    <html lang="th" className={`${ibmPlexSansThai.variable} ${jetbrainsMono.variable} h-full antialiased font-sans scroll-smooth`} suppressHydrationWarning>
+      <body className="antialiased font-sans transition-colors selection:bg-blue-500/20 selection:text-blue-600">
         <AuthProvider>
           {children}
         </AuthProvider>

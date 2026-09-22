@@ -75,14 +75,12 @@ export default function StudentLayout({
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300 font-sans">
-      <div className="playful-bg" aria-hidden="true" />
-      
+    <div className="min-h-screen transition-colors duration-300 font-sans">
       {/* Sidebar for Desktop */}
-      <aside className={`hidden md:flex flex-col fixed inset-y-4 left-4 z-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-3xl shadow-sm transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-        <div className={`flex items-center h-20 ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'} border-b border-slate-100 dark:border-slate-700`}>
+      <aside className={`hidden md:flex flex-col fixed inset-y-4 left-4 z-40 bg-white dark:bg-soft border border-line rounded-3xl shadow-sm transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <div className={`flex items-center h-20 ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'} border-b border-line`}>
           {!isSidebarCollapsed && (
-            <span className="font-extrabold text-xl tracking-tight text-purple-600 dark:text-purple-400">
+            <span className="font-extrabold text-xl tracking-tight text-theme-blue">
               HTML Adaptive
             </span>
           )}
@@ -104,8 +102,8 @@ export default function StudentLayout({
                 href={item.href}
                 className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-2.5 rounded-md font-bold text-sm transition-all duration-300 ${
                   isActive
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-l-[3px] border-purple-500 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 border-l-[3px] border-transparent"
+                    ? "bg-blue-500/10 text-theme-blue border-l-[3px] border-theme-blue shadow-sm"
+                    : "text-muted hover:text-ink hover:bg-slate-100 dark:hover:bg-slate-800/50 border-l-[3px] border-transparent"
                 }`}
                 title={isSidebarCollapsed ? item.name : undefined}
               >
@@ -118,10 +116,10 @@ export default function StudentLayout({
           })}
         </nav>
 
-        <div className="mt-auto pt-4 pb-6 border-t border-slate-100 dark:border-slate-800 px-3 flex flex-col gap-1.5 font-bold text-sm">
+        <div className="mt-auto pt-4 pb-6 border-t border-line px-3 flex flex-col gap-1.5 font-bold text-sm">
           <button 
             onClick={toggleTheme} 
-            className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-2.5 w-full rounded-md text-slate-500 hover:text-purple-600 hover:bg-purple-500/10 transition-all duration-300 border-l-[3px] border-transparent`} 
+            className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-2.5 w-full rounded-md text-muted hover:text-theme-blue hover:bg-blue-500/10 transition-all duration-300 border-l-[3px] border-transparent`} 
             title={isSidebarCollapsed ? "สลับโหมดหน้าจอ" : undefined}
           >
             {theme === 'dark' ? (
@@ -149,7 +147,7 @@ export default function StudentLayout({
 
       {/* Mobile Bottom Nav */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300" id="student-bottom-nav">
-        <nav className="bg-white dark:bg-slate-900 flex items-center justify-around pt-3 pb-8 px-2 border-t border-slate-100 dark:border-slate-800 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] rounded-t-3xl">
+        <nav className="bg-white dark:bg-soft flex items-center justify-around pt-3 pb-8 px-2 border-t border-line shadow-[0_-10px_30px_rgba(0,0,0,0.03)] rounded-t-3xl">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/student');
             
@@ -167,10 +165,10 @@ export default function StudentLayout({
                 key={item.name}
                 href={item.href}
                 className={`flex flex-col items-center justify-center gap-1 p-2 rounded-2xl transition-all duration-300 relative w-[64px] ${
-                  isActive ? "text-purple-600 dark:text-purple-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  isActive ? "text-theme-blue" : "text-muted hover:text-ink"
                 }`}
               >
-                <div className={`relative flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isActive ? 'bg-purple-100 dark:bg-purple-900/40 scale-110 shadow-sm' : 'bg-transparent'}`}>
+                <div className={`relative flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isActive ? 'bg-blue-100 dark:bg-blue-900/40 scale-110 shadow-sm' : 'bg-transparent'}`}>
                   <item.icon className={`w-5 h-5 ${isActive ? "opacity-100" : "opacity-80"}`} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 <span className={`text-[10px] leading-none mt-1 ${isActive ? 'font-bold' : 'font-medium'}`}>{shortName}</span>
