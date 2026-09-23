@@ -1,140 +1,163 @@
 import Link from 'next/link';
-import { BookOpen, BrainCircuit, ChevronRight, Code2, LineChart, Play, UserCircle } from 'lucide-react';
+import { BookOpen, BrainCircuit, ChevronRight, Code2, LineChart, Play, Terminal, Zap, CheckCircle2, Bot } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen flex flex-col font-sans">
-      {/* Playful Soft Background */}
-      <div className="playful-bg" aria-hidden="true" />
+    <main className="relative min-h-screen flex flex-col font-sans bg-code-bg-2 text-white overflow-hidden selection:bg-purple-500/30">
       
-      {/* Floating HTML Tags Decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-10 dark:opacity-5">
-        <div className="absolute top-24 left-10 text-5xl font-mono text-purple-600 font-bold rotate-12">&lt;html&gt;</div>
-        <div className="absolute bottom-32 right-12 text-6xl font-mono text-emerald-600 font-bold -rotate-12">&lt;/div&gt;</div>
-        <div className="absolute top-1/2 left-20 text-4xl font-mono text-yellow-500 font-bold -rotate-6">&lt;body&gt;</div>
-        <div className="absolute top-40 right-20 text-5xl font-mono text-blue-500 font-bold rotate-6">&lt;style&gt;</div>
+      {/* Dark theme background grid */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(var(--code-line) 1px, transparent 1px), linear-gradient(90deg, var(--code-line) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      
+      {/* Ambient glows */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-600/10 blur-[120px] pointer-events-none z-0" />
+
+      {/* Floating HTML Tags Decoration - Dark Mode variant */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-[0.04]">
+        <div className="absolute top-32 left-10 text-5xl font-mono text-purple-400 font-bold rotate-12">&lt;html&gt;</div>
+        <div className="absolute bottom-40 right-12 text-6xl font-mono text-emerald-400 font-bold -rotate-12">&lt;/div&gt;</div>
+        <div className="absolute top-1/2 left-20 text-4xl font-mono text-blue-400 font-bold -rotate-6">&lt;body&gt;</div>
+        <div className="absolute top-40 right-20 text-5xl font-mono text-yellow-400 font-bold rotate-6">&lt;style&gt;</div>
       </div>
       
-      {/* Include the global Navbar just for the landing page */}
-      <Navbar />
+      <div className="relative z-10 flex-col flex flex-1">
+        <Navbar />
 
-      <div className="relative z-10 flex-1 flex flex-col pt-8 pb-24">
-        {/* Hero Section */}
-        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mt-6 sm:mt-12 lg:mt-20">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto space-y-8">
-            
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 text-sm font-bold text-purple-600 dark:text-purple-400 mb-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-              </span>
-              การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight text-slate-800 dark:text-white leading-[1.15]">
-              สนุกกับการเขียนโค้ด <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500">
-                โครงสร้างภาษา HTML
-              </span>
-            </h1>
-            
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
-              ระบบการเรียนรู้ที่ปรับระดับความยากให้เหมาะกับคุณโดยอัตโนมัติ พร้อม Code Lab ให้ฝึกปฏิบัติจริง สนุก เข้าใจง่าย เหมือนเล่นเกม!
-            </p>
-
-            {/* Entrance Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full sm:w-auto">
-              <Link 
-                href="/student" 
-                className="w-full sm:w-auto pill-button flex items-center justify-center gap-2 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg shadow-lg shadow-purple-500/30"
-              >
-                <Play className="w-5 h-5 fill-current" />
-                <span>เริ่มเรียนเลย (นักเรียน)</span>
-              </Link>
+        <div className="flex-1 flex flex-col pt-12 pb-24 px-4 sm:px-6">
+          {/* Hero Section */}
+          <section className="max-w-[1000px] mx-auto w-full mt-6 sm:mt-12">
+            <div className="flex flex-col items-center text-center space-y-8 relative">
               
-              <Link 
-                href="/teacher/login" 
-                className="w-full sm:w-auto pill-button flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-lg shadow-sm border border-slate-200 dark:border-slate-700"
-              >
-                <BookOpen className="w-5 h-5" />
-                <span>สำหรับผู้สอน</span>
-              </Link>
-            </div>
-          </div>
-        </section>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs sm:text-sm font-bold text-purple-300 mb-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                </span>
+                การทดสอบแบบปรับเหมาะเชิงกฎเกณฑ์ (Rule-based Adaptive)
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-white leading-[1.15] animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+                สนุกกับการเขียนโค้ด <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 relative inline-block">
+                  โครงสร้างภาษา HTML
+                  <div className="absolute -bottom-2 left-0 right-0 h-3 bg-purple-500/20 blur-md -z-10"></div>
+                </span>
+              </h1>
+              
+              <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+                ระบบการเรียนรู้ที่ปรับระดับความยากให้เหมาะกับคุณโดยอัตโนมัติ พร้อม <strong className="text-slate-200">Code Lab</strong> ให้ฝึกปฏิบัติจริง สนุก เข้าใจง่าย เหมือนเล่นเกม!
+              </p>
 
-        {/* Feature Cards Section (Asymmetrical layout instead of strict bento grid) */}
-        <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full mt-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
-            
-            {/* Card 1: Adaptive Engine (Lavender) */}
-            <div className="soft-card card-lavender flex flex-col justify-between h-full group">
-              <div className="space-y-4">
-                <div className="icon-circle w-14 h-14 text-purple-600 dark:text-purple-400">
-                  <BrainCircuit className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black mb-2">ปรับความยากอัตโนมัติ</h3>
-                  <p className="text-purple-900/70 dark:text-purple-200/70 font-medium leading-relaxed">
-                    ระบบจะวิเคราะห์คำตอบและจัดสรรข้อสอบข้อถัดไปให้เหมาะกับระดับของคุณ ช่วยลดความตึงเครียดและวัดผลได้แม่นยำยิ่งขึ้น
-                  </p>
-                </div>
-              </div>
-              <div className="mt-8 flex justify-end">
-                <div className="w-12 h-12 rounded-full bg-white/50 dark:bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Code Lab (Mint) */}
-            <div className="soft-card card-mint flex flex-col justify-between h-full group md:translate-y-12">
-              <div className="space-y-4">
-                <div className="icon-circle w-14 h-14 text-emerald-600 dark:text-emerald-400">
-                  <Code2 className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black mb-2">ห้องปฏิบัติการเขียนโค้ด</h3>
-                  <p className="text-emerald-900/70 dark:text-emerald-200/70 font-medium leading-relaxed">
-                    เรียนรู้ HTML จากการลงมือทำจริง พิมพ์โค้ดปุ๊บ เห็นผลลัพธ์ปั๊บ พร้อมระบบตรวจไวยากรณ์อัตโนมัติ
-                  </p>
-                </div>
-              </div>
-              <div className="mt-8 flex justify-end">
-                <div className="w-12 h-12 rounded-full bg-white/50 dark:bg-black/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
+              {/* Entrance Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
+                <Link 
+                  href="/student" 
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg shadow-[0_0_40px_-10px_rgba(147,51,234,0.5)] transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  <Play className="w-5 h-5 fill-current" />
+                  <span>เริ่มเรียนเลย (นักเรียน)</span>
+                </Link>
+                
+                <Link 
+                  href="/teacher/login" 
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-lg transition-all active:scale-95"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>สำหรับผู้สอน</span>
+                </Link>
               </div>
             </div>
 
-            {/* Card 3: Analytics (Yellow) */}
-            <div className="soft-card card-yellow flex flex-col justify-between h-full group md:col-span-2 mt-8 md:mt-12">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 space-y-4">
-                  <div className="icon-circle w-14 h-14 text-yellow-600 dark:text-yellow-500">
-                    <LineChart className="w-7 h-7" />
+            {/* Code Lab Preview UI (Terminal Style) */}
+            <div className="mt-20 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 shadow-2xl shadow-black/50">
+              <div className="flex flex-col rounded-2xl overflow-hidden border border-code-line bg-code-bg">
+                <div className="bg-code-bg-2 p-3 px-4 flex items-center justify-between border-b border-code-line shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="flex gap-2"><i className="w-3 h-3 rounded-full bg-[#ff5f57]"></i><i className="w-3 h-3 rounded-full bg-[#febc2e]"></i><i className="w-3 h-3 rounded-full bg-[#28c840]"></i></div>
+                    <span className="chip mono bg-green-900/30 text-theme-green border border-green-500/20 text-xs hidden sm:flex"><Code2 className="w-3.5 h-3.5" />index.html</span>
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-black mb-2">วิเคราะห์ผลสำหรับผู้สอน</h3>
-                    <p className="text-yellow-900/70 dark:text-yellow-100/70 font-medium leading-relaxed max-w-xl">
-                      แดชบอร์ดสรุปผลการเรียน พร้อมวิเคราะห์ค่าความเชื่อมั่น KR-20 และ Effect Size (Cohen's d) ช่วยให้ครูเข้าใจพัฒนาการของนักเรียนได้อย่างลึกซึ้ง
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-slate-500 hidden sm:block">AI-Powered Code Lab</span>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-theme-green text-xs font-bold transition-colors">
+                      <Play className="w-3.5 h-3.5 fill-current" /> RUN
+                    </button>
                   </div>
                 </div>
                 
-                {/* Decorative Chart Graphic */}
-                <div className="w-full md:w-64 h-40 bg-white/40 dark:bg-black/20 rounded-3xl p-4 flex items-end justify-between gap-3 border border-white/50 dark:border-white/5">
-                  <div className="w-full bg-yellow-300 dark:bg-yellow-600/60 rounded-t-xl h-[40%]"></div>
-                  <div className="w-full bg-yellow-400 dark:bg-yellow-500/70 rounded-t-xl h-[60%]"></div>
-                  <div className="w-full bg-yellow-500 dark:bg-yellow-400/80 rounded-t-xl h-[85%]"></div>
-                  <div className="w-full bg-yellow-600 dark:bg-yellow-300/90 rounded-t-xl h-[100%]"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 min-h-[300px]">
+                  <div className="p-5 font-mono text-sm leading-[1.8] text-[#c9d4e8] border-b md:border-b-0 md:border-r border-code-line overflow-x-auto">
+                    <span className="text-[#71809a]">&lt;!-- ภารกิจ: สร้างโครงสร้าง HTML --&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;!doctype</span> <span className="text-[#7ee0b7]">html</span><span className="text-[#ff8fa3]">&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;html</span> <span className="text-[#7ee0b7]">lang</span>=<span className="text-[#f5c977]">"th"</span><span className="text-[#ff8fa3]">&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;head&gt;</span>{'\n'}
+                    {'  '}<span className="text-[#ff8fa3]">&lt;title&gt;</span>เว็บไซต์ของฉัน<span className="text-[#ff8fa3]">&lt;/title&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;/head&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;body&gt;</span>{'\n'}
+                    {'  '}<span className="text-[#ff8fa3]">&lt;h1&gt;</span>ยินดีต้อนรับสู่ HTML Adaptive<span className="text-[#ff8fa3]">&lt;/h1&gt;</span>{'\n'}
+                    {'  '}<span className="text-[#ff8fa3]">&lt;p&gt;</span>ระบบเรียนรู้ปรับเหมาะอัตโนมัติ<span className="text-[#ff8fa3]">&lt;/p&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;/body&gt;</span>{'\n'}
+                    <span className="text-[#ff8fa3]">&lt;/html&gt;</span>
+                  </div>
+                  <div className="p-6 bg-white text-black relative flex flex-col justify-center items-center font-sans">
+                    <div className="absolute top-3 left-3 flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span> Live Preview
+                    </div>
+                    <div className="text-center">
+                      <h1 className="text-3xl font-bold mb-4">ยินดีต้อนรับสู่ HTML Adaptive</h1>
+                      <p className="text-slate-600 text-lg">ระบบเรียนรู้ปรับเหมาะอัตโนมัติ</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* Features Section */}
+          <section className="px-4 sm:px-6 max-w-6xl mx-auto w-full mt-24 md:mt-32">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="text-2xl md:text-4xl font-bold mb-4">ฟีเจอร์เด่นของระบบ</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">ยกระดับการเรียนรู้ด้วยเทคโนโลยีที่ช่วยให้คุณเก่งขึ้นอย่างเป็นธรรมชาติ</p>
+            </div>
             
-          </div>
-        </section>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Feature 1 */}
+              <div className="bg-code-bg border border-code-line rounded-[24px] p-8 hover:border-purple-500/50 hover:-translate-y-1 transition-all group">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <BrainCircuit className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">ระบบปรับความยากอัตโนมัติ</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  วิเคราะห์คำตอบและจัดสรรข้อสอบข้อถัดไปให้เหมาะกับระดับของคุณ (Rule-based & IRT 3PL) ลดความตึงเครียดและวัดผลแม่นยำ
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="bg-code-bg border border-code-line rounded-[24px] p-8 hover:border-emerald-500/50 hover:-translate-y-1 transition-all group">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Terminal className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">ห้องปฏิบัติการเขียนโค้ด</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  เรียนรู้ HTML จากการลงมือทำจริง (Code Lab) พิมพ์โค้ดปุ๊บ เห็นผลลัพธ์ปั๊บ พร้อม AI ช่วยตรวจไวยากรณ์และให้คำแนะนำ
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="bg-code-bg border border-code-line rounded-[24px] p-8 hover:border-blue-500/50 hover:-translate-y-1 transition-all group">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <LineChart className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">แดชบอร์ดวิเคราะห์ผลลัพธ์</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  สรุปผลการเรียน พร้อมวิเคราะห์ค่าความเชื่อมั่น KR-20 และ Effect Size (Cohen's d) ช่วยให้ครูเข้าใจพัฒนาการได้อย่างลึกซึ้ง
+                </p>
+              </div>
+
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );

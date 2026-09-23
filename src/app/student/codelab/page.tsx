@@ -144,20 +144,13 @@ function CodeLabContent() {
       alert('เกิดข้อผิดพลาดในการส่งตรวจโค้ด');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const passedChecklistCount = Object.values(checklistStatus).filter(Boolean).length;
-  const totalChecklistCount = currentAssignment.checklist.length;
-
-  return (
-    <div className="main-inner enter" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 40px)', minHeight: '600px' }}>
-      <div className="topline shrink-0">
+    return (
+    <div className="main-inner enter flex flex-col min-h-[800px] md:min-h-[600px] h-auto md:h-[calc(100vh-40px)] mb-20 md:mb-0">
+      <div className="topline shrink-0 flex flex-wrap gap-2 items-center justify-between">
         <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/ฝึกเขียนโค้ด_CodeLab</span>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
           <select 
-            className="chip chip-line mono" 
-            style={{ border: '1px solid var(--line)', background: 'var(--white)', padding: '9px 14px', cursor: 'pointer', fontSize: '13px' }}
+            className="chip chip-line mono w-full sm:w-auto bg-white border border-line py-2 px-3 text-[13px] cursor-pointer" 
             value={currentAssignment.id}
             onChange={(e) => {
               const found = MOCK_ASSIGNMENTS.find((a) => a.id === e.target.value);
@@ -168,75 +161,75 @@ function CodeLabContent() {
               <option key={a.id} value={a.id}>ภารกิจ: {a.title}</option>
             ))}
           </select>
-          <button className="btn btn-navy btn-sm" onClick={handleSubmitAssignment} disabled={isSubmitting}>
+          <button className="btn btn-navy btn-sm w-full sm:w-auto justify-center" onClick={handleSubmitAssignment} disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             {isSubmitting ? 'กำลังตรวจ...' : 'ส่งตรวจโค้ด'}
           </button>
         </div>
       </div>
 
-      <section className="win" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <div className="win-bar" style={{ flexShrink: 0 }}>
+      <section className="win flex flex-col flex-1 min-h-0 mt-4 md:mt-0">
+        <div className="win-bar shrink-0">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
           <div className="win-title"><em>&lt;/&gt;</em> editor.html</div>
         </div>
 
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', padding: '14px', minHeight: 0 }}>
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
           
           {/* Editor */}
-          <div style={{ display: 'flex', flexDirection: 'column', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--code-line)' }}>
-            <div style={{ background: 'var(--code-bg-2)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--code-line)', flexShrink: 0 }}>
+          <div className="flex flex-col rounded-2xl overflow-hidden border border-code-line min-h-[400px] lg:min-h-0 relative">
+            <div className="bg-code-bg-2 p-2.5 px-3.5 flex items-center justify-between border-b border-code-line shrink-0">
               <div className="flex items-center gap-3">
                 <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-                <span className="chip mono" style={{ background: 'rgba(15,179,137,.16)', color: '#4fd8ac' }}><Code2 className="w-3.5 h-3.5" />index.html</span>
+                <span className="chip mono bg-green-900/20 text-theme-green"><Code2 className="w-3.5 h-3.5" />index.html</span>
               </div>
               <div className="flex gap-1">
-                <button className="icon-btn" style={{ background: 'transparent', border: 0, color: '#4fd8ac' }} title="รันโค้ด" onClick={handleRun}><Play className="w-4 h-4" /></button>
-                <button className="icon-btn" style={{ background: 'transparent', border: 0, color: '#9aa7bd' }} title="บันทึกร่าง" onClick={handleSaveDraft}><Save className="w-4 h-4" /></button>
-                <button className="icon-btn" style={{ background: 'transparent', border: 0, color: '#9aa7bd' }} title="รีเซ็ต" onClick={handleReset}><RotateCcw className="w-4 h-4" /></button>
+                <button className="icon-btn border-0 bg-transparent text-theme-green hover:bg-white/5" title="รันโค้ด" onClick={handleRun}><Play className="w-4 h-4" /></button>
+                <button className="icon-btn border-0 bg-transparent text-muted hover:bg-white/5" title="บันทึกร่าง" onClick={handleSaveDraft}><Save className="w-4 h-4" /></button>
+                <button className="icon-btn border-0 bg-transparent text-muted hover:bg-white/5" title="รีเซ็ต" onClick={handleReset}><RotateCcw className="w-4 h-4" /></button>
               </div>
             </div>
             <textarea 
               spellCheck="false" 
-              style={{ flex: 1, background: 'var(--code-bg)', color: '#c9d4e8', border: 0, padding: '18px', fontFamily: 'var(--font-mono)', fontSize: '12.5px', lineHeight: 1.8, resize: 'none', outline: 'none' }}
+              className="flex-1 bg-code-bg text-[#c9d4e8] border-0 p-[18px] font-mono text-[12.5px] leading-[1.8] resize-none focus:outline-none"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
             {savedDraftToast && (
-              <div style={{ position: 'absolute', margin: '14px', alignSelf: 'flex-end', bottom: '20px', background: 'var(--green)', color: '#fff', fontSize: '11.5px', fontWeight: 700, padding: '8px 14px', borderRadius: '10px' }}>บันทึกร่างแล้ว ✓</div>
+              <div className="absolute right-3.5 bottom-5 bg-green-500 text-white text-[11.5px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-10 animate-in fade-in slide-in-from-bottom-2">บันทึกร่างแล้ว ✓</div>
             )}
           </div>
 
           {/* Preview + Checklist */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: 0 }}>
-            <div style={{ flex: 1.3, display: 'flex', flexDirection: 'column', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--line)', minHeight: 0 }}>
-              <div style={{ background: 'var(--soft)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-                <div className="win-dots"><i style={{ background: 'var(--line)' }}></i><i style={{ background: 'var(--line)' }}></i><i style={{ background: 'var(--line)' }}></i></div>
-                <div style={{ flex: 1, background: 'var(--white)', border: '1px solid var(--line)', borderRadius: '8px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--muted)' }}>
-                  <Globe style={{ width: '12px', height: '12px', color: 'var(--blue)' }} />preview://index.html
+          <div className="flex flex-col gap-3 min-h-[400px] lg:min-h-0">
+            <div className="flex-1 flex flex-col rounded-2xl overflow-hidden border border-line min-h-[250px]">
+              <div className="bg-soft p-2.5 px-3.5 flex items-center gap-2.5 border-b border-line shrink-0">
+                <div className="win-dots"><i className="bg-line"></i><i className="bg-line"></i><i className="bg-line"></i></div>
+                <div className="flex-1 bg-white border border-line rounded-lg px-3 py-1.5 flex items-center gap-2 text-[11px] text-muted">
+                  <Globe className="w-3 h-3 text-theme-blue" />preview://index.html
                 </div>
               </div>
               <iframe 
                 key={iframeKey}
                 sandbox="allow-scripts" 
-                style={{ flex: 1, border: 0, background: '#fff', width: '100%', height: '100%' }}
+                className="flex-1 border-0 bg-white w-full h-full"
                 srcDoc={previewCode}
               />
             </div>
 
-            <div className="card" style={{ flexShrink: 0 }}>
-              <div className="flex items-center justify-between" style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)' }}>
-                <div className="flex items-center gap-2" style={{ fontSize: '12.5px', fontWeight: 700 }}>
-                  <Layout style={{ width: '14px', height: '14px', color: 'var(--blue)' }} />เงื่อนไขภารกิจ
+            <div className="card shrink-0">
+              <div className="flex items-center justify-between p-3 px-4 border-b border-line">
+                <div className="flex items-center gap-2 text-[12.5px] font-bold">
+                  <Layout className="w-3.5 h-3.5 text-theme-blue" />เงื่อนไขภารกิจ
                 </div>
                 <span className="chip chip-line mono">{passedChecklistCount}/{totalChecklistCount}</span>
               </div>
-              <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px 16px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 px-4">
                 {currentAssignment.checklist.map(item => {
                   const passed = checklistStatus[item.id];
                   return (
-                    <div key={item.id} className="flex items-center gap-2" style={{ fontSize: '11.5px', color: passed ? 'var(--green)' : 'var(--muted)', fontWeight: passed ? 700 : 400 }}>
-                      <span className="dot" style={{ width: '14px', height: '14px', borderRadius: '50%', border: passed ? '1.5px solid var(--green)' : '1.5px solid var(--line)', background: passed ? 'var(--green)' : 'transparent', flexShrink: 0 }}></span>
+                    <div key={item.id} className={`flex items-center gap-2 text-[11.5px] ${passed ? 'text-theme-green font-bold' : 'text-muted'}`}>
+                      <span className={`w-3.5 h-3.5 rounded-full border-[1.5px] shrink-0 ${passed ? 'border-theme-green bg-theme-green' : 'border-line bg-transparent'}`}></span>
                       {item.label}
                     </div>
                   );
@@ -245,11 +238,11 @@ function CodeLabContent() {
             </div>
 
             {reviewResult && (
-              <div className="card" style={{ padding: '16px', background: 'var(--purple-dim)', borderColor: 'rgba(138,92,246,.3)', flexShrink: 0 }}>
-                <div className="flex items-center gap-2" style={{ fontWeight: 700, fontSize: '12.5px', color: 'var(--purple)', marginBottom: '6px' }}>
-                  <Bot style={{ width: '16px', height: '16px' }} />AI Code Review ({reviewResult.score}/100)
+              <div className="card p-4 bg-purple-dim border-purple-500/30 shrink-0">
+                <div className="flex items-center gap-2 font-bold text-[12.5px] text-theme-purple mb-1.5">
+                  <Bot className="w-4 h-4" />AI Code Review ({reviewResult.score}/100)
                 </div>
-                <p style={{ margin: 0, fontSize: '12px', lineHeight: 1.7, color: 'var(--ink)' }}>
+                <p className="m-0 text-xs leading-[1.7] text-ink">
                   {reviewResult.summary}
                 </p>
               </div>

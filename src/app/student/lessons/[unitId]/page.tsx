@@ -72,32 +72,32 @@ export default function LessonDetailPage({
 
   return (
     <div className="main-inner enter">
-      <div className="topline">
+      <div className="topline flex flex-wrap gap-2 items-center justify-between">
         <Link href="/student/lessons" className="btn btn-ghost btn-sm">
           <ChevronLeft className="w-3.5 h-3.5" />กลับไปยังรายการหน่วยการเรียนรู้
         </Link>
-        <div className="bar" style={{ width: '160px' }}><span style={{ width: '64%' }}></span></div>
+        <div className="bar w-24 sm:w-40"><span style={{ width: '64%' }}></span></div>
       </div>
 
-      <section className="win" style={{ marginBottom: '16px' }}>
+      <section className="win mb-4">
         <div className="win-bar">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
           <div className="win-title"><em>&lt;/&gt;</em> {unit.sub_domain_code.toLowerCase()}-lesson.html</div>
         </div>
-        <div className="win-body" style={{ padding: '26px 28px' }}>
-          <div className="flex items-center gap-2" style={{ marginBottom: '10px' }}>
+        <div className="win-body p-5 sm:p-7">
+          <div className="flex items-center gap-2 mb-2.5">
             <span className="chip chip-blue mono">{unit.sub_domain_code}</span>
-            <span className="muted" style={{ fontSize: '12px', fontWeight: 600 }}>{unit.title}</span>
+            <span className="muted text-[12px] font-bold">{unit.title}</span>
           </div>
-          <h1 style={{ margin: '0 0 8px', fontSize: '26px', fontWeight: 700 }}>{lesson.title}</h1>
-          <p className="muted" style={{ margin: '0 0 18px', fontSize: '13.5px', maxWidth: '640px', lineHeight: 1.7 }}>
+          <h1 className="m-0 mb-2 text-xl sm:text-[26px] font-bold">{lesson.title}</h1>
+          <p className="muted m-0 mb-4 sm:mb-[18px] text-[13.5px] max-w-[640px] leading-[1.7]">
             {unit.description}
           </p>
-          <div className="flex gap-2 wrap">
-            <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="btn btn-green btn-sm">
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="btn btn-green btn-sm w-full sm:w-auto justify-center">
               <Terminal className="w-4 h-4" />ฝึกใน Code Lab
             </Link>
-            <Link href={`/student/tutor?unit=${unit.sub_domain_code}`} className="btn btn-soft btn-sm">
+            <Link href={`/student/tutor?unit=${unit.sub_domain_code}`} className="btn btn-soft btn-sm w-full sm:w-auto justify-center">
               <MessageSquare className="w-4 h-4" />ถาม AI Tutor เกี่ยวกับบทนี้
             </Link>
           </div>
@@ -105,7 +105,7 @@ export default function LessonDetailPage({
       </section>
 
       <section className="win">
-        <div className="win-tabs">
+        <div className="win-tabs overflow-x-auto whitespace-nowrap">
           <button className={`win-tab ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
             <FileText className="w-3.5 h-3.5" />content.md{activeTab === 'content' && <span className="dot"></span>}
           </button>
@@ -122,27 +122,25 @@ export default function LessonDetailPage({
 
         {activeTab === 'content' && (
           <div className="win-body">
-            <div style={{ maxWidth: '720px' }}>
-              <article className="prose dark:prose-invert max-w-none text-ink text-[14px] leading-[1.9] whitespace-pre-line">
-                {lesson.content || `แท็ก <a className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)`}
-              </article>
+            <div className="max-w-[720px]">
+              <article className="prose dark:prose-invert max-w-none text-ink text-[14px] leading-[1.9] whitespace-pre-line" dangerouslySetInnerHTML={{ __html: lesson.content || `แท็ก <a class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)` }} />
 
-              <div style={{ background: 'var(--code-bg)', borderRadius: '14px', padding: '18px 20px', margin: '18px 0', overflowX: 'auto' }}>
-                <pre className="mono" style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.8, color: '#c9d4e8' }}>
-                  <span style={{ color: '#71809a' }}>&lt;!-- ลิงก์ไปหน้าอื่น เปิดแท็บใหม่ --&gt;</span>{'\n'}
-                  <span style={{ color: '#ff8fa3' }}>&lt;a</span> <span style={{ color: '#7ee0b7' }}>href</span>=<span style={{ color: '#f5c977' }}>"about.html"</span> <span style={{ color: '#7ee0b7' }}>target</span>=<span style={{ color: '#f5c977' }}>"_blank"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>เกี่ยวกับเรา<span style={{ color: '#ff8fa3' }}>&lt;/a&gt;</span>{'\n\n'}
-                  <span style={{ color: '#71809a' }}>&lt;!-- Anchor link ภายในหน้าเดียวกัน --&gt;</span>{'\n'}
-                  <span style={{ color: '#ff8fa3' }}>&lt;a</span> <span style={{ color: '#7ee0b7' }}>href</span>=<span style={{ color: '#f5c977' }}>"#contact"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>ไปที่ส่วนติดต่อเรา<span style={{ color: '#ff8fa3' }}>&lt;/a&gt;</span>{'\n'}
-                  <span style={{ color: '#ff8fa3' }}>&lt;h2</span> <span style={{ color: '#7ee0b7' }}>id</span>=<span style={{ color: '#f5c977' }}>"contact"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>ติดต่อเรา<span style={{ color: '#ff8fa3' }}>&lt;/h2&gt;</span>
+              <div className="bg-code-bg rounded-xl p-4 sm:p-[18px_20px] my-4 sm:my-[18px] overflow-x-auto">
+                <pre className="mono m-0 text-xs sm:text-[12.5px] leading-[1.8] text-[#c9d4e8]">
+                  <span className="text-[#71809a]">&lt;!-- ลิงก์ไปหน้าอื่น เปิดแท็บใหม่ --&gt;</span>{'\n'}
+                  <span className="text-[#ff8fa3]">&lt;a</span> <span className="text-[#7ee0b7]">href</span>=<span className="text-[#f5c977]">"about.html"</span> <span className="text-[#7ee0b7]">target</span>=<span className="text-[#f5c977]">"_blank"</span><span className="text-[#ff8fa3]">&gt;</span>เกี่ยวกับเรา<span className="text-[#ff8fa3]">&lt;/a&gt;</span>{'\n\n'}
+                  <span className="text-[#71809a]">&lt;!-- Anchor link ภายในหน้าเดียวกัน --&gt;</span>{'\n'}
+                  <span className="text-[#ff8fa3]">&lt;a</span> <span className="text-[#7ee0b7]">href</span>=<span className="text-[#f5c977]">"#contact"</span><span className="text-[#ff8fa3]">&gt;</span>ไปที่ส่วนติดต่อเรา<span className="text-[#ff8fa3]">&lt;/a&gt;</span>{'\n'}
+                  <span className="text-[#ff8fa3]">&lt;h2</span> <span className="text-[#7ee0b7]">id</span>=<span className="text-[#f5c977]">"contact"</span><span className="text-[#ff8fa3]">&gt;</span>ติดต่อเรา<span className="text-[#ff8fa3]">&lt;/h2&gt;</span>
                 </pre>
               </div>
 
-              <div className="flex items-center justify-between" style={{ marginTop: '22px', padding: '16px 18px', background: 'var(--blue-dim)', borderRadius: '14px' }}>
-                <div className="flex items-center gap-3">
-                  <Sparkles style={{ width: '18px', height: '18px', color: 'var(--blue)', flexShrink: 0 }} />
-                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--ink)' }}>ดูภาพประกอบโครงสร้างเพิ่มเติมได้ที่แท็บ <strong>สไลด์การสอน</strong></span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-5 p-4 bg-blue-dim rounded-xl">
+                <div className="flex items-start sm:items-center gap-3">
+                  <Sparkles className="w-[18px] h-[18px] text-theme-blue shrink-0 mt-0.5 sm:mt-0" />
+                  <span className="text-[12.5px] font-bold text-ink">ดูภาพประกอบโครงสร้างเพิ่มเติมได้ที่แท็บ <strong>สไลด์การสอน</strong></span>
                 </div>
-                <button className="btn btn-blue btn-sm" onClick={() => setActiveTab('slide')}>ดูสไลด์</button>
+                <button className="btn btn-blue btn-sm w-full sm:w-auto shrink-0 justify-center" onClick={() => setActiveTab('slide')}>ดูสไลด์</button>
               </div>
             </div>
           </div>
@@ -150,39 +148,34 @@ export default function LessonDetailPage({
 
         {activeTab === 'slide' && (
           <div className="win-body tight">
-            <div style={{ background: 'linear-gradient(160deg,#0c1428,#141d3a)', color: '#fff', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div className="flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,.12)', paddingBottom: '16px' }}>
-                <span className="chip mono" style={{ background: 'rgba(47,123,246,.22)', color: '#8fbcff' }}>{unit.sub_domain_code} SLIDE VIEWER</span>
-                <span style={{ fontSize: '12px', color: '#aebbd0' }}>หน้าที่ {currentSlideIndex + 1} / {totalSlides}</span>
+            <div className="text-white p-6 sm:p-10 min-h-[380px] flex flex-col justify-between" style={{ background: 'linear-gradient(160deg,#0c1428,#141d3a)' }}>
+              <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 gap-2">
+                <span className="chip mono bg-blue-500/20 text-blue-300">{unit.sub_domain_code} SLIDE VIEWER</span>
+                <span className="text-xs text-slate-300">หน้าที่ {currentSlideIndex + 1} / {totalSlides}</span>
               </div>
               
-              <div className="text-center" style={{ padding: '30px 0', maxWidth: '520px', margin: '0 auto' }}>
-                <div style={{ display: 'inline-flex', padding: '16px', borderRadius: '20px', background: 'rgba(47,123,246,.18)', marginBottom: '16px' }}>
-                  <Presentation style={{ width: '34px', height: '34px', color: '#8fbcff' }} />
+              <div className="text-center py-8 max-w-[520px] mx-auto">
+                <div className="inline-flex p-4 rounded-2xl bg-blue-500/20 mb-4">
+                  <Presentation className="w-[34px] h-[34px] text-blue-300" />
                 </div>
-                <h2 style={{ fontSize: '26px', fontWeight: 700, margin: '0 0 10px' }}>{slides[currentSlideIndex].t}</h2>
-                <p style={{ fontSize: '13px', color: '#c7d2e3', lineHeight: 1.7 }}>{slides[currentSlideIndex].d}</p>
+                <h2 className="text-xl sm:text-[26px] font-bold m-0 mb-2.5 leading-tight">{slides[currentSlideIndex].t}</h2>
+                <p className="text-[13px] text-slate-300 leading-[1.7]">{slides[currentSlideIndex].d}</p>
               </div>
               
-              <div className="flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,.12)', paddingTop: '16px' }}>
-                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }} onClick={handlePrevSlide} disabled={currentSlideIndex === 0}>
-                  <ChevronLeft className="w-4 h-4" />ก่อนหน้า
+              <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                <button className="btn btn-sm bg-white/10 text-white hover:bg-white/20" onClick={handlePrevSlide} disabled={currentSlideIndex === 0}>
+                  <ChevronLeft className="w-4 h-4" /><span className="hidden sm:inline">ก่อนหน้า</span>
                 </button>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
                   {slides.map((_, idx) => (
                     <span 
                       key={idx} 
-                      style={{ 
-                        width: '6px', 
-                        height: '6px', 
-                        borderRadius: '50%', 
-                        background: idx === currentSlideIndex ? '#8fbcff' : 'rgba(255,255,255,.25)' 
-                      }} 
+                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${idx === currentSlideIndex ? 'bg-blue-300' : 'bg-white/25'}`}
                     />
                   ))}
                 </div>
-                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }} onClick={handleNextSlide} disabled={currentSlideIndex === totalSlides - 1}>
-                  ถัดไป<ChevronRight className="w-4 h-4" />
+                <button className="btn btn-sm bg-white/10 text-white hover:bg-white/20" onClick={handleNextSlide} disabled={currentSlideIndex === totalSlides - 1}>
+                  <span className="hidden sm:inline">ถัดไป</span><ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -190,12 +183,12 @@ export default function LessonDetailPage({
         )}
 
         {activeTab === 'video' && (
-          <div className="win-body">
-            <div style={{ background: 'var(--code-bg)', borderRadius: '16px', aspectRatio: '16/9', maxWidth: '760px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              <button className="icon-btn" style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', color: '#fff' }}>
-                <Play style={{ width: '26px', height: '26px' }} />
+          <div className="win-body p-4 sm:p-7">
+            <div className="bg-code-bg rounded-2xl aspect-video max-w-[760px] mx-auto flex items-center justify-center relative overflow-hidden group">
+              <button className="icon-btn w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 border border-white/20 text-white group-hover:scale-110 transition-transform">
+                <Play className="w-5 h-5 sm:w-[26px] sm:h-[26px]" />
               </button>
-              <span style={{ position: 'absolute', bottom: '14px', left: '16px', color: '#c7d2e3', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+              <span className="absolute bottom-2.5 sm:bottom-3.5 left-3 sm:left-4 text-slate-300 text-[10px] sm:text-[11px] font-mono">
                 04:12 · วีดีโอสอน: การใช้งาน Hyperlink
               </span>
             </div>
@@ -204,19 +197,19 @@ export default function LessonDetailPage({
 
         {activeTab === 'doc' && (
           <div className="win-body">
-            <div className="card" style={{ maxWidth: '520px', margin: '0 auto', padding: '26px', textAlign: 'center' }}>
-              <FileText style={{ width: '34px', height: '34px', color: 'var(--red)', margin: '0 auto 10px' }} />
-              <h3 style={{ margin: '0 0 6px', fontSize: '15px' }}>เอกสารประกอบหน่วย {unit.sub_domain_code}.pdf</h3>
-              <p className="muted" style={{ fontSize: '12px', margin: '0 0 16px' }}>สรุปเนื้อหา ตัวอย่างโค้ด และแบบฝึกหัดท้ายบท · 6 หน้า</p>
-              <button className="btn btn-ghost btn-sm">ดาวน์โหลดเอกสาร <ArrowRight className="w-3.5 h-3.5" /></button>
+            <div className="card max-w-[520px] mx-auto p-6 text-center">
+              <FileText className="w-[34px] h-[34px] text-theme-red mx-auto mb-2.5" />
+              <h3 className="m-0 mb-1.5 text-[15px] font-bold truncate">เอกสารประกอบหน่วย {unit.sub_domain_code}.pdf</h3>
+              <p className="muted text-xs m-0 mb-4 truncate">สรุปเนื้อหา ตัวอย่างโค้ด และแบบฝึกหัดท้ายบท · 6 หน้า</p>
+              <button className="btn btn-ghost btn-sm w-full sm:w-auto justify-center">ดาวน์โหลดเอกสาร <ArrowRight className="w-3.5 h-3.5" /></button>
             </div>
           </div>
         )}
       </section>
 
-      <div className="flex justify-between items-center" style={{ marginTop: '18px' }}>
-        <Link href="#" className="btn btn-ghost btn-sm"><ChevronLeft className="w-3.5 h-3.5" /> H2 · Heading &amp; Paragraph</Link>
-        <Link href="#" className="btn btn-navy btn-sm">H4 · รูปภาพและสื่อประสม <ChevronRight className="w-3.5 h-3.5" /></Link>
+      <div className="flex justify-between items-center mt-4">
+        <Link href="#" className="btn btn-ghost btn-sm max-w-[48%] truncate"><ChevronLeft className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">H2 · Heading &amp; Paragraph</span></Link>
+        <Link href="#" className="btn btn-navy btn-sm max-w-[48%] truncate"><span className="truncate">H4 · รูปภาพและสื่อประสม</span> <ChevronRight className="w-3.5 h-3.5 shrink-0" /></Link>
       </div>
     </div>
   );

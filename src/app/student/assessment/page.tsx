@@ -227,7 +227,7 @@ function AssessmentContent() {
                 <p style={{ margin: 0, fontSize: '12.5px', color: '#c7d2e3' }}>ระบบประมวลผลความเชี่ยวชาญของคุณเสร็จสิ้น</p>
               </div>
               <div style={{ padding: '26px' }}>
-                <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px', maxWidth: '320px', margin: '0 auto 20px' }}>
+                <div className="grid grid-cols-2 gap-3 max-w-[320px] mx-auto mb-5">
                   <div className="card" style={{ padding: '14px', textAlign: 'center', background: 'var(--soft)' }}>
                     <div className="muted" style={{ fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>คะแนนรวม</div>
                     <div style={{ fontSize: '26px', fontWeight: 700 }}>{percentage}%</div>
@@ -296,7 +296,7 @@ function AssessmentContent() {
             {!isRetest ? (
               <div style={{ maxWidth: '600px', margin: '0 auto 22px' }}>
                 <h3 style={{ textAlign: 'center', fontSize: '13px', margin: '0 0 12px' }}>โปรดเลือกประเภทแบบทดสอบ</h3>
-                <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button 
                     className="card" 
                     onClick={() => setSelectedTestType('pre_test')}
@@ -349,7 +349,7 @@ function AssessmentContent() {
   const currentIndex = activeState.questionIndex;
 
   return (
-    <div className="main-inner enter" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 40px)' }}>
+    <div className="main-inner enter flex flex-col h-auto md:h-[calc(100vh-40px)] min-h-[600px] mb-20 md:mb-0">
       <section className="win" id="screen-quiz" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <div className="win-bar shrink-0">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
@@ -361,11 +361,11 @@ function AssessmentContent() {
 
         <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
           {/* Sidebar Grid */}
-          <aside className="hide-mobile" style={{ width: '220px', flexShrink: 0, borderRight: '1px solid var(--line)', padding: '20px', background: 'var(--soft)', overflowY: 'auto' }}>
-            <div className="flex items-center gap-2" style={{ fontSize: '12.5px', fontWeight: 700, marginBottom: '14px' }}>
-              <Grid style={{ width: '14px', height: '14px', color: 'var(--blue)' }} />สถานะข้อสอบ
+          <aside className="hidden md:block w-[220px] shrink-0 border-r border-line p-5 bg-soft overflow-y-auto">
+            <div className="flex items-center gap-2 text-[12.5px] font-bold mb-3.5">
+              <Grid className="w-3.5 h-3.5 text-theme-blue" />สถานะข้อสอบ
             </div>
-            <div className="grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+            <div className="grid grid-cols-4 gap-1.5">
               {Array.from({ length: maxQuestions }).map((_, idx) => {
                 const isCur = idx === currentIndex;
                 const isDone = idx < currentIndex;
@@ -477,12 +477,12 @@ function AssessmentContent() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center" style={{ padding: '16px 26px', borderTop: '1px solid var(--line)', flexShrink: 0 }}>
-              <span className="muted" style={{ fontSize: '11.5px' }}>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-[16px_26px] border-t border-line shrink-0 gap-3 sm:gap-0">
+              <span className="muted text-[11.5px]">
                 {hasSubmittedAnswer ? 'บันทึกคำตอบแล้ว — กำลังเตรียมข้อถัดไป...' : 'เลือกคำตอบที่ถูกต้องที่สุด'}
               </span>
               <button 
-                className="btn btn-navy" 
+                className="btn btn-navy w-full sm:w-auto justify-center" 
                 onClick={handleSubmitQuestion} 
                 disabled={!selectedOption || hasSubmittedAnswer}
               >

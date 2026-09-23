@@ -19,9 +19,9 @@ import {
 export default function StudentLessonsListPage() {
   return (
     <div className="main-inner enter">
-      <div className="topline">
+      <div className="topline flex flex-wrap gap-2 items-center justify-between">
         <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/หลักสูตร_HTML</span>
-        <span className="chip chip-line chip-mono hide-mobile">5 / 8 หน่วยเรียนจบแล้ว</span>
+        <span className="chip chip-line chip-mono hidden sm:inline-flex">5 / 8 หน่วยเรียนจบแล้ว</span>
       </div>
 
       <div className="page-heading">
@@ -29,7 +29,7 @@ export default function StudentLessonsListPage() {
         <p>ครอบคลุมทุกองค์ประกอบของโครงสร้างภาษา HTML สำหรับนักเรียน ปวช. พร้อมสไลด์การสอน วิดีโอ และเอกสารประกอบ</p>
       </div>
 
-      <div className="flex-col gap-4" style={{ display: 'flex' }}>
+      <div className="flex flex-col gap-4">
         {MOCK_UNITS.map((unit, index) => {
           // Using mock logic to simulate progress state based on HTML prototype
           // H1, H2 (index 0, 1) = Done
@@ -69,35 +69,25 @@ export default function StudentLessonsListPage() {
                 </div>
               </div>
               
-              <div className="win-body grid-paper" style={{ display: 'flex', alignItems: 'center', gap: '26px', flexWrap: 'wrap' }}>
+              <div className="win-body grid-paper flex flex-col md:flex-row items-start md:items-center gap-6">
                 <div 
-                  className="mono" 
-                  style={{ 
-                    fontSize: '22px', 
-                    fontWeight: 700, 
-                    padding: '16px 20px', 
-                    borderRadius: '14px', 
-                    background: state === 'next' ? 'var(--soft)' : 'var(--code-bg)', 
-                    border: state === 'next' ? '1px solid var(--line)' : 'none',
-                    color: state === 'next' ? 'var(--faint)' : (state === 'progress' ? '#61a6ff' : 'var(--green)'), 
-                    flexShrink: 0 
-                  }}
+                  className={`mono text-[22px] font-bold p-4 rounded-xl shrink-0 ${state === 'next' ? 'bg-soft border border-line text-faint' : 'bg-code-bg border-none ' + (state === 'progress' ? 'text-[#61a6ff]' : 'text-theme-green')}`}
                 >
                   &lt;{unit.sub_domain_code}&gt;
                 </div>
                 
-                <div style={{ flex: 1, minWidth: '240px' }}>
-                  <h3 style={{ margin: '0 0 6px', fontSize: '17px', fontWeight: 700 }}>{unit.title}</h3>
-                  <p className="muted" style={{ margin: state === 'progress' ? '0 0 10px' : '0', fontSize: '12.5px', lineHeight: 1.7, maxWidth: '560px' }}>
+                <div className="flex-1 min-w-0 w-full">
+                  <h3 className="m-0 mb-1.5 text-[17px] font-bold">{unit.title}</h3>
+                  <p className={`muted m-0 ${state === 'progress' ? 'mb-2.5' : ''} text-[12.5px] leading-[1.7] max-w-[560px]`}>
                     <span className="mono faint">// </span>{unit.description}
                   </p>
                   
                   {state === 'progress' && (
-                    <div className="bar" style={{ maxWidth: '280px' }}><span style={{ width: '64%' }}></span></div>
+                    <div className="bar max-w-[280px] mt-2"><span style={{ width: '64%' }}></span></div>
                   )}
                   
                   {state === 'done' && (
-                    <div className="flex gap-2 wrap" style={{ marginTop: '12px' }}>
+                    <div className="flex flex-wrap gap-2 mt-3">
                       <span className="chip chip-line mono"><Presentation className="w-3 h-3"/>slide.ppt</span>
                       <span className="chip chip-line mono"><Tv className="w-3 h-3"/>video.mp4</span>
                       <span className="chip chip-line mono"><FileText className="w-3 h-3"/>doc.pdf</span>
@@ -106,8 +96,8 @@ export default function StudentLessonsListPage() {
                 </div>
                 
                 {state !== 'next' ? (
-                  <div className="flex-col gap-3" style={{ alignItems: 'flex-end', flexShrink: 0 }}>
-                    <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="chip chip-green mono" style={{ cursor: 'pointer' }}>
+                  <div className="flex flex-col gap-3 items-stretch md:items-end w-full md:w-auto shrink-0 mt-2 md:mt-0">
+                    <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="chip chip-green mono cursor-pointer justify-center md:justify-start">
                       <Terminal className="w-3.5 h-3.5" />เข้าห้องปฏิบัติการ
                     </Link>
                     <Link href={`/student/lessons/${unit.id}`} className={state === 'progress' ? "btn btn-navy btn-sm" : "btn btn-ghost btn-sm"}>
@@ -119,7 +109,7 @@ export default function StudentLessonsListPage() {
                     </Link>
                   </div>
                 ) : (
-                  <Link href={`/student/lessons/${unit.id}`} className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>
+                  <Link href={`/student/lessons/${unit.id}`} className="btn btn-ghost btn-sm shrink-0 w-full md:w-auto mt-2 md:mt-0 justify-center">
                     เริ่มเรียนหน่วยนี้ <ArrowRight className="w-3 h-3" />
                   </Link>
                 )}
@@ -129,27 +119,27 @@ export default function StudentLessonsListPage() {
         })}
 
         {/* Locked Items */}
-        <div className="grid" style={{ gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {MOCK_UNITS.map((unit, index) => {
             if (index < 4) return null; // Already rendered above
             
             return (
-              <div key={unit.id} className="card" style={{ padding: '18px', opacity: .65, display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div className="mono" style={{ fontSize: '15px', fontWeight: 700, padding: '10px 13px', borderRadius: '10px', background: 'var(--soft)', border: '1px solid var(--line)', color: 'var(--faint)' }}>
+              <div key={unit.id} className="card p-4 md:p-[18px] opacity-65 flex items-center gap-3.5">
+                <div className="mono text-[15px] font-bold px-[13px] py-[10px] rounded-[10px] bg-soft border border-line text-faint">
                   {unit.sub_domain_code}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <b style={{ fontSize: '13px' }}>{unit.title}</b>
-                  <div className="faint" style={{ fontSize: '11px', marginTop: '2px' }}>{unit.description}</div>
+                <div className="flex-1 min-w-0">
+                  <b className="text-[13px] block truncate">{unit.title}</b>
+                  <div className="faint text-[11px] mt-0.5 truncate">{unit.description}</div>
                 </div>
-                <Lock className="w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-slate-400 shrink-0" />
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="text-center faint mono" style={{ fontSize: '10px', padding: '22px 0' }}>&lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM</div>
+      <div className="text-center faint mono text-[10px] py-6">&lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM</div>
     </div>
   );
 }
