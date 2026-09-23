@@ -144,7 +144,13 @@ function CodeLabContent() {
       alert('เกิดข้อผิดพลาดในการส่งตรวจโค้ด');
     } finally {
       setIsSubmitting(false);
-    return (
+    }
+  };
+
+  const passedChecklistCount = Object.values(checklistStatus).filter(Boolean).length;
+  const totalChecklistCount = currentAssignment.checklist.length;
+
+  return (
     <div className="main-inner enter flex flex-col min-h-[800px] md:min-h-[600px] h-auto md:h-[calc(100vh-40px)] mb-20 md:mb-0">
       <div className="topline shrink-0 flex flex-wrap gap-2 items-center justify-between">
         <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/ฝึกเขียนโค้ด_CodeLab</span>
