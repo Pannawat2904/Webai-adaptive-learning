@@ -20,8 +20,42 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
-  /* Unified Deep Space Theme (Forced Dark Mode aesthetic everywhere) */
+  /* Default Light Mode Theme */
   :root {
+    --ink: #0f172a; /* slate-900 */
+    --muted: #64748b; /* slate-500 */
+    --faint: #94a3b8; /* slate-400 */
+    --soft: rgba(241, 245, 249, 0.6); /* slate-100 */
+    --line: rgba(15, 23, 42, 0.08); /* Dark line on light bg */
+    --white: rgba(255, 255, 255, 0.85);
+
+    /* Accents (Tuned for Light Mode readability) */
+    --blue: #0284c7; /* sky-600 */
+    --blue-dim: rgba(2, 132, 199, 0.1);
+    --green: #16a34a; /* green-600 */
+    --green-dim: rgba(22, 163, 74, 0.1);
+    --purple: #9333ea; /* purple-600 */
+    --purple-dim: rgba(147, 51, 234, 0.1);
+    --amber: #d97706; /* amber-600 */
+    --amber-dim: rgba(217, 119, 6, 0.1);
+    --red: #e11d48; /* rose-600 */
+    --red-dim: rgba(225, 29, 72, 0.1);
+    --navy: #f8fafc; /* slate-50 */
+    --navy-2: #f1f5f9; /* slate-100 */
+
+    --bg-base: #f8fafc; /* Very light slate background */
+    --shadow-sm: 0 4px 12px rgba(0,0,0,.05);
+    --shadow-md: 0 8px 24px rgba(0,0,0,.08);
+    --shadow-window: 0 1px 0 rgba(255,255,255,.5) inset, 0 10px 30px rgba(0,0,0,.08);
+    
+    --r-sm: 12px;
+    --r-md: 16px;
+    --r-lg: 24px;
+    --r-xl: 32px;
+  }
+
+  /* Deep Space Dark Mode Theme */
+  .dark {
     --ink: #ffffff;
     --muted: #a3b3cc;
     --faint: #6e84a3;
@@ -43,18 +77,9 @@
     --navy: #090e17;
     --navy-2: #0d1424;
 
-    --code-bg: rgba(9, 14, 23, 0.7);
-    --code-bg-2: rgba(13, 20, 36, 0.7);
-    --code-line: rgba(255, 255, 255, 0.05);
-
-    --r-sm: 12px;
-    --r-md: 16px;
-    --r-lg: 24px;
-    --r-xl: 32px;
-
+    --bg-base: #060a12;
     --shadow-sm: 0 4px 12px rgba(0,0,0,.2);
     --shadow-md: 0 8px 24px rgba(0,0,0,.3);
-    --shadow-lg: 0 20px 45px rgba(0,229,255,.05);
     --shadow-window: 0 1px 0 rgba(255,255,255,.08) inset, 0 20px 40px rgba(0,0,0,.5);
   }
 
@@ -62,14 +87,18 @@
     margin: 0;
     font-family: var(--font-sans);
     color: var(--ink);
-    background: 
-      radial-gradient(800px 600px at 15% 0%, rgba(176, 92, 255, 0.1), transparent 70%),
-      radial-gradient(900px 700px at 85% 100%, rgba(0, 229, 255, 0.1), transparent 70%),
-      #060a12; /* Deep space navy background */
+    background-color: var(--bg-base);
     background-attachment: fixed;
     transition: background-color .25s ease, color .25s ease;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+  }
+
+  /* Keep the cool radial gradients only in dark mode */
+  .dark body {
+    background-image: 
+      radial-gradient(800px 600px at 15% 0%, rgba(176, 92, 255, 0.1), transparent 70%),
+      radial-gradient(900px 700px at 85% 100%, rgba(0, 229, 255, 0.1), transparent 70%);
   }
   
   ::selection { background: rgba(0, 229, 255, .3); }

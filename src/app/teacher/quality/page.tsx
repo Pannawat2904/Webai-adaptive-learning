@@ -24,11 +24,11 @@ export default function QualityPage() {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white drop-shadow-md mb-2 flex items-center gap-3">
-            <ShieldCheck className="w-8 h-8 text-[#00ff9d]" />
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white drop-shadow-sm dark:drop-shadow-md mb-2 flex items-center gap-3">
+            <ShieldCheck className="w-8 h-8 text-[#16a34a] dark:text-[#00ff9d]" />
             คุณภาพระบบ (System Quality)
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             ตรวจสอบความน่าเชื่อถือและประสิทธิภาพการประเมินของระบบ
           </p>
         </div>
@@ -37,32 +37,32 @@ export default function QualityPage() {
       {!isResearchMode ? (
         // Simplified View for Teachers
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card p-8 flex flex-col justify-center items-center text-center">
-            <h3 className="text-lg font-bold text-slate-300 mb-4">สถานะระบบการประเมิน</h3>
-            <div className="w-32 h-32 rounded-full border-4 border-[#00ff9d] flex items-center justify-center mb-4">
-              <span className="text-4xl font-black text-[#00ff9d]">{systemHealth}%</span>
+          <div className="card p-8 flex flex-col justify-center items-center text-center border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-4">สถานะระบบการประเมิน</h3>
+            <div className="w-32 h-32 rounded-full border-4 border-[#16a34a] dark:border-[#00ff9d] flex items-center justify-center mb-4 bg-slate-50 dark:bg-transparent">
+              <span className="text-4xl font-black text-[#16a34a] dark:text-[#00ff9d]">{systemHealth}%</span>
             </div>
-            <p className="text-[#00ff9d] font-bold">ระบบมีความน่าเชื่อถือสูงมาก</p>
-            <p className="text-sm text-slate-400 mt-2">ข้อสอบมีการจำแนกผู้เรียนได้ดีและมีข้อสอบครอบคลุมเพียงพอ</p>
+            <p className="text-[#16a34a] dark:text-[#00ff9d] font-bold">ระบบมีความน่าเชื่อถือสูงมาก</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">ข้อสอบมีการจำแนกผู้เรียนได้ดีและมีข้อสอบครอบคลุมเพียงพอ</p>
           </div>
           
-          <div className="card p-8 space-y-6">
-            <h3 className="text-lg font-bold text-slate-300">ผลสัมฤทธิ์ทางการเรียน</h3>
+          <div className="card p-8 space-y-6 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
+            <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">ผลสัมฤทธิ์ทางการเรียน</h3>
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-slate-400">ความก้าวหน้าโดยรวม</span>
-                <span className="font-bold text-[#00ff9d]">สูงมาก</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">ความก้าวหน้าโดยรวม</span>
+                <span className="font-bold text-[#16a34a] dark:text-[#00ff9d]">สูงมาก</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full bg-[#00ff9d] w-[85%]"></div>
+              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+                <div className="h-full bg-[#16a34a] dark:bg-[#00ff9d] w-[85%] shadow-sm dark:shadow-none"></div>
               </div>
             </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10 mt-6">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 mt-6">
               <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-[#00e5ff]" />
-                <span className="font-bold text-[#00e5ff]">AI Insights</span>
+                <Activity className="w-4 h-4 text-[#0284c7] dark:text-[#00e5ff]" />
+                <span className="font-bold text-[#0284c7] dark:text-[#00e5ff]">AI Insights</span>
               </div>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 นักเรียนมีการพัฒนาทักษะอย่างมีนัยสำคัญหลังจากการทำ Code Lab ระบบประเมินว่านักเรียนมีความเข้าใจเพิ่มขึ้นเทียบเท่ากับการเรียนปกติ 1.5 เดือน
               </p>
             </div>
@@ -72,43 +72,43 @@ export default function QualityPage() {
         // Advanced Research Mode View
         <div className="space-y-6 animate-in fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="card border-[rgba(176,92,255,0.3)] bg-[rgba(176,92,255,0.02)] p-6">
-              <h3 className="text-lg font-bold text-[#b05cff] mb-4 flex items-center gap-2">
+            <div className="card border-[#9333ea]/30 dark:border-[rgba(176,92,255,0.3)] bg-[#9333ea]/5 dark:bg-[rgba(176,92,255,0.02)] p-6 shadow-sm dark:shadow-none">
+              <h3 className="text-lg font-bold text-[#9333ea] dark:text-[#b05cff] mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5" /> ความเที่ยงตรง (Reliability)
               </h3>
               <div className="flex justify-between items-end">
                 <div>
-                  <div className="text-4xl font-black text-white">{reliability}</div>
-                  <div className="text-xs text-slate-400 mt-1">Marginal Reliability (เกณฑ์ &gt; 0.8)</div>
+                  <div className="text-4xl font-black text-slate-900 dark:text-white">{reliability}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Marginal Reliability (เกณฑ์ &gt; 0.8)</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-bold text-[#b05cff]">ดีมาก</div>
+                  <div className="text-sm font-bold text-[#9333ea] dark:text-[#b05cff]">ดีมาก</div>
                   <div className="text-[10px] text-slate-500">SE เฉลี่ย: 0.25</div>
                 </div>
               </div>
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <p className="text-xs text-slate-300 leading-relaxed">
+              <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   ระบบ Adaptive Testing มีความสามารถในการวัด θ ของผู้เรียนได้สม่ำเสมอ ความคลาดเคลื่อน (Standard Error) อยู่ในเกณฑ์ต่ำ แสดงให้เห็นว่ากฎการหยุด (Stopping Rule) ทำงานได้อย่างมีประสิทธิภาพ
                 </p>
               </div>
             </div>
 
-            <div className="card border-[rgba(0,255,157,0.3)] bg-[rgba(0,255,157,0.02)] p-6">
-              <h3 className="text-lg font-bold text-[#00ff9d] mb-4 flex items-center gap-2">
+            <div className="card border-[#16a34a]/30 dark:border-[rgba(0,255,157,0.3)] bg-[#16a34a]/5 dark:bg-[rgba(0,255,157,0.02)] p-6 shadow-sm dark:shadow-none">
+              <h3 className="text-lg font-bold text-[#16a34a] dark:text-[#00ff9d] mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" /> ขนาดอิทธิพล (Effect Size)
               </h3>
               <div className="flex justify-between items-end">
                 <div>
-                  <div className="text-4xl font-black text-white">{effectSize}</div>
-                  <div className="text-xs text-slate-400 mt-1">Cohen&apos;s d (เกณฑ์ &gt; 0.8)</div>
+                  <div className="text-4xl font-black text-slate-900 dark:text-white">{effectSize}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Cohen&apos;s d (เกณฑ์ &gt; 0.8)</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-bold text-[#00ff9d]">สูงมาก (Large Effect)</div>
+                  <div className="text-sm font-bold text-[#16a34a] dark:text-[#00ff9d]">สูงมาก (Large Effect)</div>
                   <div className="text-[10px] text-slate-500">Pre-test vs Post-test</div>
                 </div>
               </div>
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <p className="text-xs text-slate-300 leading-relaxed">
+              <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   การเรียนรู้ร่วมกับ AI Assistant ส่งผลให้คะแนนความสามารถเฉลี่ยของผู้เรียนเพิ่มขึ้นอย่างมีนัยสำคัญทางสถิติเมื่อเทียบกับก่อนเรียน (Pre-test)
                 </p>
               </div>
