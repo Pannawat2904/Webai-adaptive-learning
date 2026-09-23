@@ -11,17 +11,25 @@ import {
   RotateCcw,
   Sparkles,
   AlertCircle,
-  LayoutDashboard
+  LayoutDashboard,
+  User
 } from 'lucide-react';
 
 export default function StudentLearningProfilePage() {
   const { profile } = useAuth();
   const [skills, setSkills] = useState<Record<string, SkillProfile>>(MOCK_STUDENT_SKILLS);
+  const [irtTheta, setIrtTheta] = useState<number | null>(null);
+  const [irtSE, setIrtSE] = useState<number | null>(null);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem('webai_student_skills');
       if (saved) setSkills(JSON.parse(saved));
+      
+      const t = localStorage.getItem('webai_irt_theta');
+      const se = localStorage.getItem('webai_irt_se');
+      if (t) setIrtTheta(parseFloat(t));
+      if (se) setIrtSE(parseFloat(se));
     } catch {
       // ignore
     }
@@ -74,6 +82,31 @@ export default function StudentLearningProfilePage() {
           ผลการวิเคราะห์ระดับความรู้ 8 Sub-domain โครงสร้างภาษา HTML ของ {profile.full_name || 'ผู้ใช้'}
         </p>
       </div>
+
+      {/* IRT Overall Ability */}
+      {irtTheta !== null && irtSE !== null && (
+        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+          <div className="flex-1 space-y-2">
+            <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2">
+              <User className="w-5 h-5" /> 
+              IRT Overall Ability (ระดับความสามารถรวม)
+            </h2>
+            <p className="text-sm text-emerald-700 dark:text-emerald-500">
+              ค่าจากการประมาณความสามารถของผู้เรียน (Theta, θ) ตามแบบจำลอง 3PL CAT
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center min-w-[120px] shadow-sm">
+              <div className="text-xs font-bold text-slate-500 mb-1">ความสามารถ (θ)</div>
+              <div className="text-2xl font-black text-emerald-600">{irtTheta.toFixed(2)}</div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center min-w-[120px] shadow-sm">
+              <div className="text-xs font-bold text-slate-500 mb-1">คลาดเคลื่อน (SE)</div>
+              <div className="text-2xl font-black text-emerald-600">{irtSE.toFixed(3)}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Grid: 8-Axis Radar Chart + AI Diagnostics */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

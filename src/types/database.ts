@@ -152,6 +152,13 @@ export interface Question {
   difficulty_index?: number; // p-value (สัดส่วนคนตอบถูก 0.0 - 1.0)
   discrimination_index?: number; // D-value (อำนาจจำแนกกลุ่มสูง 27% vs ต่ำ 27%, -1.0 to 1.0)
   total_attempts?: number;
+  
+  // IRT 3PL Parameters
+  irt_model?: string;
+  irt_a?: number | null; // Discrimination
+  irt_b?: number | null; // Difficulty
+  irt_c?: number | null; // Pseudo-guessing
+  irt_calibration_status?: 'pending' | 'calibrated' | 'draft' | 'expert_reviewed' | 'pilot';
 }
 
 export interface TestSession {
@@ -309,4 +316,73 @@ export interface AuditLog {
   entity: string;
   details?: Record<string, unknown>;
   timestamp: string;
+}
+
+// =====================================================
+// IRT & CAT Types
+// =====================================================
+
+export interface IRTItem extends Question {
+  irt_model: '3PL';
+  irt_a: number;
+  irt_b: number;
+  irt_c: number;
+  irt_calibration_status: 'pending' | 'calibrated' | 'draft' | 'expert_reviewed' | 'pilot';
+}
+
+export interface CATSession {
+  id: string;
+  session_id: string;
+  student_id: string;
+  test_id?: string;
+  initial_theta: number;
+  current_theta: number;
+  standard_error: number;
+  estimation_method: 'MLE' | 'MAP' | 'EAP';
+  items_answered: number;
+  min_items: number;
+  max_items: number;
+  target_standard_error: number;
+  status: 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+  started_at: string;
+  completed_at?: string;
+}
+
+export interface CATResponse {
+  id: string;
+  session_id: string;
+  question_id: string;
+  student_id: string;
+  sequence: number;
+  answer: string;
+  is_correct: boolean;
+  theta_before: number;
+  theta_after: number;
+  item_information: number;
+  standard_error_after: number;
+  response_time: number;
+  created_at: string;
+}
+
+export interface AbilityEstimate {
+  student_id: string;
+  theta: number;
+  standard_error: number;
+  updated_at: string;
+}
+
+export interface DomainAbility {
+  student_id: string;
+  sub_domain_code: SubDomainCode;
+  theta: number;
+  standard_error: number;
+  updated_at: string;
+}
+
+export interface LearningProfile {
+  overall_ability: AbilityEstimate;
+  domain_abilities: Record<SubDomainCode, DomainAbility>;
+  strengths: SubDomainCode[];
+  developing: SubDomainCode[];
+  needs_improvement: SubDomainCode[];
 }

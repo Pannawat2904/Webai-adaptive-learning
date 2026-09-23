@@ -3,129 +3,153 @@
 import React from 'react';
 import Link from 'next/link';
 import { MOCK_UNITS } from '@/lib/mock-data';
+import { SUB_DOMAINS, SubDomainCode } from '@/types/database';
 import {
   Code2,
   Tv,
   Presentation,
   FileText,
   Terminal,
-  Play
+  Play,
+  ArrowRight,
+  Zap,
+  Lock
 } from 'lucide-react';
 
 export default function StudentLessonsListPage() {
   return (
-    <div className="w-full max-w-[1200px] mx-auto pb-24 px-4 sm:px-6 lg:px-8 font-sans space-y-8">
-      {/* Header */}
-      <div className="space-y-2 mb-10 text-center md:text-left">
-        <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40 px-3 py-1.5 rounded">
-          <Terminal className="w-4 h-4" />
-          <span>./หลักสูตร_HTML</span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-800 dark:text-white mt-4">
-          หน่วยการเรียนรู้ 8 Sub-domain
-        </h1>
-        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium max-w-3xl mt-2">
-          ครอบคลุมทุกองค์ประกอบของโครงสร้างภาษา HTML สำหรับนักเรียน ปวช. พร้อมสไลด์การสอนและวิดีโอบรรยาย
-        </p>
+    <div className="main-inner enter">
+      <div className="topline">
+        <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/หลักสูตร_HTML</span>
+        <span className="chip chip-line chip-mono hide-mobile">5 / 8 หน่วยเรียนจบแล้ว</span>
       </div>
 
-      {/* Vertical Stack List (IDE Window Aesthetics) */}
-      <div className="flex flex-col gap-6 sm:gap-8 relative z-10">
-        {MOCK_UNITS.map((unit) => {
+      <div className="page-heading">
+        <h1>หน่วยการเรียนรู้ทั้ง 8 หัวข้อ<span className="accent">.</span></h1>
+        <p>ครอบคลุมทุกองค์ประกอบของโครงสร้างภาษา HTML สำหรับนักเรียน ปวช. พร้อมสไลด์การสอน วิดีโอ และเอกสารประกอบ</p>
+      </div>
+
+      <div className="flex-col gap-4" style={{ display: 'flex' }}>
+        {MOCK_UNITS.map((unit, index) => {
+          // Using mock logic to simulate progress state based on HTML prototype
+          // H1, H2 (index 0, 1) = Done
+          // H3 (index 2) = In Progress
+          // H4 (index 3) = Next
+          // H5-H8 (index 4-7) = Locked
+          
+          let state = 'locked';
+          if (index < 2) state = 'done';
+          else if (index === 2) state = 'progress';
+          else if (index === 3) state = 'next';
+
+          if (state === 'locked') {
+            return null; // Will render locked ones grouped below
+          }
+
           return (
-            <div
-              key={unit.id}
-              className="group relative w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/15 hover:border-emerald-500/40 overflow-hidden"
+            <article 
+              key={unit.id} 
+              className={`win ${state !== 'next' ? 'card-hover' : ''}`}
+              style={
+                state === 'progress' 
+                  ? { borderColor: 'rgba(47,123,246,.35)', boxShadow: '0 0 0 3px var(--blue-dim), var(--shadow-window)' } 
+                  : {}
+              }
             >
-              {/* Editor Top Bar (macOS Window Control) */}
-              <div className="bg-slate-100 dark:bg-[#0d1117] px-4 py-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
-                {/* Mac Dots */}
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400/90 shadow-inner"></div>
-                  <div className="w-3 h-3 rounded-full bg-amber-400/90 shadow-inner"></div>
-                  <div className="w-3 h-3 rounded-full bg-emerald-400/90 shadow-inner"></div>
+              <div className="win-bar">
+                <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
+                <div className="win-title">
+                  <Code2 className={`w-3.5 h-3.5 ${state === 'next' ? 'text-slate-400' : 'text-theme-blue'}`} />
+                  บทเรียน_{unit.sub_domain_code.toLowerCase()}.html
                 </div>
-                
-                {/* File Name */}
-                <div className="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5 absolute left-1/2 -translate-x-1/2">
-                  <Code2 className="w-3.5 h-3.5 text-blue-500" />
-                  <span>บทเรียน_{unit.sub_domain_code.toLowerCase()}.html</span>
+                <div className="win-actions">
+                  {state === 'done' && <span className="chip chip-blue">✓ เรียนจบแล้ว</span>}
+                  {state === 'progress' && <span className="chip chip-amber mono"><Zap className="w-3 h-3" />กำลังเรียน · 64%</span>}
+                  {state === 'next' && <span className="chip chip-line mono">ถัดไป</span>}
                 </div>
-                
-                <div className="w-12"></div> {/* Spacer to balance absolute center */}
               </div>
-
-              {/* Editor Content Area */}
-              <div className="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative bg-white dark:bg-[#161b22]">
-                
-                {/* Subtle Background Grid (Graph Paper) */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-40"></div>
-
-                {/* Left Side: Unit Info */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 flex-1 relative z-10 w-full">
-                  
-                  {/* Syntax Highlighted HTML Tag Badge */}
-                  <div className="font-mono text-xl sm:text-2xl font-black px-5 py-4 rounded-xl bg-slate-900 text-emerald-400 shadow-inner shrink-0 border border-slate-700/80 group-hover:bg-black transition-colors duration-300">
-                    <span className="text-pink-500 font-normal">{'<'}</span>
-                    {unit.sub_domain_code}
-                    <span className="text-pink-500 font-normal">{'>'}</span>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight font-sans tracking-tight">
-                      {unit.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2.5 font-medium max-w-2xl leading-relaxed flex items-start gap-2">
-                      <span className="text-slate-400 dark:text-slate-600 font-mono text-xs mt-0.5 select-none">{'//'}</span>
-                      <span>{unit.description}</span>
-                    </p>
-                  </div>
+              
+              <div className="win-body grid-paper" style={{ display: 'flex', alignItems: 'center', gap: '26px', flexWrap: 'wrap' }}>
+                <div 
+                  className="mono" 
+                  style={{ 
+                    fontSize: '22px', 
+                    fontWeight: 700, 
+                    padding: '16px 20px', 
+                    borderRadius: '14px', 
+                    background: state === 'next' ? 'var(--soft)' : 'var(--code-bg)', 
+                    border: state === 'next' ? '1px solid var(--line)' : 'none',
+                    color: state === 'next' ? 'var(--faint)' : (state === 'progress' ? '#61a6ff' : 'var(--green)'), 
+                    flexShrink: 0 
+                  }}
+                >
+                  &lt;{unit.sub_domain_code}&gt;
                 </div>
-
-                {/* Right Side: Actions & Badges */}
-                <div className="mt-6 md:mt-0 flex flex-col md:items-end gap-5 shrink-0 relative z-10 w-full md:w-auto">
+                
+                <div style={{ flex: 1, minWidth: '240px' }}>
+                  <h3 style={{ margin: '0 0 6px', fontSize: '17px', fontWeight: 700 }}>{unit.title}</h3>
+                  <p className="muted" style={{ margin: state === 'progress' ? '0 0 10px' : '0', fontSize: '12.5px', lineHeight: 1.7, maxWidth: '560px' }}>
+                    <span className="mono faint">// </span>{unit.description}
+                  </p>
                   
-                  {/* Resource Files (Styled like file attachments) */}
-                  <div className="flex flex-wrap items-center gap-2 text-slate-500 dark:text-slate-400 text-[10px] font-bold font-mono">
-                    <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#0d1117] px-2.5 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
-                      <Presentation className="w-3.5 h-3.5 text-blue-500" />
-                      slide.ppt
-                    </span>
-                    <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#0d1117] px-2.5 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
-                      <Tv className="w-3.5 h-3.5 text-purple-500" />
-                      video.mp4
-                    </span>
-                    <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#0d1117] px-2.5 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
-                      <FileText className="w-3.5 h-3.5 text-orange-500" />
-                      doc.pdf
-                    </span>
-                  </div>
-
-                  {/* Actions (Terminal / Execute) */}
-                  <div className="flex flex-row items-center justify-between md:justify-end gap-6 w-full pt-1">
-                    <Link
-                      href={`/student/codelab?subdomain=${unit.sub_domain_code}`}
-                      className="text-[11px] font-mono font-bold text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-colors group/lab"
-                    >
-                      <Terminal className="w-4 h-4 text-emerald-500 group-hover/lab:animate-pulse" />
-                      <span className="border-b border-dashed border-slate-300 dark:border-slate-600 group-hover/lab:border-emerald-500 pb-0.5">เข้าห้องปฏิบัติการ()</span>
+                  {state === 'progress' && (
+                    <div className="bar" style={{ maxWidth: '280px' }}><span style={{ width: '64%' }}></span></div>
+                  )}
+                  
+                  {state === 'done' && (
+                    <div className="flex gap-2 wrap" style={{ marginTop: '12px' }}>
+                      <span className="chip chip-line mono"><Presentation className="w-3 h-3"/>slide.ppt</span>
+                      <span className="chip chip-line mono"><Tv className="w-3 h-3"/>video.mp4</span>
+                      <span className="chip chip-line mono"><FileText className="w-3 h-3"/>doc.pdf</span>
+                    </div>
+                  )}
+                </div>
+                
+                {state !== 'next' ? (
+                  <div className="flex-col gap-3" style={{ alignItems: 'flex-end', flexShrink: 0 }}>
+                    <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="chip chip-green mono" style={{ cursor: 'pointer' }}>
+                      <Terminal className="w-3.5 h-3.5" />เข้าห้องปฏิบัติการ
                     </Link>
-
-                    <Link
-                      href={`/student/lessons/${unit.id}`}
-                      className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-mono font-bold text-xs rounded-lg shadow-md transition-all hover:scale-105 active:scale-95"
-                    >
-                      <span>เข้าสู่บทเรียน</span>
-                      <Play className="w-3.5 h-3.5 fill-emerald-400 dark:fill-white group-hover:fill-white transition-colors" />
+                    <Link href={`/student/lessons/${unit.id}`} className={state === 'progress' ? "btn btn-navy btn-sm" : "btn btn-ghost btn-sm"}>
+                      {state === 'progress' ? (
+                        <>เรียนต่อ <Play className="w-3 h-3" fill="currentColor"/></>
+                      ) : (
+                        <>ทบทวนอีกครั้ง <ArrowRight className="w-3 h-3" /></>
+                      )}
                     </Link>
                   </div>
-                </div>
-
+                ) : (
+                  <Link href={`/student/lessons/${unit.id}`} className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>
+                    เริ่มเรียนหน่วยนี้ <ArrowRight className="w-3 h-3" />
+                  </Link>
+                )}
               </div>
-            </div>
+            </article>
           );
         })}
+
+        {/* Locked Items */}
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>
+          {MOCK_UNITS.map((unit, index) => {
+            if (index < 4) return null; // Already rendered above
+            
+            return (
+              <div key={unit.id} className="card" style={{ padding: '18px', opacity: .65, display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div className="mono" style={{ fontSize: '15px', fontWeight: 700, padding: '10px 13px', borderRadius: '10px', background: 'var(--soft)', border: '1px solid var(--line)', color: 'var(--faint)' }}>
+                  {unit.sub_domain_code}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <b style={{ fontSize: '13px' }}>{unit.title}</b>
+                  <div className="faint" style={{ fontSize: '11px', marginTop: '2px' }}>{unit.description}</div>
+                </div>
+                <Lock className="w-4 h-4 text-slate-400" />
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      <div className="text-center faint mono" style={{ fontSize: '10px', padding: '22px 0' }}>&lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM</div>
     </div>
   );
 }

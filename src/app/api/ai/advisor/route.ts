@@ -4,7 +4,7 @@ import { SubDomainCode, SUB_DOMAINS } from '@/types/database';
 
 export async function POST(request: Request) {
   try {
-    const { skills, studentName } = await request.json();
+    const { skills, studentName, irtTheta, irtSE } = await request.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -27,10 +27,13 @@ export async function POST(request: Request) {
     const systemPrompt = `
 คุณคือ "AI Advisor แนะนำการเรียนรู้เฉพาะบุคคล" สำหรับระบบนวัตกรรมเรียนรู้โครงสร้างภาษา HTML ระดับ ปวช.
 ข้อมูลผู้เรียน: ${studentName || 'นักเรียน'}
-จุดแข็ง (>=80%): ${strongList.join(', ') || 'ไม่มี'}
-จุดที่ควรพัฒนา (<60%): ${weakList.join(', ') || 'ไม่มี'}
+ความสามารถรวมประเมินจากแบบจำลอง IRT 3PL (Theta): ${irtTheta !== undefined ? irtTheta.toFixed(2) : 'N/A'} (ช่วง -3.0 ถึง 3.0)
+ความคลาดเคลื่อนมาตรฐาน (SE): ${irtSE !== undefined ? irtSE.toFixed(3) : 'N/A'}
 
-จงให้คำแนะนำภาษาไทยที่อบอุ่น เป็นมิตร สั้นกระชับ ให้กำลังใจ และระบุขั้นตอนการพัฒนาที่ชัดเจน 3 ข้อ
+จุดแข็ง (Strength): ${strongList.join(', ') || 'ไม่มี'}
+จุดที่ควรพัฒนา (Needs Improvement): ${weakList.join(', ') || 'ไม่มี'}
+
+จงให้คำแนะนำภาษาไทยที่อบอุ่น เป็นมิตร สั้นกระชับ ให้กำลังใจ วิเคราะห์ระดับความสามารถ (Theta) และระบุขั้นตอนการพัฒนาที่ชัดเจน 3 ข้อ
     `;
 
     if (apiKey) {

@@ -18,6 +18,8 @@ import {
   MessageSquare,
   ArrowLeft,
   Download,
+  ArrowRight,
+  Play
 } from 'lucide-react';
 
 export default function LessonDetailPage({
@@ -29,7 +31,7 @@ export default function LessonDetailPage({
   const { unitId } = resolvedParams;
 
   const unit = MOCK_UNITS.find((u) => u.id === unitId) || MOCK_UNITS[0];
-  const lesson = MOCK_LESSONS[unitId] || MOCK_LESSONS['u-h1'];
+  const lesson = MOCK_LESSONS[unitId] || MOCK_LESSONS['u-h3']; // Fallback to H3 for demo
   const domain = SUB_DOMAINS[unit.sub_domain_code as SubDomainCode];
 
   const [activeTab, setActiveTab] = useState<'content' | 'slide' | 'video' | 'doc'>('content');
@@ -42,12 +44,14 @@ export default function LessonDetailPage({
   const videoMedia = lesson.media?.find((m) => m.media_type === 'video');
   const docMedia = lesson.media?.find((m) => m.media_type === 'document');
 
-  const slides = slideMedia?.meta?.slides || [
-    `สไลด์ 1: บทนำ ${unit.title}`,
-    `สไลด์ 2: วัตถุประสงค์การเรียนรู้ของ ${unit.sub_domain_code}`,
-    `สไลด์ 3: โครงสร้างหลักและหลักการทำงาน`,
-    `สไลด์ 4: ตัวอย่างการนำไปใช้จริงในงานพัฒนาเว็บไซต์`,
-    `สไลด์ 5: สรุปและแบบตรวจสอบตนเอง`,
+  // Hardcode H3 slides for the prototype showcase
+  const slides = [
+    {t:"โครงสร้างพื้นฐานของแท็ก a", d:"การใช้ href เพื่อระบุปลายทางของลิงก์"},
+    {t:"แอตทริบิวต์ href และ target", d:"การกำหนดปลายทางของลิงก์และพฤติกรรมการเปิดหน้าต่างใหม่ ตามมาตรฐาน W3C"},
+    {t:"Anchor link ภายในหน้าเดียวกัน", d:"การเชื่อมโยงไปยัง id ภายในหน้าเว็บเดียวกัน"},
+    {t:'rel="noopener" เพื่อความปลอดภัย', d:"ป้องกันหน้าต้นทางถูกควบคุมจากหน้าที่เปิดใหม่"},
+    {t:"การเขียนข้อความลิงก์ที่เข้าถึงได้", d:"หลีกเลี่ยงคำว่า 'คลิกที่นี่' เพื่อ Accessibility ที่ดี"},
+    {t:"แบบฝึกหัดท้ายหน่วย", d:"ทบทวนความเข้าใจก่อนเข้าห้องปฏิบัติการ Code Lab"}
   ];
 
   const totalSlides = slides.length;
@@ -66,313 +70,154 @@ export default function LessonDetailPage({
     }
   };
 
-  const slidesComplete = viewedSlides.size >= totalSlides;
-
   return (
-    <div className="space-y-6 pb-16">
-      {/* Back link & progress */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/student/lessons"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl liquid-glass text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition-all hover:scale-105"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>กลับไปยังรายการหน่วยการเรียนรู้</span>
+    <div className="main-inner enter">
+      <div className="topline">
+        <Link href="/student/lessons" className="btn btn-ghost btn-sm">
+          <ChevronLeft className="w-3.5 h-3.5" />กลับไปยังรายการหน่วยการเรียนรู้
         </Link>
-
-        <div>
-          {slidesComplete ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              เรียนจบแล้ว (100%)
-            </span>
-          ) : (
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              สไลด์ที่เปิดดู: {viewedSlides.size}/{totalSlides} หน้า
-            </span>
-          )}
-        </div>
+        <div className="bar" style={{ width: '160px' }}><span style={{ width: '64%' }}></span></div>
       </div>
 
-      {/* Unit Header in Liquid Glass */}
-      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-            {unit.sub_domain_code}
-          </span>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            {domain?.name}
-          </span>
+      <section className="win" style={{ marginBottom: '16px' }}>
+        <div className="win-bar">
+          <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
+          <div className="win-title"><em>&lt;/&gt;</em> {unit.sub_domain_code.toLowerCase()}-lesson.html</div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-          {unit.title}
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-          {lesson.title} — {unit.description}
-        </p>
-
-        {/* Quick Action Links */}
-        <div className="pt-2 flex flex-wrap items-center gap-2.5">
-          <Link
-            href={`/student/codelab?subdomain=${unit.sub_domain_code}`}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-bold transition-all"
-          >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>ฝึกใน Code Lab</span>
-          </Link>
-          <Link
-            href={`/student/tutor?unit=${unit.sub_domain_code}`}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/25 border border-indigo-500/30 text-xs font-bold transition-all"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>ถาม AI Tutor เกี่ยวกับบทนี้</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Tabs Layout */}
-      <div className="flex items-center gap-2 border-b border-slate-200/60 dark:border-slate-800/60 pb-1">
-        <button
-          onClick={() => setActiveTab('content')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-2xl transition-all ${
-            activeTab === 'content'
-              ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>เนื้อหาบทเรียน</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('slide')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-2xl transition-all ${
-            activeTab === 'slide'
-              ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <Presentation className="w-4 h-4" />
-          <span>สไลด์การสอน ({totalSlides})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('video')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-2xl transition-all ${
-            activeTab === 'video'
-              ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <Tv className="w-4 h-4" />
-          <span>วีดีโอการสอน</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('doc')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-2xl transition-all ${
-            activeTab === 'doc'
-              ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>เอกสารประกอบ</span>
-        </button>
-      </div>
-
-      {/* Tab 1: Written Content */}
-      {activeTab === 'content' && (
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6">
-          <article className="prose dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-normal">
-            {lesson.content}
-          </article>
-
-          <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-between">
-            <div className="flex items-center gap-2.5 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              <span>แนะนำให้เปิดดู **สไลด์การสอน** ในแท็บถัดไปเพื่อดูภาพประกอบโครงสร้าง</span>
-            </div>
-            <button
-              onClick={() => setActiveTab('slide')}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs shrink-0 ml-2 transition-all"
-            >
-              ดูสไลด์การสอน
-            </button>
+        <div className="win-body" style={{ padding: '26px 28px' }}>
+          <div className="flex items-center gap-2" style={{ marginBottom: '10px' }}>
+            <span className="chip chip-blue mono">{unit.sub_domain_code}</span>
+            <span className="muted" style={{ fontSize: '12px', fontWeight: 600 }}>{unit.title}</span>
+          </div>
+          <h1 style={{ margin: '0 0 8px', fontSize: '26px', fontWeight: 700 }}>{lesson.title}</h1>
+          <p className="muted" style={{ margin: '0 0 18px', fontSize: '13.5px', maxWidth: '640px', lineHeight: 1.7 }}>
+            {unit.description}
+          </p>
+          <div className="flex gap-2 wrap">
+            <Link href={`/student/codelab?subdomain=${unit.sub_domain_code}`} className="btn btn-green btn-sm">
+              <Terminal className="w-4 h-4" />ฝึกใน Code Lab
+            </Link>
+            <Link href={`/student/tutor?unit=${unit.sub_domain_code}`} className="btn btn-soft btn-sm">
+              <MessageSquare className="w-4 h-4" />ถาม AI Tutor เกี่ยวกับบทนี้
+            </Link>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* Tab 2: Interactive Slide Viewer */}
-      {activeTab === 'slide' && (
-        <div className="space-y-4">
-          <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 text-white shadow-2xl min-h-[400px] flex flex-col justify-between border border-slate-800 relative">
-            {/* Top bar */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-500/30 text-indigo-300 border border-indigo-500/30">
-                  {unit.sub_domain_code} SLIDE VIEWER
-                </span>
-                <span className="text-xs text-slate-300 font-semibold">
-                  หน้าที่ {currentSlideIndex + 1} / {totalSlides}
-                </span>
-              </div>
-              <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                title="ขยายเต็มจอ"
-              >
-                <Maximize2 className="w-4 h-4" />
-              </button>
-            </div>
+      <section className="win">
+        <div className="win-tabs">
+          <button className={`win-tab ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
+            <FileText className="w-3.5 h-3.5" />content.md{activeTab === 'content' && <span className="dot"></span>}
+          </button>
+          <button className={`win-tab ${activeTab === 'slide' ? 'active' : ''}`} onClick={() => setActiveTab('slide')}>
+            <Presentation className="w-3.5 h-3.5" />slide.pptx{activeTab === 'slide' && <span className="dot"></span>}
+          </button>
+          <button className={`win-tab ${activeTab === 'video' ? 'active' : ''}`} onClick={() => setActiveTab('video')}>
+            <Tv className="w-3.5 h-3.5" />video.mp4{activeTab === 'video' && <span className="dot"></span>}
+          </button>
+          <button className={`win-tab ${activeTab === 'doc' ? 'active' : ''}`} onClick={() => setActiveTab('doc')}>
+            <FileText className="w-3.5 h-3.5" />doc.pdf{activeTab === 'doc' && <span className="dot"></span>}
+          </button>
+        </div>
 
-            {/* Body */}
-            <div className="py-10 text-center space-y-4 max-w-xl mx-auto">
-              <div className="inline-flex p-4 rounded-3xl bg-indigo-600/30 text-indigo-300 border border-indigo-400/20 shadow-lg">
-                <Presentation className="w-10 h-10" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-                {slides[currentSlideIndex]}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                สาระสำคัญของ {unit.title} — การทำความเข้าใจโครงสร้างและไวยากรณ์ตามมาตรฐานสากล W3C สำหรับหลักสูตร ปวช.
-              </p>
-            </div>
+        {activeTab === 'content' && (
+          <div className="win-body">
+            <div style={{ maxWidth: '720px' }}>
+              <article className="prose dark:prose-invert max-w-none text-ink text-[14px] leading-[1.9] whitespace-pre-line">
+                {lesson.content || `แท็ก <a className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code className="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)`}
+              </article>
 
-            {/* Navigation */}
-            <div className="flex items-center justify-between border-t border-white/10 pt-4">
-              <button
-                onClick={handlePrevSlide}
-                disabled={currentSlideIndex === 0}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold transition-all"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>สไลด์ก่อนหน้า</span>
-              </button>
-
-              <div className="flex items-center gap-2">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setCurrentSlideIndex(idx);
-                      setViewedSlides((prev) => new Set([...prev, idx]));
-                    }}
-                    className={`h-2.5 rounded-full transition-all ${
-                      idx === currentSlideIndex
-                        ? 'w-7 bg-indigo-400'
-                        : viewedSlides.has(idx)
-                        ? 'w-2.5 bg-emerald-400/70'
-                        : 'w-2.5 bg-white/20'
-                    }`}
-                  />
-                ))}
+              <div style={{ background: 'var(--code-bg)', borderRadius: '14px', padding: '18px 20px', margin: '18px 0', overflowX: 'auto' }}>
+                <pre className="mono" style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.8, color: '#c9d4e8' }}>
+                  <span style={{ color: '#71809a' }}>&lt;!-- ลิงก์ไปหน้าอื่น เปิดแท็บใหม่ --&gt;</span>{'\n'}
+                  <span style={{ color: '#ff8fa3' }}>&lt;a</span> <span style={{ color: '#7ee0b7' }}>href</span>=<span style={{ color: '#f5c977' }}>"about.html"</span> <span style={{ color: '#7ee0b7' }}>target</span>=<span style={{ color: '#f5c977' }}>"_blank"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>เกี่ยวกับเรา<span style={{ color: '#ff8fa3' }}>&lt;/a&gt;</span>{'\n\n'}
+                  <span style={{ color: '#71809a' }}>&lt;!-- Anchor link ภายในหน้าเดียวกัน --&gt;</span>{'\n'}
+                  <span style={{ color: '#ff8fa3' }}>&lt;a</span> <span style={{ color: '#7ee0b7' }}>href</span>=<span style={{ color: '#f5c977' }}>"#contact"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>ไปที่ส่วนติดต่อเรา<span style={{ color: '#ff8fa3' }}>&lt;/a&gt;</span>{'\n'}
+                  <span style={{ color: '#ff8fa3' }}>&lt;h2</span> <span style={{ color: '#7ee0b7' }}>id</span>=<span style={{ color: '#f5c977' }}>"contact"</span><span style={{ color: '#ff8fa3' }}>&gt;</span>ติดต่อเรา<span style={{ color: '#ff8fa3' }}>&lt;/h2&gt;</span>
+                </pre>
               </div>
 
-              <button
-                onClick={handleNextSlide}
-                disabled={currentSlideIndex === totalSlides - 1}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold shadow-md transition-all"
-              >
-                <span>สไลด์ถัดไป</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between px-2">
-            <span>* คลิกเลื่อนดูสไลด์ให้ครบทุกหน้าเพื่อบันทึกสถานะการเรียนจบของหน่วยนี้</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-              เปิดดูแล้ว {viewedSlides.size} จาก {totalSlides} หน้า
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Video Player */}
-      {activeTab === 'video' && (
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
-          <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 flex items-center justify-center relative shadow-xl">
-            {videoMedia?.external_url ? (
-              <iframe
-                src={videoMedia.external_url}
-                title={videoMedia.title}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <div className="text-center text-slate-400 space-y-2 p-6">
-                <Tv className="w-12 h-12 mx-auto text-slate-500" />
-                <p className="text-sm font-bold">วิดีโอบรรยาย {unit.title}</p>
-                <p className="text-xs text-slate-500">
-                  ความยาวประมาณ 8 นาที — เน้นการวิเคราะห์โครงสร้างและสาธิตการเขียนจริง
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between pt-2">
-            <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-                {videoMedia?.title || `วิดีโอสาธิต: ${unit.title}`}
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                เรียนรู้ขั้นตอนการเขียนโค้ดและโครงสร้าง HTML5 อย่างเป็นระบบ
-              </p>
-            </div>
-
-            <button
-              onClick={() => setVideoWatched(true)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                videoWatched
-                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs'
-              }`}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{videoWatched ? 'รับชมจบแล้ว ✓' : 'ทำเครื่องหมายว่าดูจบแล้ว'}</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Downloadable Documents */}
-      {activeTab === 'doc' && (
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
-          <div className="space-y-1">
-            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
-              เอกสารประกอบการเรียนและใบงาน
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              ดาวน์โหลดใบความรู้ สรุปไวยากรณ์ และใบงานแบบฝึกหัดสำหรับชั้นเรียน ปวช.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/60 dark:bg-slate-800/40 flex items-center justify-between hover:border-indigo-500/40 transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
+              <div className="flex items-center justify-between" style={{ marginTop: '22px', padding: '16px 18px', background: 'var(--blue-dim)', borderRadius: '14px' }}>
+                <div className="flex items-center gap-3">
+                  <Sparkles style={{ width: '18px', height: '18px', color: 'var(--blue)', flexShrink: 0 }} />
+                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--ink)' }}>ดูภาพประกอบโครงสร้างเพิ่มเติมได้ที่แท็บ <strong>สไลด์การสอน</strong></span>
                 </div>
-                <div>
-                  <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                    สรุปสูตรลัดและไวยากรณ์: {unit.title} (PDF)
-                  </div>
-                  <div className="text-[11px] text-slate-400">ขนาด 1.2 MB • ภาษาไทย</div>
-                </div>
+                <button className="btn btn-blue btn-sm" onClick={() => setActiveTab('slide')}>ดูสไลด์</button>
               </div>
-              <button
-                onClick={() => alert('กำลังดาวน์โหลดไฟล์สรุปความรู้ HTML')}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors shadow-2xs"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>ดาวน์โหลด</span>
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {activeTab === 'slide' && (
+          <div className="win-body tight">
+            <div style={{ background: 'linear-gradient(160deg,#0c1428,#141d3a)', color: '#fff', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div className="flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,.12)', paddingBottom: '16px' }}>
+                <span className="chip mono" style={{ background: 'rgba(47,123,246,.22)', color: '#8fbcff' }}>{unit.sub_domain_code} SLIDE VIEWER</span>
+                <span style={{ fontSize: '12px', color: '#aebbd0' }}>หน้าที่ {currentSlideIndex + 1} / {totalSlides}</span>
+              </div>
+              
+              <div className="text-center" style={{ padding: '30px 0', maxWidth: '520px', margin: '0 auto' }}>
+                <div style={{ display: 'inline-flex', padding: '16px', borderRadius: '20px', background: 'rgba(47,123,246,.18)', marginBottom: '16px' }}>
+                  <Presentation style={{ width: '34px', height: '34px', color: '#8fbcff' }} />
+                </div>
+                <h2 style={{ fontSize: '26px', fontWeight: 700, margin: '0 0 10px' }}>{slides[currentSlideIndex].t}</h2>
+                <p style={{ fontSize: '13px', color: '#c7d2e3', lineHeight: 1.7 }}>{slides[currentSlideIndex].d}</p>
+              </div>
+              
+              <div className="flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,.12)', paddingTop: '16px' }}>
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }} onClick={handlePrevSlide} disabled={currentSlideIndex === 0}>
+                  <ChevronLeft className="w-4 h-4" />ก่อนหน้า
+                </button>
+                <div className="flex gap-2">
+                  {slides.map((_, idx) => (
+                    <span 
+                      key={idx} 
+                      style={{ 
+                        width: '6px', 
+                        height: '6px', 
+                        borderRadius: '50%', 
+                        background: idx === currentSlideIndex ? '#8fbcff' : 'rgba(255,255,255,.25)' 
+                      }} 
+                    />
+                  ))}
+                </div>
+                <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }} onClick={handleNextSlide} disabled={currentSlideIndex === totalSlides - 1}>
+                  ถัดไป<ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'video' && (
+          <div className="win-body">
+            <div style={{ background: 'var(--code-bg)', borderRadius: '16px', aspectRatio: '16/9', maxWidth: '760px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <button className="icon-btn" style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.2)', color: '#fff' }}>
+                <Play style={{ width: '26px', height: '26px' }} />
+              </button>
+              <span style={{ position: 'absolute', bottom: '14px', left: '16px', color: '#c7d2e3', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+                04:12 · วีดีโอสอน: การใช้งาน Hyperlink
+              </span>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'doc' && (
+          <div className="win-body">
+            <div className="card" style={{ maxWidth: '520px', margin: '0 auto', padding: '26px', textAlign: 'center' }}>
+              <FileText style={{ width: '34px', height: '34px', color: 'var(--red)', margin: '0 auto 10px' }} />
+              <h3 style={{ margin: '0 0 6px', fontSize: '15px' }}>เอกสารประกอบหน่วย {unit.sub_domain_code}.pdf</h3>
+              <p className="muted" style={{ fontSize: '12px', margin: '0 0 16px' }}>สรุปเนื้อหา ตัวอย่างโค้ด และแบบฝึกหัดท้ายบท · 6 หน้า</p>
+              <button className="btn btn-ghost btn-sm">ดาวน์โหลดเอกสาร <ArrowRight className="w-3.5 h-3.5" /></button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="flex justify-between items-center" style={{ marginTop: '18px' }}>
+        <Link href="#" className="btn btn-ghost btn-sm"><ChevronLeft className="w-3.5 h-3.5" /> H2 · Heading &amp; Paragraph</Link>
+        <Link href="#" className="btn btn-navy btn-sm">H4 · รูปภาพและสื่อประสม <ChevronRight className="w-3.5 h-3.5" /></Link>
+      </div>
     </div>
   );
 }
