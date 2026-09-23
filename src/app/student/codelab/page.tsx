@@ -186,8 +186,8 @@ function CodeLabContent() {
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden bg-bg-base">
           
           {/* Editor */}
-          <div className="flex flex-col rounded-xl overflow-hidden border border-line min-h-[400px] lg:min-h-0 relative bg-[#0d1424]">
-            <div className="bg-[#172033] p-2.5 px-3.5 flex items-center justify-between border-b border-line shrink-0">
+          <div className="flex flex-col rounded-xl overflow-hidden border border-line min-h-[400px] lg:min-h-0 relative bg-surface">
+            <div className="bg-bg-base p-2.5 px-3.5 flex items-center justify-between border-b border-line shrink-0">
               <div className="flex items-center gap-3">
                 <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
                 <span className="chip chip-mono bg-primary/20 text-primary border border-primary/20"><Code2 className="w-3.5 h-3.5" />index.html</span>
@@ -200,7 +200,7 @@ function CodeLabContent() {
             </div>
             <textarea 
               spellCheck="false" 
-              className="flex-1 bg-transparent text-[#e2e8f0] border-0 p-[18px] font-mono text-[13px] leading-[1.8] resize-none focus:outline-none"
+              className="flex-1 bg-[#1e1e1e] text-[#d4d4d4] border-0 p-[18px] font-mono text-[13px] leading-[1.8] resize-none focus:outline-none"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
@@ -232,8 +232,8 @@ function CodeLabContent() {
                   <Layout className="w-3.5 h-3.5 text-primary" />Mission Checklist
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-highlight bg-highlight-dim px-2 py-0.5 rounded border border-highlight-dim">+150 XP</span>
-                  <span className="chip chip-line chip-mono">{passedChecklistCount}/{totalChecklistCount}</span>
+                  <span className="text-[10px] font-bold text-primary bg-primary-dim px-2 py-0.5 rounded border border-primary-dim">+150 XP</span>
+                  <span className="chip chip-mono border-line">{passedChecklistCount}/{totalChecklistCount}</span>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 px-4 bg-bg-base">
