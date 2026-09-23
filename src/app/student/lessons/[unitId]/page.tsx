@@ -122,8 +122,37 @@ export default function LessonDetailPage({
 
         {activeTab === 'content' && (
           <div className="win-body">
-            <div className="max-w-[720px]">
-              <article className="prose dark:prose-invert max-w-none text-ink text-[14px] leading-[1.9] whitespace-pre-line" dangerouslySetInnerHTML={{ __html: lesson.content || `แท็ก <a class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code class="mono" style="background:var(--soft); padding:2px 6px; border-radius:6px;">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)` }} />
+            <div className="max-w-[800px] mx-auto w-full">
+              
+              {/* Canva Presentation Preview */}
+              <div className="mb-8 rounded-2xl overflow-hidden border border-line bg-surface shadow-sm relative aspect-video group">
+                {/* Simulated Canva Embed - Uses a placeholder for demo purposes */}
+                <div className="absolute inset-0 bg-surface flex flex-col items-center justify-center" style={{ background: 'linear-gradient(160deg,#F8FAFC,#E2E8F0)' }}>
+                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform cursor-pointer">
+                     <Presentation className="w-8 h-8 text-primary" />
+                   </div>
+                   <h3 className="text-xl font-bold text-ink mb-2 text-center px-4">สไลด์ประกอบบทเรียน: {lesson.title}</h3>
+                   <div className="flex items-center gap-2 text-muted text-sm font-medium">
+                     <span className="w-2 h-2 rounded-full bg-accent"></span> Canva Presentation Preview
+                   </div>
+                   
+                   {/* Mock Canva Player Controls */}
+                   <div className="absolute bottom-0 inset-x-0 h-12 bg-white/80 backdrop-blur-md border-t border-line flex items-center justify-between px-4">
+                      <div className="flex items-center gap-3">
+                        <button className="text-ink hover:text-primary"><Play className="w-4 h-4 fill-current" /></button>
+                        <span className="text-xs font-bold text-muted">01 / {totalSlides}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button className="text-muted hover:text-ink"><ChevronLeft className="w-4 h-4" /></button>
+                        <button className="text-muted hover:text-ink"><ChevronRight className="w-4 h-4" /></button>
+                        <div className="w-px h-4 bg-line mx-1"></div>
+                        <button className="text-muted hover:text-ink"><Maximize2 className="w-4 h-4" /></button>
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              <article className="prose max-w-none text-ink text-[15px] leading-relaxed whitespace-pre-line bg-surface p-6 sm:p-8 rounded-2xl border border-line shadow-sm mb-6" dangerouslySetInnerHTML={{ __html: lesson.content || `แท็ก <a class="mono font-bold text-primary bg-primary-dim px-2 py-0.5 rounded-md border border-primary-dim">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)` }} />
 
               <div className="bg-code-bg rounded-xl p-4 sm:p-[18px_20px] my-4 sm:my-[18px] overflow-x-auto">
                 <pre className="mono m-0 text-xs sm:text-[12.5px] leading-[1.8] text-[#c9d4e8]">
