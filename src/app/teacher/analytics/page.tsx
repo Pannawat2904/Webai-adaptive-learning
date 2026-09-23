@@ -1,273 +1,255 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import { MOCK_CLASS_STUDENTS, MOCK_QUESTIONS } from '@/lib/mock-data';
 import { SUB_DOMAINS, SubDomainCode } from '@/types/database';
-import { MOCK_QUESTIONS } from '@/lib/mock-data';
+import { calculateItemPsychometrics } from '@/lib/psychometrics';
 import { MOCK_ATTEMPTS_SOMCHAI } from '@/lib/mock-sessions';
-import { calculateItemPsychometrics, evaluateItemQuality } from '@/lib/psychometrics';
 import {
   BarChart2,
-  ArrowLeft,
-  Clock,
+  PieChart,
+  Layers,
+  Activity,
   CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  Filter,
-  ShieldCheck,
-  ShieldAlert,
-  Search,
-  Sparkles,
   TrendingUp,
-  User,
+  TrendingDown,
+  Sparkles,
+  Users,
+  Search,
+  Filter
 } from 'lucide-react';
+import { useTeacherContext } from '@/components/teacher/TeacherContext';
 
-export default function TeacherAnalyticsPage() {
-  const [selectedSubDomain, setSelectedSubDomain] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+export default function AnalyticsPage() {
+  const { isResearchMode } = useTeacherContext();
+  const [activeTab, setActiveTab] = useState<'overview' | 'heatmap' | 'items'>('overview');
+  
+  // Data for Heatmap
+  const students = MOCK_CLASS_STUDENTS;
+  const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+  const classAverages: Record<SubDomainCode, number> = {} as any;
+  subDomainCodes.forEach((code) => {
+    const total = students.reduce((acc, std) => acc + (std.scores[code] || 0), 0);
+    classAverages[code] = Math.round(total / students.length);
+  });
+  const overallClassAvg = Math.round(Object.values(classAverages).reduce((a, b) => a + b, 0) / 8);
 
-  // Generate item psychometrics for all questions in the bank
-  const itemAnalytics = useMemo(() => {
-    return MOCK_QUESTIONS.map((q) => {
-      // Mock session scores for Kelley 27% computation
-      const mockScores = [
-        { sessionId: 'sess-1', score: 18 },
-        { sessionId: 'sess-2', score: 16 },
-        { sessionId: 'sess-3', score: 14 },
-        { sessionId: 'sess-4', score: 10 },
-        { sessionId: 'sess-5', score: 8 },
-      ];
-      return calculateItemPsychometrics(q, MOCK_ATTEMPTS_SOMCHAI.filter((a) => a.question_id === q.id), mockScores);
-    });
-  }, []);
-
-  const filteredItems = itemAnalytics.filter((item) => {
-    const matchesSub = selectedSubDomain === 'all' || item.sub_domain_code === selectedSubDomain;
-    const matchesSearch =
-      item.question_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.question_id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSub && matchesSearch;
+  // Data for Item Analytics
+  const itemAnalytics = MOCK_QUESTIONS.map((q) => {
+    const mockScores = [
+      { sessionId: 'sess-1', score: 18 },
+      { sessionId: 'sess-2', score: 16 },
+      { sessionId: 'sess-3', score: 14 },
+      { sessionId: 'sess-4', score: 10 },
+      { sessionId: 'sess-5', score: 8 },
+    ];
+    return calculateItemPsychometrics(q, MOCK_ATTEMPTS_SOMCHAI.filter((a) => a.question_id === q.id), mockScores);
   });
 
-  const avgP = Number((itemAnalytics.reduce((acc, i) => acc + i.p_value, 0) / itemAnalytics.length).toFixed(2));
-  const avgD = Number((itemAnalytics.reduce((acc, i) => acc + i.d_value, 0) / itemAnalytics.length).toFixed(2));
-  const highQualityCount = itemAnalytics.filter((i) => i.d_value >= 0.4 && i.p_value >= 0.2 && i.p_value <= 0.8).length;
+  const getPillStyle = (score: number) => {
+    if (score >= 80) return 'bg-[#00ff9d]/20 text-[#00ff9d] border-[#00ff9d]/30';
+    if (score >= 60) return 'bg-[#ffaa00]/20 text-[#ffaa00] border-[#ffaa00]/30';
+    return 'bg-[#ff3366]/20 text-[#ff3366] border-[#ff3366]/30';
+  };
 
   return (
-    <div className="space-y-8 pb-16 animate-in fade-in">
-      {/* Top Breadcrumb */}
-      <Link
-        href="/teacher"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 transition-colors"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        <span>กลับไปยังแดชบอร์ดครูผู้สอน</span>
-      </Link>
-
-      {/* Header in Liquid Glass */}
-      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
-            <BarChart2 className="w-3.5 h-3.5 text-indigo-500" />
-            <span>การวิเคราะห์คุณภาพข้อสอบรายข้อ (Item Analysis)</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-            สถิติความยากง่าย (p), อำนาจจำแนก (D) และ IRT 3PL
+    <div className="space-y-8 pb-16 px-4 md:px-0 enter max-w-[1200px] mx-auto">
+      
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white drop-shadow-md mb-2 flex items-center gap-3">
+            <BarChart2 className="w-8 h-8 text-[#00ff9d]" />
+            วิเคราะห์ผลการเรียน (Analytics)
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            วิเคราะห์คุณภาพข้อสอบรายข้อด้วย 27% Extreme Groups และติดตามการกระจายตัวของความสามารถผู้เรียน (Theta)
+          <p className="text-sm text-slate-400">
+            ดูภาพรวมของชั้นเรียน วิเคราะห์จุดแข็ง-จุดอ่อน และตรวจสอบคุณภาพข้อสอบ
           </p>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="liquid-glass rounded-3xl p-5 space-y-1">
-          <span className="text-xs font-bold text-slate-400 uppercase">ความยากเฉลี่ย (Mean p-value)</span>
-          <div className="text-3xl font-black gradient-text">
-            p = {avgP}
-          </div>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-            อยู่ในช่วงที่เหมาะสม (0.20 - 0.80)
-          </p>
-        </div>
-
-        <div className="liquid-glass rounded-3xl p-5 space-y-1">
-          <span className="text-xs font-bold text-slate-400 uppercase">อำนาจจำแนกเฉลี่ย (Mean D)</span>
-          <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
-            D = {avgD}
-          </div>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-            อำนาจจำแนกสูงมาก (&ge; 0.40)
-          </p>
-        </div>
-
-        <div className="liquid-glass rounded-3xl p-5 space-y-1">
-          <span className="text-xs font-bold text-slate-400 uppercase">ข้อสอบคุณภาพดีเยี่ยม</span>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">
-            {highQualityCount} / {itemAnalytics.length}
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            ผ่านทั้งเกณฑ์ความยากและอำนาจจำแนก
-          </p>
-        </div>
-
-        <div className="liquid-glass rounded-3xl p-5 space-y-1 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800">
-          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" /> ความสามารถผู้เรียน (Theta)
-          </span>
-          <div className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
-            θ = 0.45
-          </div>
-          <p className="text-[11px] text-emerald-600 dark:text-emerald-500">
-            จำลองจากประวัติการทำข้อสอบ (SE = 0.28)
-          </p>
-        </div>
-
-        <div className="liquid-glass rounded-3xl p-5 space-y-1">
-          <span className="text-xs font-bold text-slate-400 uppercase">เทคนิคการวิเคราะห์</span>
-          <div className="text-base font-bold text-slate-900 dark:text-white pt-1">
-            27% Extreme Groups
-          </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            เปรียบเทียบกลุ่มสูง 27% vs กลุ่มต่ำ 27%
-          </p>
-        </div>
+      {/* Navigation Tabs */}
+      <div className="flex border-b border-white/10">
+        <button 
+          onClick={() => setActiveTab('overview')}
+          className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'overview' ? 'border-[#00ff9d] text-[#00ff9d]' : 'border-transparent text-slate-400 hover:text-white'}`}
+        >
+          <PieChart className="w-4 h-4" /> ภาพรวมชั้นเรียน
+        </button>
+        <button 
+          onClick={() => setActiveTab('heatmap')}
+          className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'heatmap' ? 'border-[#00ff9d] text-[#00ff9d]' : 'border-transparent text-slate-400 hover:text-white'}`}
+        >
+          <Layers className="w-4 h-4" /> Domain Heatmap
+        </button>
+        {isResearchMode && (
+          <button 
+            onClick={() => setActiveTab('items')}
+            className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'items' ? 'border-[#b05cff] text-[#b05cff]' : 'border-transparent text-slate-400 hover:text-white'}`}
+          >
+            <Activity className="w-4 h-4" /> Item Psychometrics
+          </button>
+        )}
       </div>
 
-      {/* Psychometrics Guidelines Info Box */}
-      <div className="p-5 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 space-y-2">
-        <div className="flex items-center gap-2 font-bold text-indigo-800 dark:text-indigo-300">
-          <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />
-          เกณฑ์การพิจารณาคุณภาพข้อสอบทางวิชาการ (Academic Psychometrics Criteria)
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-700 dark:text-slate-300">
-          <div className="p-3 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/5 space-y-1">
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">1. ค่าความยากง่าย (Difficulty Index: p-value):</span>
-            <p>• p &gt; 0.80 = ง่ายเกินไป, p &lt; 0.20 = ยากเกินไป</p>
-            <p>• <strong>0.20 &le; p &le; 0.80:</strong> ความยากง่ายเหมาะสมตามเกณฑ์ (ปานกลาง 0.40–0.60 เหมาะสมที่สุด)</p>
-          </div>
-          <div className="p-3 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/5 space-y-1">
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">2. ค่าอำนาจจำแนก (Discrimination Index: D-value):</span>
-            <p>• D &lt; 0.20 = อำนาจจำแนกต่ำ ควรตัดทิ้งหรือปรับปรุงตัวเลือก</p>
-            <p>• <strong>0.20 &le; D &lt; 0.40 = จำแนกได้พอใช้, D &ge; 0.40 = จำแนกได้ดีมาก</strong></p>
-          </div>
-        </div>
-      </div>
-
-      {/* Table of Item Psychometrics */}
-      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-            ตารางวิเคราะห์คุณภาพข้อสอบรายข้อ (Item Analytics Table)
-          </h2>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <select
-              value={selectedSubDomain}
-              onChange={(e) => setSelectedSubDomain(e.target.value)}
-              className="text-xs p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-semibold"
-            >
-              <option value="all">ทุก Sub-domain (H1 - H8)</option>
-              {(Object.keys(SUB_DOMAINS) as SubDomainCode[]).map((c) => (
-                <option key={c} value={c}>
-                  [{c}] {SUB_DOMAINS[c].name}
-                </option>
-              ))}
-            </select>
-
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ค้นหาข้อสอบ..."
-                className="pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs w-44"
-              />
+      {/* Tab Content */}
+      <div className="pt-4">
+        
+        {/* OVERVIEW TAB */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="card border-[rgba(0,255,157,0.3)] bg-[rgba(0,255,157,0.02)] p-6 flex flex-col justify-center items-center text-center">
+                <span className="text-sm font-bold text-[#00ff9d] uppercase mb-2">คะแนนเฉลี่ยรวมทั้งชั้นเรียน</span>
+                <div className="text-6xl font-black text-white">{overallClassAvg}%</div>
+                <div className="text-xs text-[#00ff9d] mt-2 flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" /> สูงกว่าเกณฑ์ 15%
+                </div>
+              </div>
+              <div className="card p-6 flex flex-col justify-center space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-400">หัวข้อที่ทำได้ดีที่สุด</span>
+                  <span className="px-2 py-1 rounded bg-white/10 text-xs font-bold text-white">H1</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-400">หัวข้อที่ต้องซ่อมเสริม</span>
+                  <span className="px-2 py-1 rounded bg-[rgba(255,51,102,0.1)] text-[#ff3366] text-xs font-bold">H7</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-400">นักเรียนกลุ่มเสี่ยง (ทำได้ &lt;50%)</span>
+                  <span className="text-white font-bold text-lg">3 คน</span>
+                </div>
+              </div>
+              <div className="card border-[rgba(176,92,255,0.3)] bg-[rgba(176,92,255,0.02)] p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-[#b05cff]" />
+                  <h3 className="text-[#b05cff] font-bold">AI Recommendations</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  พบว่านักเรียนมากกว่า 40% มีปัญหาในการทำความเข้าใจการส่งข้อมูลจาก Form (H7) แนะนำให้ทบทวนเรื่อง <code>method="POST"</code> และ <code>action</code> ในคาบเรียนถัดไป
+                </p>
+                <button className="mt-4 px-4 py-2 rounded-lg bg-[rgba(176,92,255,0.2)] text-[#b05cff] text-xs font-bold hover:bg-[rgba(176,92,255,0.3)] transition-colors w-full">
+                  สร้างบทเรียนซ่อมเสริมอัตโนมัติ
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="overflow-x-auto rounded-2xl border border-white/40 dark:border-white/10">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                <th className="py-3 px-3">Sub</th>
-                <th className="py-3 px-3 min-w-[280px]">ข้อความคำถาม</th>
-                <th className="py-3 px-3">ระดับ</th>
-                <th className="py-3 px-3">IOC</th>
-                <th className="py-3 px-3">ความยาก (p)</th>
-                <th className="py-3 px-3">อำนาจจำแนก (D)</th>
-                <th className="py-3 px-3">กลุ่มสูง 27% vs ต่ำ 27%</th>
-                <th className="py-3 px-3 min-w-[180px]">การประเมินคุณภาพทางวิชาการ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60 bg-white/40 dark:bg-slate-900/40">
-              {filteredItems.map((item) => {
-                const isGoodD = item.d_value >= 0.4;
-                const isLowD = item.d_value < 0.2;
-
-                return (
-                  <tr key={item.question_id} className="hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
-                    <td className="py-3 px-3">
-                      <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">
-                        {item.sub_domain_code}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="font-semibold text-slate-900 dark:text-white line-clamp-2">
-                        {item.question_text}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        {item.question_id}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 capitalize text-slate-600 dark:text-slate-300">
-                      {item.difficulty}
-                    </td>
-                    <td className="py-3 px-3 font-mono font-semibold text-slate-800 dark:text-slate-200">
-                      {item.ioc_score.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-3 font-mono font-bold text-slate-800 dark:text-slate-200">
-                      {item.p_value.toFixed(2)}
-                    </td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`font-mono font-extrabold ${
-                          isGoodD
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : isLowD
-                            ? 'text-rose-600 dark:text-rose-400'
-                            : 'text-indigo-600 dark:text-indigo-400'
-                        }`}
-                      >
-                        {item.d_value.toFixed(2)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">
-                      สูง {item.high_group_correct_pct}% | ต่ำ {item.low_group_correct_pct}%
-                    </td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                          isGoodD
-                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                            : isLowD
-                            ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
-                            : 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20'
-                        }`}
-                      >
-                        {item.evaluation}
-                      </span>
+        {/* HEATMAP TAB */}
+        {activeTab === 'heatmap' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold text-white">Heatmap ความเข้าใจรายบุคคล (H1-H8)</h3>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                <span>ระดับ:</span>
+                <span className="px-2 py-1 rounded bg-[#00ff9d]/20 text-[#00ff9d]">ดีเยี่ยม (&ge;80)</span>
+                <span className="px-2 py-1 rounded bg-[#ffaa00]/20 text-[#ffaa00]">ปานกลาง (60-79)</span>
+                <span className="px-2 py-1 rounded bg-[#ff3366]/20 text-[#ff3366]">ต้องพัฒนา (&lt;60)</span>
+              </div>
+            </div>
+            
+            <div className="card p-0 overflow-x-auto">
+              <table className="w-full text-center text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 bg-[rgba(255,255,255,0.02)]">
+                    <th className="p-4 text-left font-bold text-slate-300">ชื่อ-นามสกุล</th>
+                    {subDomainCodes.map(c => (
+                      <th key={c} className="p-4 font-bold text-slate-300">
+                        <div className="text-white">{c}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">{SUB_DOMAINS[c].name.substring(0, 10)}...</div>
+                      </th>
+                    ))}
+                    <th className="p-4 font-bold text-[#00ff9d]">เฉลี่ย</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {students.map(std => (
+                    <tr key={std.id} className="hover:bg-white/5">
+                      <td className="p-4 text-left">
+                        <div className="font-bold text-white">{std.name}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{std.id}</div>
+                      </td>
+                      {subDomainCodes.map(code => (
+                        <td key={code} className="p-2">
+                          <div className={`mx-auto w-10 h-8 flex items-center justify-center rounded text-xs font-bold border ${getPillStyle(std.scores[code])}`}>
+                            {std.scores[code]}
+                          </div>
+                        </td>
+                      ))}
+                      <td className="p-4 font-black text-[#00ff9d]">{std.avgScore}</td>
+                    </tr>
+                  ))}
+                  
+                  {/* Class Averages Row */}
+                  <tr className="bg-[rgba(0,255,157,0.05)] border-t border-[#00ff9d]/30">
+                    <td className="p-4 text-left font-bold text-[#00ff9d]">เฉลี่ยทั้งห้อง</td>
+                    {subDomainCodes.map(code => (
+                      <td key={code} className="p-2">
+                        <div className={`mx-auto w-10 h-8 flex items-center justify-center rounded text-xs font-black border ${getPillStyle(classAverages[code])}`}>
+                          {classAverages[code]}
+                        </div>
+                      </td>
+                    ))}
+                    <td className="p-4 font-black text-white bg-[#00ff9d] text-black rounded-br-2xl">
+                      {overallClassAvg}
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ITEMS TAB (Research Mode) */}
+        {activeTab === 'items' && isResearchMode && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold text-white">Item Psychometrics Analysis (3PL)</h3>
+            </div>
+            
+            <div className="card p-0 overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-[rgba(176,92,255,0.05)] text-slate-400 border-b border-[#b05cff]/20">
+                  <tr>
+                    <th className="px-6 py-4 font-bold text-xs">ID / Sub-domain</th>
+                    <th className="px-6 py-4 font-bold text-xs max-w-[200px]">คำถาม</th>
+                    <th className="px-6 py-4 text-center font-bold text-xs">Difficulty (p)</th>
+                    <th className="px-6 py-4 text-center font-bold text-xs">Discrimination (D)</th>
+                    <th className="px-6 py-4 text-center font-bold text-xs">Quality</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {itemAnalytics.map(item => (
+                    <tr key={item.question_id} className="hover:bg-white/5">
+                      <td className="px-6 py-4">
+                        <div className="text-white font-mono text-[11px]">{item.question_id.slice(0, 8)}...</div>
+                        <div className="text-[#00e5ff] font-bold text-[10px] uppercase">{item.sub_domain_code}</div>
+                      </td>
+                      <td className="px-6 py-4 truncate max-w-[250px] text-white">
+                        {item.question_text}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono">
+                        <span className="text-white">{item.p_value.toFixed(2)}</span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono">
+                        <span className={item.d_value >= 0.4 ? 'text-[#00ff9d] font-bold' : 'text-[#ffaa00]'}>
+                          {item.d_value.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${item.d_value >= 0.4 ? 'bg-[#00ff9d]/20 text-[#00ff9d]' : 'bg-white/10 text-slate-300'}`}>
+                          {item.evaluation}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

@@ -8,247 +8,294 @@ import {
   Users,
   CheckCircle2,
   TrendingUp,
-  Download,
-  Search,
+  AlertTriangle,
   ArrowRight,
-  BarChart3,
-  FileQuestion,
-  ExternalLink,
   Sparkles,
-  Layers,
-  Activity
+  Search,
+  Activity,
+  Bot,
+  Terminal,
+  BookOpen,
+  FileQuestion
 } from 'lucide-react';
 
 export default function TeacherOverviewPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [students] = useState(MOCK_CLASS_STUDENTS);
+  const [classFilter, setClassFilter] = useState('all');
+  const [termFilter, setTermFilter] = useState('1/2569');
 
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const students = MOCK_CLASS_STUDENTS;
   const totalStudents = students.length;
-  const avgCompletion = Math.round(
-    students.reduce((acc, s) => acc + s.completion, 0) / totalStudents
-  );
-  const avgScore = (
-    students.reduce((acc, s) => acc + s.avgScore, 0) / totalStudents
-  ).toFixed(1);
+  const testedStudents = students.filter(s => s.completion > 0).length;
+  // Mock average theta calculation based on average score for demo
+  const avgScore = (students.reduce((acc, s) => acc + s.avgScore, 0) / totalStudents) / 100;
+  const avgTheta = (avgScore * 6 - 3).toFixed(2); // Maps 0-1 to -3 to +3
+  
+  // Find at risk students (score < 60)
+  const atRiskStudents = students.filter(s => s.avgScore < 60);
 
-  const handleExportCSV = () => {
-    // CSV logic
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = `รายงานผล_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
+  // Calculate skill overview (H1-H8 averages)
+  const skillAverages: Record<string, number> = {
+    H1: 82, H2: 76, H3: 61, H4: 52, H5: 78, H6: 63, H7: 42, H8: 71
+  };
+
+  const getStatusColor = (val: number) => {
+    if (val >= 80) return 'text-[#00ff9d] bg-[#00ff9d]/10';
+    if (val >= 60) return 'text-[#ffaa00] bg-[#ffaa00]/10';
+    return 'text-[#ff3366] bg-[#ff3366]/10';
   };
 
   return (
-    <div className="space-y-8 pb-16 px-4 md:px-0 enter">
+    <div className="space-y-8 pb-16 px-4 md:px-0 enter max-w-[1200px] mx-auto">
       
-      {/* Top Banner */}
-      <div className="win p-8 flex flex-wrap items-center justify-between gap-6 border-[#00ff9d]/20">
-        <div className="space-y-2 max-w-2xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/20 shadow-[0_0_15px_rgba(0,255,157,0.1)]">
-            <Users className="w-4 h-4" /> แดชบอร์ดครูผู้สอน (Teacher Dashboard)
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white drop-shadow-md">
-            ภาพรวมชั้นเรียน: โครงสร้างภาษา HTML (ปวช.1)
+      {/* Header & Selectors */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-white drop-shadow-md mb-2">
+            สวัสดีครับ อาจารย์ 👋
           </h1>
-          <p className="text-sm text-slate-300">
-            ติดตามพัฒนาการ ประเมินจุดอ่อนจุดแข็งราย Sub-domain และจัดการคลังสื่อการสอน
+          <p className="text-sm text-slate-400">
+            ศูนย์ควบคุมการเรียนรู้ (Learning Control Center)
           </p>
         </div>
-
-        <button onClick={handleExportCSV} className="btn bg-[#00ff9d] text-black hover:bg-[#00e5ff] shadow-[0_0_20px_rgba(0,255,157,0.4)]">
-          <Download className="w-4 h-4" /> ส่งออกรายงาน CSV
-        </button>
-      </div>
-
-      {/* Overview Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="card card-hover p-6 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-[rgba(0,229,255,0.1)] border border-[rgba(0,229,255,0.2)] text-[#00e5ff] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,229,255,0.2)]">
-            <Users className="w-7 h-7" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 mb-1">จำนวนนักเรียนในห้อง</div>
-            <div className="text-3xl font-black text-white">{totalStudents} คน</div>
-            <div className="text-[11px] font-bold text-[#00e5ff] mt-1">แผนกวิชาเทคโนโลยีสารสนเทศ</div>
-          </div>
-        </div>
-
-        <div className="card card-hover p-6 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-[rgba(0,255,157,0.1)] border border-[rgba(0,255,157,0.2)] text-[#00ff9d] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,255,157,0.2)]">
-            <CheckCircle2 className="w-7 h-7" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 mb-1">อัตราการเรียนจบเฉลี่ย</div>
-            <div className="text-3xl font-black text-white">{avgCompletion}%</div>
-            <div className="text-[11px] font-bold text-[#00ff9d] mt-1">ดูสไลด์ครบและส่งงาน</div>
-          </div>
-        </div>
-
-        <div className="card card-hover p-6 flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-[rgba(176,92,255,0.1)] border border-[rgba(176,92,255,0.2)] text-[#b05cff] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(176,92,255,0.2)]">
-            <TrendingUp className="w-7 h-7" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 mb-1">คะแนนประเมินเฉลี่ยห้อง</div>
-            <div className="text-3xl font-black text-white">{avgScore}%</div>
-            <div className="text-[11px] font-bold text-[#b05cff] mt-1">จาก Adaptive Test & Code Lab</div>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <select 
+            value={classFilter}
+            onChange={(e) => setClassFilter(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-[rgba(16,22,38,0.6)] border border-white/10 text-sm font-bold text-white focus:outline-none focus:border-[#00ff9d] appearance-none"
+          >
+            <option value="all">ทุกห้อง (ปวช.1)</option>
+            <option value="1">ห้อง 1/1</option>
+            <option value="2">ห้อง 1/2</option>
+          </select>
+          <select 
+            value={termFilter}
+            onChange={(e) => setTermFilter(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-[rgba(16,22,38,0.6)] border border-white/10 text-sm font-bold text-white focus:outline-none focus:border-[#00ff9d] appearance-none"
+          >
+            <option value="1/2569">ภาคเรียนที่ 1/2569</option>
+            <option value="2/2568">ภาคเรียนที่ 2/2568</option>
+          </select>
         </div>
       </div>
 
-      {/* Quick Navigation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link href="/teacher/adaptive-logs" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(0,229,255,0.1)] text-[#00e5ff] group-hover:bg-[#00e5ff] group-hover:text-black transition-colors">
-              <Activity className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">Log ตรวจสอบระบบ</h2>
-              <p className="text-xs text-slate-400 mt-1">กราฟ Trajectory & Export</p>
+      {/* SECTION 1: ภาพรวมแบบเข้าใจง่าย */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="card p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-300">
+              <Users className="w-5 h-5" />
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#00e5ff] group-hover:translate-x-1 transition-all" />
-        </Link>
-        <Link href="/teacher/reliability" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(0,255,157,0.1)] text-[#00ff9d] group-hover:bg-[#00ff9d] group-hover:text-black transition-colors">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">ความเที่ยงข้อสอบ</h2>
-              <p className="text-xs text-slate-400 mt-1">ความเชื่อมั่นราย Sub-domain</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#00ff9d] group-hover:translate-x-1 transition-all" />
-        </Link>
-        <Link href="/teacher/effect-size" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(176,92,255,0.1)] text-[#b05cff] group-hover:bg-[#b05cff] group-hover:text-black transition-colors">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">Effect Size</h2>
-              <p className="text-xs text-slate-400 mt-1">วิเคราะห์ขนาดอิทธิพล (Cohen's d)</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#b05cff] group-hover:translate-x-1 transition-all" />
-        </Link>
-        <Link href="/teacher/questions" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(255,51,102,0.1)] text-[#ff3366] group-hover:bg-[#ff3366] group-hover:text-black transition-colors">
-              <FileQuestion className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">คลังข้อสอบ (IOC)</h2>
-              <p className="text-xs text-slate-400 mt-1">เกณฑ์ &ge; 0.67 & Validated</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#ff3366] group-hover:translate-x-1 transition-all" />
-        </Link>
-        <Link href="/teacher/analytics" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(255,170,0,0.1)] text-[#ffaa00] group-hover:bg-[#ffaa00] group-hover:text-black transition-colors">
-              <BarChart3 className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">วิเคราะห์ข้อสอบ (p,r)</h2>
-              <p className="text-xs text-slate-400 mt-1">ดัชนีความยากง่ายและอำนาจจำแนก</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#ffaa00] group-hover:translate-x-1 transition-all" />
-        </Link>
-        <Link href="/teacher/heatmap" className="card card-hover p-6 flex items-center justify-between group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-[rgba(0,255,157,0.1)] text-[#00ff9d] group-hover:bg-[#00ff9d] group-hover:text-black transition-colors">
-              <Layers className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-[15px] text-white">Sub-domain Heatmap</h2>
-              <p className="text-xs text-slate-400 mt-1">ตารางสี 8 คอลัมน์</p>
-            </div>
-          </div>
-          <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-[#00ff9d] group-hover:translate-x-1 transition-all" />
-        </Link>
-      </div>
-
-      {/* Student List */}
-      <div className="card p-6 md:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="font-bold text-lg text-white">รายชื่อนักเรียนและการประเมินรายบุคคล</h2>
-            <p className="text-xs text-slate-400 mt-1">คลิกเพื่อดู Learning Profile 8 มิติของนักเรียนแต่ละคน</p>
-          </div>
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="ค้นหาชื่อนักเรียน..."
-              className="pl-9 pr-4 py-2.5 rounded-xl bg-[rgba(0,0,0,0.2)] border border-white/10 text-sm text-white focus:outline-none focus:border-[#00ff9d] w-full sm:w-64 transition-colors"
-            />
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">นักเรียนทั้งหมด</div>
+            <div className="text-3xl font-black text-white">{totalStudents} <span className="text-sm font-normal text-slate-500">คน</span></div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[rgba(255,255,255,0.02)] text-slate-400 border-b border-white/10">
-              <tr>
-                <th className="px-6 py-4 font-bold text-xs">ชื่อ-นามสกุล</th>
-                <th className="px-6 py-4 text-center font-bold text-xs">ความคืบหน้า</th>
-                <th className="px-6 py-4 text-center font-bold text-xs">คะแนนเฉลี่ย</th>
-                <th className="px-6 py-4 text-center font-bold text-xs">หัวข้อที่เด่น</th>
-                <th className="px-6 py-4 text-center font-bold text-xs">หัวข้อที่ควรพัฒนา</th>
-                <th className="px-6 py-4 text-right font-bold text-xs">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {filteredStudents.map((std) => {
-                const weakCodes = (Object.keys(std.scores) as SubDomainCode[]).filter((c) => (std.scores[c] || 0) < 60);
-                const strongCodes = (Object.keys(std.scores) as SubDomainCode[]).filter((c) => (std.scores[c] || 0) >= 80);
+        <div className="card p-6 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <CheckCircle2 className="w-24 h-24 text-[#00e5ff]" />
+          </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[rgba(0,229,255,0.1)] text-[#00e5ff] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ทำแบบทดสอบแล้ว</div>
+            <div className="text-3xl font-black text-white">{testedStudents} <span className="text-sm font-normal text-slate-500">คน</span></div>
+          </div>
+        </div>
 
-                return (
-                  <tr key={std.id} className="hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                    <td className="px-6 py-4 font-bold text-white">{std.name}</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="w-24 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                          <div className="h-full bg-[#00ff9d] shadow-[0_0_10px_#00ff9d]" style={{ width: `${std.completion}%` }} />
-                        </div>
-                        <span className="text-xs font-bold text-[#00ff9d]">{std.completion}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center font-black text-[#00e5ff]">{std.avgScore}%</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex justify-center gap-1.5">
-                        {strongCodes.length > 0 ? strongCodes.map((c) => (
-                          <span key={c} className="chip chip-green font-mono">{c}</span>
-                        )) : <span className="text-slate-500">-</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex justify-center gap-1.5">
-                        {weakCodes.length > 0 ? weakCodes.map((c) => (
-                          <span key={c} className="chip chip-amber font-mono">{c}</span>
-                        )) : <span className="text-[#00ff9d] text-xs font-bold">ผ่านเกณฑ์</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href="/student/profile" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 hover:border-[#00e5ff] hover:text-[#00e5ff] transition-colors text-xs font-bold text-slate-300">
-                        ดู Profile <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
-                    </td>
+        <div className="card p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[rgba(176,92,255,0.1)] text-[#b05cff] flex items-center justify-center shadow-[0_0_15px_rgba(176,92,255,0.2)]">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ความสามารถเฉลี่ย</div>
+            <div className="text-3xl font-black text-white">θ = {avgTheta}</div>
+          </div>
+        </div>
+
+        <div className="card p-6 flex flex-col justify-between border-[rgba(255,51,102,0.3)] bg-[rgba(255,51,102,0.02)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[rgba(255,51,102,0.1)] text-[#ff3366] flex items-center justify-center shadow-[0_0_15px_rgba(255,51,102,0.2)]">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-bold text-[#ff3366] uppercase tracking-wider mb-1">ต้องติดตาม</div>
+            <div className="text-3xl font-black text-white">{atRiskStudents.length} <span className="text-sm font-normal text-[#ff3366]">คน</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* SECTION 2: AI Teacher Assistant / Insights */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card">
+            <div className="card-head flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00ff9d] to-[#00e5ff] flex items-center justify-center text-black">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-lg">Teacher AI Insight</h3>
+                <p className="text-[11px] text-[#00ff9d] uppercase tracking-widest mt-0.5">สิ่งที่ควรสนใจวันนี้</p>
+              </div>
+            </div>
+            <div className="card-body space-y-4">
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(255,51,102,0.05)] border border-[rgba(255,51,102,0.2)]">
+                <AlertTriangle className="w-5 h-5 text-[#ff3366] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-white">จากผลการประเมินล่าสุด นักเรียน 7 คนมี Skill Gap ด้าน Form (H7)</p>
+                  <p className="text-xs text-slate-400 mt-1">คะแนนเฉลี่ย H7 ลดลงต่ำกว่า 50% แนะนำให้จัดกิจกรรมทบทวนเนื้อหานี้</p>
+                  <div className="flex gap-3 mt-3">
+                    <Link href="/teacher/students?filter=H7" className="text-xs font-bold text-[#ff3366] hover:underline">ดูรายชื่อนักเรียน →</Link>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(255,170,0,0.05)] border border-[rgba(255,170,0,0.2)]">
+                <FileQuestion className="w-5 h-5 text-[#ffaa00] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-white">มีข้อสอบ 12 ข้อรอการตรวจสอบคุณภาพ (IOC)</p>
+                  <p className="text-xs text-slate-400 mt-1">เพื่อนำไปใช้ในกระบวนการ Calibration สำหรับ IRT 3PL</p>
+                  <div className="flex gap-3 mt-3">
+                    <Link href="/teacher/questions?status=review" className="text-xs font-bold text-[#ffaa00] hover:underline">ตรวจสอบข้อสอบ →</Link>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(0,255,157,0.05)] border border-[rgba(0,255,157,0.2)]">
+                <TrendingUp className="w-5 h-5 text-[#00ff9d] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-white">ผลการทดสอบล่าสุดมีการเปลี่ยนแปลงเชิงบวก</p>
+                  <p className="text-xs text-slate-400 mt-1">นักเรียนส่วนใหญ่ทำแบบทดสอบ H3 ได้ดีขึ้น ความสามารถเฉลี่ยเพิ่มขึ้น +0.15 θ</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 4: นักเรียนที่ควรติดตาม */}
+          <div className="card">
+            <div className="card-head">
+              <h3>นักเรียนที่ควรติดตาม (At-Risk Students)</h3>
+              <Link href="/teacher/students" className="text-xs font-bold text-[#00e5ff] hover:underline">ดูทั้งหมด</Link>
+            </div>
+            <div className="p-0 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-white/5 text-slate-400 text-xs uppercase tracking-wider border-b border-white/10">
+                  <tr>
+                    <th className="px-6 py-4 font-bold">นักเรียน</th>
+                    <th className="px-6 py-4 text-center font-bold">ความสามารถ (θ)</th>
+                    <th className="px-6 py-4 text-center font-bold">จุดอ่อน</th>
+                    <th className="px-6 py-4 font-bold">คำแนะนำจากระบบ</th>
+                    <th className="px-6 py-4"></th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {atRiskStudents.slice(0, 3).map((std, i) => {
+                    const weakCodes = (Object.keys(std.scores) as SubDomainCode[]).filter((c) => (std.scores[c] || 0) < 60);
+                    return (
+                      <tr key={i} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4 font-bold text-white">{std.name}</td>
+                        <td className="px-6 py-4 text-center text-[#ff3366] font-mono">
+                          {((std.avgScore / 100) * 6 - 3).toFixed(2)}
+                          <span className="text-lg ml-1">↓</span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          {weakCodes[0] || 'H7 Form'}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-400">ควรทบทวนเรื่องโครงสร้าง Form เบื้องต้น</td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href={`/teacher/students/${std.id}`} className="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-bold hover:bg-white/10 transition-colors">
+                            ดูรายละเอียด
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* SECTION 3: Skill Overview */}
+          <div className="card">
+            <div className="card-head">
+              <h3>ภาพรวมทักษะรายโดเมน</h3>
+            </div>
+            <div className="card-body flex flex-col gap-4">
+              {Object.entries(skillAverages).map(([key, val]) => (
+                <div key={key}>
+                  <div className="flex justify-between text-xs font-bold mb-1.5">
+                    <span className="text-slate-300">
+                      {key === 'H1' ? 'โครงสร้างพื้นฐาน' : 
+                       key === 'H2' ? 'ข้อความ & Heading' :
+                       key === 'H3' ? 'Links & Navigation' :
+                       key === 'H4' ? 'Images & Media' :
+                       key === 'H5' ? 'Tables' :
+                       key === 'H6' ? 'Lists' :
+                       key === 'H7' ? 'Forms (กำลังมีปัญหา)' :
+                       key === 'H8' ? 'Semantic HTML' : key} ({key})
+                    </span>
+                    <span className={`px-2 py-0.5 rounded font-mono ${getStatusColor(val)}`}>{val}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full shadow-[0_0_10px_currentColor] ${
+                        val >= 80 ? 'bg-[#00ff9d] text-[#00ff9d]' : 
+                        val >= 60 ? 'bg-[#ffaa00] text-[#ffaa00]' : 
+                        'bg-[#ff3366] text-[#ff3366]'
+                      }`}
+                      style={{ width: `${val}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SECTION 5: Recent Activity */}
+          <div className="card">
+            <div className="card-head">
+              <h3>กิจกรรมล่าสุด</h3>
+            </div>
+            <div className="card-body p-4 space-y-1">
+              <div className="flex gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-[rgba(0,229,255,0.1)] text-[#00e5ff] flex items-center justify-center shrink-0">
+                  <Activity className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">สมชาย รักการเรียน ทำแบบทดสอบ CAT เสร็จสิ้น</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">10 นาทีที่แล้ว • วัดความสามารถได้ θ = 0.52</p>
+                </div>
+              </div>
+              <div className="flex gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-[rgba(176,92,255,0.1)] text-[#b05cff] flex items-center justify-center shrink-0">
+                  <Terminal className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">นักเรียน 5 คน ผ่านด่าน Code Lab: H2</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">45 นาทีที่แล้ว</p>
+                </div>
+              </div>
+              <div className="flex gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-[rgba(0,255,157,0.1)] text-[#00ff9d] flex items-center justify-center shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">ระบบอัปเดตคำแนะนำ AI ใหม่</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">2 ชั่วโมงที่แล้ว • จากผลการวิเคราะห์ล่าสุด</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
