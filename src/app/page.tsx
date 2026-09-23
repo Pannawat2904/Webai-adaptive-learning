@@ -6,14 +6,17 @@ import {
   LayoutDashboard, 
   BookOpen, 
   Terminal, 
-  LineChart, 
+  Map as MapIcon, 
   Bot, 
   ShieldCheck, 
-  Play, 
   Code2, 
   BrainCircuit,
-  Sparkles,
-  Rocket
+  Compass,
+  ArrowRight,
+  Layers,
+  Globe,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 
 export default function Home() {
@@ -21,46 +24,47 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
+    // Student portal defaults to dark mode (WebAI Adventure theme)
     document.documentElement.classList.add('dark');
   }, []);
 
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen text-white overflow-hidden relative">
+    <div className="min-h-screen text-ink overflow-hidden relative">
       
       {/* Top Navigation */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-[#0d1424]/40 backdrop-blur-2xl border-b border-white/5">
+      <header className="fixed top-0 inset-x-0 z-50 bg-bg-base/80 backdrop-blur-xl border-b border-line">
         <div className="max-w-[1320px] mx-auto px-6 h-[72px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-4 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00e5ff] to-[#b05cff] flex items-center justify-center shadow-[0_0_20px_rgba(0,229,255,0.3)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.6)] transition-all">
-              <Code2 className="w-5 h-5 text-black" />
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_20px_var(--primary-dim)] group-hover:shadow-[0_0_30px_var(--primary-dim)] transition-all">
+              <Code2 className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <b className="text-[15px] flex items-center gap-2 tracking-wide font-extrabold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-                WebAI <span className="bg-[#b05cff]/20 text-[#b05cff] border border-[#b05cff]/30 text-[10px] px-2 py-0.5 rounded-full">TH</span>
+              <b className="text-[15px] flex items-center gap-2 tracking-wide font-extrabold text-ink">
+                WebAI <span className="bg-primary/20 text-primary border border-primary/30 text-[10px] px-2 py-0.5 rounded-full">DEV</span>
               </b>
-              <small className="text-[11px] text-slate-400 font-medium">Adaptive Learning Platform</small>
+              <small className="text-[11px] text-muted font-medium">Adaptive Learning Journey</small>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-2 p-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-            <Link href="/student" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
-              <LayoutDashboard className="w-4 h-4 text-[#00e5ff]" /> ภาพรวม
+          <nav className="hidden lg:flex items-center gap-2 p-1.5 bg-surface border border-line rounded-2xl">
+            <Link href="/student" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
+              <LayoutDashboard className="w-4 h-4 text-accent" /> Dashboard
             </Link>
-            <Link href="/student/lessons" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
-              <BookOpen className="w-4 h-4 text-[#00ff9d]" /> บทเรียน
+            <Link href="/student/lessons" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
+              <MapIcon className="w-4 h-4 text-primary" /> Journey
             </Link>
-            <Link href="/student/codelab" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
-              <Terminal className="w-4 h-4 text-[#ffaa00]" /> Code Lab
+            <Link href="/student/codelab" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
+              <Terminal className="w-4 h-4 text-highlight" /> Code Lab
             </Link>
-            <Link href="/student/tutor" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
-              <Bot className="w-4 h-4 text-[#b05cff]" /> AI Tutor
+            <Link href="/student/tutor" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
+              <Bot className="w-4 h-4 text-secondary" /> AI Advisor
             </Link>
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link href="/teacher/login" className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-all text-sm font-bold backdrop-blur-md">
+            <Link href="/teacher/login" className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line text-muted hover:bg-soft hover:text-ink transition-all text-sm font-bold">
               <ShieldCheck className="w-4 h-4" /> สำหรับผู้สอน
             </Link>
           </div>
@@ -71,74 +75,99 @@ export default function Home() {
         
         {/* Hero Section */}
         <section className="max-w-[1000px] mx-auto px-6 text-center mb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(176,92,255,0.15)] border border-[rgba(176,92,255,0.3)] text-[#b05cff] text-xs font-bold mb-8 shadow-[0_0_20px_rgba(176,92,255,0.2)]">
-            <Sparkles className="w-4 h-4" /> ระบบทดสอบปรับเหมาะเชิงกฎเกณฑ์ (Rule-based Adaptive)
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-8">
+            <Compass className="w-4 h-4" /> WebAI Adventure V2.0
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-            <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">ก้าวสู่จักรวาลแห่งการโค้ดดิ้ง</span><br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00e5ff] via-[#b05cff] to-[#ff3366] drop-shadow-[0_0_30px_rgba(0,229,255,0.4)]">
-              ด้วย AI อัจฉริยะ
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] text-ink">
+            เริ่มต้นเส้นทาง <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+              นักพัฒนาเว็บไซต์
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            ระบบการเรียนรู้ที่ปรับระดับความยากให้เหมาะกับคุณโดยอัตโนมัติ พร้อม <strong className="text-[#00e5ff]">Code Lab</strong> ให้ฝึกปฏิบัติจริง สนุก เข้าใจง่าย เหมือนท่องอวกาศ!
+          <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
+            เรียนรู้ HTML, CSS และการพัฒนาเว็บไซต์ผ่านภารกิจ (Quest) ที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และเขียนโค้ดได้จริง
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/student" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00e5ff] to-[#b05cff] text-black font-extrabold text-lg flex items-center justify-center gap-3 hover:scale-105 transition-transform shadow-[0_0_30px_rgba(0,229,255,0.4)]">
-              <Rocket className="w-6 h-6" /> เริ่มผจญภัย
+            <Link href="/student" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
+              <Terminal className="w-5 h-5" /> เริ่มการผจญภัย
             </Link>
-            <Link href="/methodology" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-white/10 transition-colors backdrop-blur-md">
-              <BrainCircuit className="w-6 h-6" /> วิธีการทำงาน
+            <Link href="/student/lessons" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-surface border border-line text-ink font-bold text-lg flex items-center justify-center gap-3 hover:bg-soft transition-all hover:-translate-y-1">
+              <MapIcon className="w-5 h-5" /> ดูเส้นทางการเรียนรู้
             </Link>
           </div>
         </section>
 
-        {/* Floating Code Preview */}
+        {/* Digital Web World UI Showcase */}
         <section className="max-w-[1100px] mx-auto px-6 mb-32 relative perspective-1000">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#00e5ff]/20 to-transparent blur-[100px] -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent blur-[100px] -z-10" />
           
-          {/* We use the `.win` class from globals.css which now provides a beautiful glass UI */}
-          <div className="win shadow-[0_30px_80px_rgba(0,229,255,0.15)] transform rotate-x-[2deg] hover:rotate-x-0 transition-transform duration-700 ease-out">
+          <div className="win shadow-2xl transform rotate-x-[2deg] hover:rotate-x-0 transition-transform duration-700 ease-out border-line">
             <div className="win-bar">
               <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-              <div className="win-title">
-                <span className="text-[#00e5ff] flex items-center gap-2"><Code2 className="w-4 h-4"/> index.html</span>
+              <div className="win-title flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted" />
+                <span>localhost:3000/quest/01</span>
               </div>
-              <div className="win-actions hidden sm:flex">
-                <span className="text-xs text-slate-400 font-mono tracking-widest uppercase">WebAI Engine Online</span>
+              <div className="win-actions hidden sm:flex text-xs font-mono text-muted uppercase">
+                Network Connected
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
-              <div className="p-8 bg-[#060a12]/80 font-mono text-sm leading-loose overflow-x-auto">
-                <pre className="text-slate-300">
-                  <span className="text-slate-500">&lt;!-- ภารกิจ: สร้างโครงสร้าง HTML --&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;!doctype</span> <span className="text-[#00ff9d]">html</span><span className="text-[#ff3366]">&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;html</span> <span className="text-[#00ff9d]">lang</span>=<span className="text-[#ffaa00]">"th"</span><span className="text-[#ff3366]">&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;head&gt;</span>{'\n'}
-                  {'  '}<span className="text-[#ff3366]">&lt;title&gt;</span><span className="text-white">เว็บไซต์ของฉัน</span><span className="text-[#ff3366]">&lt;/title&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;/head&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;body</span> <span className="text-[#00ff9d]">class</span>=<span className="text-[#ffaa00]">"deep-space"</span><span className="text-[#ff3366]">&gt;</span>{'\n'}
-                  {'  '}<span className="text-[#ff3366]">&lt;h1&gt;</span><span className="text-white drop-shadow-[0_0_5px_#fff]">ยินดีต้อนรับสู่ HTML Adaptive</span><span className="text-[#ff3366]">&lt;/h1&gt;</span>{'\n'}
-                  {'  '}<span className="text-[#ff3366]">&lt;p&gt;</span><span className="text-slate-300">ระบบเรียนรู้ปรับเหมาะอัตโนมัติ</span><span className="text-[#ff3366]">&lt;/p&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;/body&gt;</span>{'\n'}
-                  <span className="text-[#ff3366]">&lt;/html&gt;</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-line">
+              
+              {/* Code Panel */}
+              <div className="p-8 bg-bg-base font-mono text-sm leading-loose overflow-x-auto">
+                <div className="flex items-center gap-2 mb-4 text-xs font-bold text-primary uppercase">
+                  <Code2 className="w-4 h-4" /> index.html
+                </div>
+                <pre className="text-muted">
+                  <span className="text-faint">&lt;!-- 🎯 Mission: โครงสร้างเอกสาร --&gt;</span>{'\n'}
+                  <span className="text-danger">&lt;!DOCTYPE html&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;html</span> <span className="text-accent">lang</span>=<span className="text-highlight">"th"</span><span className="text-secondary">&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;head&gt;</span>{'\n'}
+                  {'  '}<span className="text-secondary">&lt;title&gt;</span><span className="text-ink">WebAI Adventure</span><span className="text-secondary">&lt;/title&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;/head&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;body</span> <span className="text-accent">class</span>=<span className="text-highlight">"developer-journey"</span><span className="text-secondary">&gt;</span>{'\n'}
+                  {'  '}<span className="text-secondary">&lt;h1&gt;</span><span className="text-ink">Level 1: Web Explorer</span><span className="text-secondary">&lt;/h1&gt;</span>{'\n'}
+                  {'  '}<span className="text-secondary">&lt;p&gt;</span><span className="text-muted">เตรียมพร้อมสู่การเป็นนักพัฒนา</span><span className="text-secondary">&lt;/p&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;/body&gt;</span>{'\n'}
+                  <span className="text-secondary">&lt;/html&gt;</span>
                 </pre>
               </div>
               
-              <div className="p-10 flex flex-col items-center justify-center text-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-black/40">
-                <div className="absolute top-6 left-6 flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00ff9d] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00ff9d]"></span>
-                  </span>
-                  <span className="text-[#00ff9d] text-xs font-mono font-bold tracking-widest">LIVE PREVIEW</span>
+              {/* Quest UI Panel */}
+              <div className="p-8 flex flex-col justify-center bg-surface relative">
+                <div className="absolute top-4 right-4 flex items-center gap-2 text-xs font-bold font-mono text-success bg-success/10 px-3 py-1 rounded-full border border-success/20">
+                  <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                  SYSTEM ONLINE
                 </div>
-                <h1 className="text-3xl font-bold mb-4 text-white drop-shadow-md">ยินดีต้อนรับสู่ HTML Adaptive</h1>
-                <p className="text-slate-400 text-lg">ระบบเรียนรู้ปรับเหมาะอัตโนมัติ</p>
-                <div className="mt-8 px-6 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md flex items-center gap-2 text-sm text-slate-300">
-                  <Bot className="w-4 h-4 text-[#b05cff]" /> โค้ดถูกต้อง! ผ่านภารกิจ
+                
+                <div className="card p-6 border-line bg-bg-base mt-6">
+                  <div className="text-[10px] font-mono font-bold text-primary mb-1 uppercase">Recommended Quest</div>
+                  <h3 className="text-xl font-bold text-ink mb-2">โครงสร้าง HTML พื้นฐาน</h3>
+                  <p className="text-sm text-muted mb-6">เรียนรู้องค์ประกอบที่สำคัญที่สุดของการสร้างเว็บไซต์ (HTML, HEAD, BODY)</p>
+                  
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4" /></div>
+                      <span className="text-sm text-ink font-medium">DOOTYPE Declaration</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center"></div>
+                      <span className="text-sm text-muted font-medium">Head Element</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-line">
+                    <div className="flex items-center gap-2 text-highlight font-bold text-sm">
+                      <Sparkles className="w-4 h-4" /> +150 XP
+                    </div>
+                    <button className="btn btn-primary btn-sm">
+                      ทำภารกิจต่อ <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
+                
               </div>
             </div>
           </div>
@@ -146,34 +175,34 @@ export default function Home() {
 
         {/* Stats */}
         <section className="max-w-[1000px] mx-auto px-6 mb-32 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card card-body text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-2xl bg-[rgba(0,229,255,0.1)] flex items-center justify-center mb-6">
-              <BookOpen className="w-8 h-8 text-[#00e5ff]" />
+          <div className="card p-6 text-center flex flex-col items-center">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
+              <MapIcon className="w-6 h-6" />
             </div>
-            <h3 className="text-4xl font-mono font-bold text-white mb-2">8</h3>
-            <p className="text-slate-400 font-medium">หน่วยเรียนครอบคลุม ปวช.</p>
+            <h3 className="text-3xl font-mono font-bold text-ink mb-1">8</h3>
+            <p className="text-muted text-sm font-medium">Web Domains</p>
           </div>
-          <div className="card card-body text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-2xl bg-[rgba(176,92,255,0.1)] flex items-center justify-center mb-6">
-              <Terminal className="w-8 h-8 text-[#b05cff]" />
+          <div className="card p-6 text-center flex flex-col items-center border-l-4 border-l-secondary">
+            <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
+              <Terminal className="w-6 h-6" />
             </div>
-            <h3 className="text-4xl font-mono font-bold text-white mb-2">40+</h3>
-            <p className="text-slate-400 font-medium">ภารกิจฝึกโค้ดเสมือนจริง</p>
+            <h3 className="text-3xl font-mono font-bold text-ink mb-1">40+</h3>
+            <p className="text-muted text-sm font-medium">Code Missions</p>
           </div>
-          <div className="card card-body text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-2xl bg-[rgba(0,255,157,0.1)] flex items-center justify-center mb-6">
-              <BrainCircuit className="w-8 h-8 text-[#00ff9d]" />
+          <div className="card p-6 text-center flex flex-col items-center">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4 text-accent">
+              <BrainCircuit className="w-6 h-6" />
             </div>
-            <h3 className="text-4xl font-mono font-bold text-white mb-2">100%</h3>
-            <p className="text-slate-400 font-medium">ปรับแต่งโจทย์ตามความสามารถ</p>
+            <h3 className="text-3xl font-mono font-bold text-ink mb-1">100%</h3>
+            <p className="text-muted text-sm font-medium">Adaptive Engine</p>
           </div>
         </section>
 
       </main>
 
-      <footer className="border-t border-white/10 bg-[#0d1424]/80 backdrop-blur-lg py-10 text-center">
-        <p className="font-mono text-xs text-slate-500 tracking-widest">
-          &lt;/&gt; WEB LEARNING STUDIO · DEEP SPACE ENGINE V2.0
+      <footer className="border-t border-line bg-surface py-8 text-center">
+        <p className="font-mono text-xs text-muted tracking-widest uppercase">
+          &lt;/&gt; WebAI Adventure · Adaptive Developer Journey
         </p>
       </footer>
 

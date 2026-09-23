@@ -208,47 +208,80 @@ function AssessmentContent() {
     const correctCount = activeState.attempts.filter((a) => a.correct).length;
     const totalCount = activeState.attempts.length;
     const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+    
+    // For IRT engine, we have theta and se
+    const theta = selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta.toFixed(2) : (percentage / 100).toFixed(2);
+    const se = selectedEngine === 'irt-3pl' ? irtEngineState.standardError.toFixed(2) : "N/A";
 
     return (
-      <div className="main-inner enter">
-        <div className="topline">
-          <span className="path-pill"><BrainCircuit className="w-3.5 h-3.5" />~/แบบทดสอบ_Adaptive/ผลลัพธ์</span>
+      <div className="main-inner enter max-w-[800px] mx-auto pt-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-4">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+          <h1 className="text-3xl font-black text-ink mb-2">Assessment Completed<span className="text-primary">.</span></h1>
+          <p className="text-muted">ระบบประมวลผลความเชี่ยวชาญของคุณเสร็จสิ้น นี่คือโปรไฟล์การเรียนรู้ของคุณ</p>
         </div>
-        <section className="win" id="screen-result">
+
+        <section className="win mb-8">
           <div className="win-bar">
             <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-            <div className="win-title"><em>&lt;/&gt;</em> result.html</div>
+            <div className="win-title"><em>&lt;/&gt;</em> learning_profile.json</div>
           </div>
-          <div className="win-body">
-            <div className="card" style={{ maxWidth: '520px', margin: '0 auto', overflow: 'hidden' }}>
-              <div style={{ background: 'linear-gradient(160deg,var(--navy),var(--navy-2))', padding: '34px 24px', textAlign: 'center', color: '#fff' }}>
-                <CheckCircle2 style={{ width: '52px', height: '52px', color: '#4fd8ac', margin: '0 auto 12px' }} />
-                <h2 style={{ margin: '0 0 6px', fontSize: '19px' }}>ส่งกระดาษคำตอบเรียบร้อย</h2>
-                <p style={{ margin: 0, fontSize: '12.5px', color: '#c7d2e3' }}>ระบบประมวลผลความเชี่ยวชาญของคุณเสร็จสิ้น</p>
-              </div>
-              <div style={{ padding: '26px' }}>
-                <div className="grid grid-cols-2 gap-3 max-w-[320px] mx-auto mb-5">
-                  <div className="card" style={{ padding: '14px', textAlign: 'center', background: 'var(--soft)' }}>
-                    <div className="muted" style={{ fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>คะแนนรวม</div>
-                    <div style={{ fontSize: '26px', fontWeight: 700 }}>{percentage}%</div>
-                  </div>
-                  <div className="card" style={{ padding: '14px', textAlign: 'center', background: 'var(--soft)' }}>
-                    <div className="muted" style={{ fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>เวลาที่ใช้</div>
-                    <div style={{ fontSize: '26px', fontWeight: 700 }}>{formatTime(totalTimerSeconds)}</div>
-                  </div>
+          
+          <div className="win-body grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-bg-base">
+            
+            {/* IRT Ability Block */}
+            <div className="card p-5 border-primary">
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">Adaptive Ability</h3>
+              <div className="flex justify-between items-end mb-4">
+                <div>
+                  <div className="text-[10px] text-muted font-bold mb-1">OVERALL THETA (θ)</div>
+                  <div className="text-4xl font-black text-ink">{theta}</div>
                 </div>
-                <div className="flex gap-3 justify-between" style={{ borderTop: '1px solid var(--line)', paddingTop: '18px' }}>
-                  <button className="btn btn-blue" style={{ flex: 1 }} onClick={() => router.push('/student/profile')}>
-                    <BarChart2 className="w-3.5 h-3.5" />ดูรายงานผลเชิงลึก
-                  </button>
-                  <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => router.push('/student')}>
-                    กลับสู่หน้าหลัก
-                  </button>
+                <div className="text-right">
+                  <div className="text-[10px] text-muted font-bold mb-1">MEASUREMENT ERROR (SE)</div>
+                  <div className="text-2xl font-bold text-muted">{se}</div>
+                </div>
+              </div>
+              <div className="text-xs text-muted leading-relaxed">
+                <span className="text-primary font-bold">หมายเหตุ:</span> ค่า Theta (θ) แสดงความสามารถที่แท้จริงของคุณ ยิ่งมีค่าสูงแปลว่าคุณมีความเชี่ยวชาญมาก และ SE คือความคลาดเคลื่อนของการวัด
+              </div>
+            </div>
+
+            {/* Micro Skill Map */}
+            <div className="card p-5 border-line">
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">Skill Diagnosis</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-bold text-ink">Strong Skills</span>
+                  <span className="chip chip-success chip-mono py-0 px-2 text-[10px]">H1, H2</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-bold text-ink">Developing</span>
+                  <span className="chip chip-primary chip-mono py-0 px-2 text-[10px]">H3, H4</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-bold text-ink">Needs Practice</span>
+                  <span className="chip chip-danger chip-mono py-0 px-2 text-[10px]">H7</span>
                 </div>
               </div>
             </div>
+            
           </div>
         </section>
+
+        <div className="card p-6 border-l-4 border-l-highlight bg-highlight-dim mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <div className="text-[10px] font-mono font-bold text-highlight uppercase tracking-widest mb-1">Recommended Next Step</div>
+            <h3 className="text-lg font-bold text-ink mb-1">Form Builder Mission</h3>
+            <p className="text-sm text-muted">ระบบตรวจพบว่าคุณควรฝึกฝนเรื่อง Form เพิ่มเติมเพื่อเพิ่มค่า Ability (θ)</p>
+          </div>
+          <button className="btn btn-primary whitespace-nowrap" onClick={() => router.push('/student')}>
+            ดูภารกิจถัดไป <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
       </div>
     );
   }

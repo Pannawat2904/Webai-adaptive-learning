@@ -5,7 +5,19 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { SkillProfile } from '@/types/database';
 import { MOCK_STUDENT_SKILLS } from '@/lib/mock-data';
-import { Terminal, Gamepad2, CheckCircle2, Bot, Bell, Zap, ArrowRight, Code2, Sparkles, Lock } from 'lucide-react';
+import { 
+  Terminal, 
+  Target, 
+  CheckCircle2, 
+  Trophy, 
+  Zap, 
+  ArrowRight, 
+  Code2, 
+  Sparkles, 
+  Map as MapIcon,
+  Shield,
+  Activity
+} from 'lucide-react';
 
 export default function StudentDashboardPage() {
   const { profile } = useAuth();
@@ -30,230 +42,195 @@ export default function StudentDashboardPage() {
       : 0;
 
   return (
-    <div className="main-inner enter">
-      <div className="topline flex flex-wrap gap-2 items-center justify-between">
-        <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/หลักสูตร_HTML</span>
+    <div className="main-inner enter max-w-[1200px] mx-auto">
+      <div className="flex flex-wrap gap-2 items-center justify-between mb-8">
+        <span className="flex items-center gap-2 text-sm font-bold text-muted bg-surface px-4 py-2 rounded-full border border-line">
+          <Terminal className="w-4 h-4 text-primary" /> ~/journey/dashboard
+        </span>
         <div className="flex gap-2">
-          <button className="icon-btn hidden md:flex"><Bell className="w-4 h-4" /></button>
-          <span className="chip chip-green chip-mono hidden md:flex"><Zap className="w-3 h-3" />3 วันติดต่อกัน</span>
+          <span className="chip chip-warning chip-mono hidden md:inline-flex"><Zap className="w-3 h-3" />3 Day Streak</span>
         </div>
       </div>
 
-      <div className="page-heading">
-        <h1>ภาพรวมการเรียนรู้<span className="accent">.</span></h1>
-        <p>ติดตามความก้าวหน้า ฝึกเขียนโค้ดจริงใน Code Lab และประเมินความเข้าใจของคุณด้วยแบบทดสอบแบบปรับเหมาะ</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-ink mb-2">WebAI Adventure<span className="text-primary">.</span></h1>
+        <p className="text-muted">ยินดีต้อนรับสู่ศูนย์บัญชาการนักพัฒนา ติดตามภารกิจและการเติบโตของคุณที่นี่</p>
       </div>
 
-      <section className="win">
-        <div className="win-bar">
-          <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-          <div className="win-title"><em>&lt;/&gt;</em> dashboard.html</div>
-        </div>
-
-        <div className="win-body">
-          {/* Hero */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.25fr_0.85fr] gap-6">
-            <div className="card p-6 md:p-8 flex flex-col justify-center border-line">
-              <span className="chip chip-green chip-mono self-start mb-4">
-                <Terminal className="w-3 h-3" />STUDENT_DASHBOARD()
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 mb-6">
+        
+        {/* Developer Profile Card */}
+        <div className="card p-6 md:p-8 flex flex-col justify-between border-l-4 border-l-primary bg-gradient-to-br from-surface to-bg-base relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+            <Code2 className="w-64 h-64 text-primary" />
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-6">
+              <span className="chip chip-primary chip-mono">
+                <Shield className="w-3 h-3" /> LEVEL 2 : HTML BUILDER
               </span>
-              <h2 className="mb-3 text-2xl md:text-3xl font-bold leading-tight">
-                สวัสดีครับ {profile?.full_name?.split(' ')[0] || 'ผู้เรียน'} 👋<br />พร้อมสร้างเว็บไซต์หน้าถัดไปหรือยัง?
-              </h2>
-              <p className="muted mb-5 text-sm md:text-[14px] leading-relaxed max-w-xl">
-                วันนี้ระบบแนะนำให้เรียนต่อที่หน่วย <strong className="text-ink">H3 · โครงสร้าง HTML เชิงลึก</strong> — คุณทำไปแล้ว {avgLevel}% ของหน่วยนี้
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/student/lessons" className="btn btn-navy flex-1 sm:flex-none justify-center">เข้าสู่บทเรียนต่อ <ArrowRight className="w-4 h-4" /></Link>
-                <Link href="/student/quests" className="btn btn-soft flex-1 sm:flex-none justify-center"><Gamepad2 className="w-4 h-4" />ดูตะลุยด่าน</Link>
+              <div className="flex items-center gap-2 text-highlight font-bold bg-highlight-dim px-3 py-1 rounded-lg border border-highlight-dim text-sm">
+                <Sparkles className="w-4 h-4" /> 1,240 XP
               </div>
             </div>
-
-            <div className="relative overflow-hidden flex flex-col justify-between rounded-[var(--r-lg)] p-6 text-white" style={{ background: 'radial-gradient(420px 220px at 100% 0%, rgba(79,216,172,.18), transparent 60%), linear-gradient(160deg,var(--navy),var(--navy-2))' }}>
-              <div className="absolute -right-2 -bottom-6 font-mono font-bold text-[100px] md:text-[130px] text-white/5 pointer-events-none">&lt;/&gt;</div>
-              <div className="relative flex items-center gap-4">
-                <svg className="ring" width="88" height="88" viewBox="0 0 120 120">
-                  <circle className="ring-bg" cx="60" cy="60" r="52" strokeWidth="10" />
-                  <circle className="ring-fg" cx="60" cy="60" r="52" strokeWidth="10" strokeDasharray="326.7" strokeDashoffset={326.7 - (326.7 * avgLevel) / 100} />
-                </svg>
-                <div>
-                  <small className="text-[#aebbd0] text-[10.5px] font-mono tracking-wide">COURSE_PROGRESS</small>
-                  <div className="font-mono font-bold text-3xl mt-0.5">{avgLevel}%</div>
-                  <div className="text-[#c7d2e3] text-[11.5px] mt-0.5">5 / 8 หน่วย · กำลังเรียน H3</div>
-                </div>
+            
+            <h2 className="mb-2 text-2xl md:text-3xl font-bold leading-tight text-ink">
+              สวัสดี, {profile?.full_name?.split(' ')[0] || 'Developer'} 👋
+            </h2>
+            <p className="text-muted mb-8 text-sm leading-relaxed max-w-xl">
+              คุณทำภารกิจสำเร็จไปแล้ว 3 ภารกิจในสัปดาห์นี้ ทักษะของคุณกำลังพัฒนาอย่างต่อเนื่อง ไปลุยภารกิจต่อไปกันเลย!
+            </p>
+            
+            <div className="flex flex-col mb-4">
+              <div className="flex justify-between text-xs font-bold text-muted mb-2 uppercase tracking-wide">
+                <span>Progress to Level 3</span>
+                <span className="text-ink">1,240 / 2,000 XP</span>
               </div>
-              <div className="relative flex justify-between mt-6 pt-4 border-t border-white/10">
-                <div>
-                  <small className="text-[#aebbd0] text-[10.5px]">คะแนนสะสม</small>
-                  <div className="font-mono font-bold text-lg mt-1">780 XP</div>
-                </div>
-                <div className="text-right">
-                  <small className="text-[#aebbd0] text-[10.5px]">Streak</small>
-                  <div className="font-mono font-bold text-lg mt-1">🔥 3 วัน</div>
-                </div>
-              </div>
+              <div className="bar"><span style={{ width: '62%' }}></span></div>
             </div>
           </div>
+        </div>
 
-          {/* Quick actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <Link href="/student/quests" className="card card-hover flex items-center gap-4 p-4">
-              <div className="w-11 h-11 rounded-xl bg-blue-dim text-theme-blue flex items-center justify-center shrink-0">
-                <Gamepad2 className="w-5 h-5" />
-              </div>
-              <div>
-                <b className="text-[13.5px] block">ตะลุยด่าน (Quests)</b>
-                <small className="muted text-[11px]">ลุยด่านเขียนโค้ดแบบเกม</small>
-              </div>
-            </Link>
-            <Link href="/student/assessment" className="card card-hover flex items-center gap-4 p-4">
-              <div className="w-11 h-11 rounded-xl bg-green-dim text-theme-green flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div>
-                <b className="text-[13.5px] block">ทำแบบทดสอบ</b>
-                <small className="muted text-[11px]">ประเมินความเข้าใจรายหัวข้อ</small>
-              </div>
-            </Link>
-            <Link href="/student/codelab" className="card card-hover flex items-center gap-4 p-4">
-              <div className="w-11 h-11 rounded-xl bg-purple-dim text-theme-purple flex items-center justify-center shrink-0">
-                <Terminal className="w-5 h-5" />
-              </div>
-              <div>
-                <b className="text-[13.5px] block">ฝึกเขียนโค้ด</b>
-                <small className="muted text-[11px]">Code Lab พร้อม AI ตรวจโค้ด</small>
-              </div>
-            </Link>
-          </div>
-
-          {/* Roadmap + Skills */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 mt-4 items-start">
-            <div className="card">
-              <div className="card-head">
-                <h3>เส้นทางการเรียนรู้</h3>
-                <span className="tag">8 SUB-DOMAINS</span>
-              </div>
-              <div className="card-body pt-1.5">
-                <div className="flex items-center gap-4 py-3 px-1.5 border-b border-dashed border-line">
-                  <div className="w-11 h-11 rounded-xl bg-green-dim text-theme-green flex items-center justify-center font-mono font-bold text-[13px] shrink-0">H1</div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="m-0 text-[13.5px] font-bold truncate">โครงสร้างเอกสาร HTML พื้นฐาน</h4>
-                    <p className="muted m-0 mt-0.5 text-[11.5px] truncate">เรียนจบแล้ว · แบบทดสอบผ่าน</p>
-                  </div>
-                  <span className="chip chip-blue hidden sm:inline-flex shrink-0">✓ สำเร็จ</span>
-                </div>
-                <div className="flex items-center gap-4 py-3 px-1.5 border-b border-dashed border-line">
-                  <div className="w-11 h-11 rounded-xl bg-green-dim text-theme-green flex items-center justify-center font-mono font-bold text-[13px] shrink-0">H2</div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="m-0 text-[13.5px] font-bold truncate">การจัดการข้อความและ Heading/Paragraph</h4>
-                    <p className="muted m-0 mt-0.5 text-[11.5px] truncate">เรียนจบแล้ว · ผ่านด่านตะลุยด่านแล้ว</p>
-                  </div>
-                  <span className="chip chip-blue hidden sm:inline-flex shrink-0">✓ สำเร็จ</span>
-                </div>
-                <div className="flex items-center gap-4 py-3 px-1.5 border-b border-dashed border-line">
-                  <div className="w-11 h-11 rounded-xl bg-blue-dim text-theme-blue flex items-center justify-center font-mono font-bold text-[13px] shrink-0 ring-4 ring-blue-dim">H3</div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="m-0 text-[13.5px] font-bold truncate">โครงสร้าง HTML เชิงลึก</h4>
-                    <div className="bar thin mt-1.5 max-w-[220px]">
-                      <span style={{ width: '64%' }}></span>
-                    </div>
-                  </div>
-                  <Link href="/student/lessons" className="chip chip-blue cursor-pointer shrink-0">เรียนต่อ →</Link>
-                </div>
-                <div className="flex items-center gap-4 py-3 px-1.5 border-b border-dashed border-line opacity-60">
-                  <div className="w-11 h-11 rounded-xl bg-soft text-faint flex items-center justify-center font-mono font-bold text-[13px] shrink-0">H4</div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="m-0 text-[13.5px] font-bold truncate">การเชื่อมโยงและการแทรกสื่อ</h4>
-                    <p className="muted m-0 mt-0.5 text-[11.5px] truncate">หน่วยถัดไป</p>
-                  </div>
-                  <span className="chip chip-line shrink-0">ถัดไป</span>
-                </div>
-                <div className="flex items-center gap-4 py-3 px-1.5 opacity-50">
-                  <div className="w-11 h-11 rounded-xl bg-soft text-faint flex items-center justify-center font-mono font-bold text-[13px] shrink-0">H5</div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="m-0 text-[13.5px] font-bold truncate">การสร้างแบบฟอร์ม HTML</h4>
-                    <p className="muted m-0 mt-0.5 text-[11.5px] truncate">ยังไม่เริ่มเรียน</p>
-                  </div>
-                  <span className="chip chip-line shrink-0">ถัดไป</span>
-                </div>
+        {/* Recommended Quest Card */}
+        <div className="card p-6 bg-surface border-line quest-card flex flex-col justify-between hover:-translate-y-1 transition-transform">
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">Recommended Quest</div>
+              <div className="text-xs font-bold text-success bg-success-dim px-2 py-0.5 rounded flex items-center gap-1">
+                <Target className="w-3 h-3" /> MATCH
               </div>
             </div>
+            <h3 className="text-xl font-bold text-ink mb-2">Form Builder Mission</h3>
+            <p className="text-sm text-muted mb-4">
+              สร้างฟอร์มสมัครสมาชิกที่สมบูรณ์แบบ ทักษะ <strong className="text-ink">H7 (Forms)</strong> ของคุณต้องการการฝึกฝนเพิ่มเติม
+            </p>
+            
+            <div className="flex gap-2 mb-6">
+              <span className="text-[10px] px-2 py-1 bg-bg-base border border-line rounded text-muted font-bold">Difficulty: Medium</span>
+              <span className="text-[10px] px-2 py-1 bg-highlight-dim border border-highlight-dim rounded text-highlight font-bold">+150 XP</span>
+            </div>
+          </div>
+          
+          <Link href="/student/codelab" className="btn btn-primary w-full text-sm">
+            เริ่มภารกิจ <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
 
-            <div className="flex flex-col gap-4">
-              <div className="card">
-                <div className="card-head">
-                  <h3>ทักษะของฉัน</h3>
-                  <span className="tag">MASTERY</span>
-                </div>
-                <div className="card-body flex flex-col gap-3.5">
-                  <div>
-                    <div className="flex justify-between text-[11.5px] font-bold mb-1.5">
-                      <span>โครงสร้าง HTML (H1)</span><span className="mono muted">86%</span>
-                    </div>
-                    <div className="bar"><span style={{ width: '86%' }}></span></div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11.5px] font-bold mb-1.5">
-                      <span>ข้อความและ Heading (H2)</span><span className="mono muted">74%</span>
-                    </div>
-                    <div className="bar"><span style={{ width: '74%' }}></span></div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11.5px] font-bold mb-1.5">
-                      <span>Links และ Navigation (H3)</span><span className="mono muted">58%</span>
-                    </div>
-                    <div className="bar"><span style={{ width: '58%' }}></span></div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[11.5px] font-bold mb-1.5">
-                      <span>Images และ Media (H4)</span><span className="mono muted">67%</span>
-                    </div>
-                    <div className="bar"><span style={{ width: '67%' }}></span></div>
-                  </div>
-                </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <Link href="/student/lessons" className="card card-hover flex items-center gap-4 p-4 border-line">
+          <div className="w-12 h-12 rounded-xl bg-primary-dim text-primary flex items-center justify-center shrink-0">
+            <MapIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <b className="text-[14px] block text-ink">เส้นทาง (Journey)</b>
+            <small className="text-muted text-[12px]">ดูแผนที่การเรียนรู้ของคุณ</small>
+          </div>
+        </Link>
+        <Link href="/student/assessment" className="card card-hover flex items-center gap-4 p-4 border-line">
+          <div className="w-12 h-12 rounded-xl bg-accent-dim text-accent flex items-center justify-center shrink-0">
+            <Activity className="w-6 h-6" />
+          </div>
+          <div>
+            <b className="text-[14px] block text-ink">ประเมินทักษะ (CAT)</b>
+            <small className="text-muted text-[12px]">ทดสอบวัดระดับ θ ของคุณ</small>
+          </div>
+        </Link>
+        <Link href="/student/codelab" className="card card-hover flex items-center gap-4 p-4 border-line">
+          <div className="w-12 h-12 rounded-xl bg-secondary-dim text-secondary flex items-center justify-center shrink-0">
+            <Terminal className="w-6 h-6" />
+          </div>
+          <div>
+            <b className="text-[14px] block text-ink">ห้องฝึกปฏิบัติ (Lab)</b>
+            <small className="text-muted text-[12px]">เขียนโค้ดแก้โจทย์จริง</small>
+          </div>
+        </Link>
+      </div>
+
+      {/* Skill Map & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 items-start">
+        <div className="card border-line">
+          <div className="card-head">
+            <h3>Web Skill Map</h3>
+            <span className="chip chip-mono">MASTERY LEVELS</span>
+          </div>
+          <div className="card-body flex flex-col gap-5">
+            <div>
+              <div className="flex justify-between items-center text-sm font-bold mb-2">
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success"></div> H1 โครงสร้าง HTML</span>
+                <span className="text-success">Mastered</span>
               </div>
+              <div className="bar success"><span style={{ width: '100%' }}></span></div>
+            </div>
+            <div>
+              <div className="flex justify-between items-center text-sm font-bold mb-2">
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success"></div> H2 Text & Headings</span>
+                <span className="text-success">Mastered</span>
+              </div>
+              <div className="bar success"><span style={{ width: '100%' }}></span></div>
+            </div>
+            <div>
+              <div className="flex justify-between items-center text-sm font-bold mb-2">
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary"></div> H3 Hyperlinks</span>
+                <span className="text-primary">In Progress</span>
+              </div>
+              <div className="bar"><span style={{ width: '65%' }}></span></div>
+            </div>
+            <div>
+              <div className="flex justify-between items-center text-sm font-bold mb-2">
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-danger"></div> H7 Forms</span>
+                <span className="text-danger">Needs Practice</span>
+              </div>
+              <div className="bar danger"><span style={{ width: '30%' }}></span></div>
+            </div>
+            
+            <Link href="/student/lessons" className="btn btn-ghost w-full mt-2 text-xs">
+              ดูแผนผังทักษะแบบเต็ม
+            </Link>
+          </div>
+        </div>
 
-              <div className="card flex-1">
-                <div className="card-head">
-                  <h3>กิจกรรมล่าสุด</h3>
-                  <span className="tag">RECENT</span>
-                </div>
-                <div className="card-body pt-2">
-                  <div className="flex gap-3 py-2.5 border-b border-dashed border-line">
-                    <div className="w-8 h-8 rounded-lg bg-green-dim text-theme-green flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <b className="text-[11.5px] block">ผ่านแบบฝึกหัด HTML Structure</b>
-                      <small className="faint text-[10px]">วันนี้ · 10 นาทีที่แล้ว</small>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 py-2.5 border-b border-dashed border-line">
-                    <div className="w-8 h-8 rounded-lg bg-blue-dim text-theme-blue flex items-center justify-center shrink-0">
-                      <Code2 className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <b className="text-[11.5px] block">ผ่านด่านตะลุยด่าน: H2</b>
-                      <small className="faint text-[10px]">เมื่อวาน · ดาวสะสม +3</small>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 py-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-purple-dim text-theme-purple flex items-center justify-center shrink-0">
-                      <Sparkles className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <b className="text-[11.5px] block">ทำแบบทดสอบ H2</b>
-                      <small className="faint text-[10px]">2 วันที่แล้ว · ความแม่นยำ 80%</small>
-                    </div>
-                  </div>
-                </div>
+        <div className="card flex-1 border-line">
+          <div className="card-head">
+            <h3>Recent Activity</h3>
+            <span className="chip chip-mono">LOGS</span>
+          </div>
+          <div className="card-body pt-2 space-y-1">
+            <div className="flex gap-4 py-3 border-b border-dashed border-line">
+              <div className="w-10 h-10 rounded-lg bg-success-dim text-success flex items-center justify-center shrink-0">
+                <Trophy className="w-4 h-4" />
+              </div>
+              <div>
+                <b className="text-sm block text-ink">Achievement Unlocked!</b>
+                <small className="text-muted text-xs block mb-1">"Link Master" (เชื่อมโยงหน้าเว็บ 5 หน้า)</small>
+                <span className="text-[10px] text-highlight font-bold">+50 XP</span>
+              </div>
+            </div>
+            <div className="flex gap-4 py-3 border-b border-dashed border-line">
+              <div className="w-10 h-10 rounded-lg bg-primary-dim text-primary flex items-center justify-center shrink-0">
+                <Code2 className="w-4 h-4" />
+              </div>
+              <div>
+                <b className="text-sm block text-ink">Completed Mission: Links 101</b>
+                <small className="text-muted text-xs block mb-1">ผ่านภารกิจการสร้างแท็ก &lt;a&gt;</small>
+                <span className="text-[10px] text-highlight font-bold">+100 XP</span>
+              </div>
+            </div>
+            <div className="flex gap-4 py-3">
+              <div className="w-10 h-10 rounded-lg bg-secondary-dim text-secondary flex items-center justify-center shrink-0">
+                <Activity className="w-4 h-4" />
+              </div>
+              <div>
+                <b className="text-sm block text-ink">Adaptive Test (H1-H2)</b>
+                <small className="text-muted text-xs block mb-1">θ อัพเดทเป็น 0.85</small>
+                <span className="text-[10px] text-muted font-bold">2 วันที่แล้ว</span>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <div className="text-center faint mono text-[10px] py-6">&lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM</div>
     </div>
   );
 }

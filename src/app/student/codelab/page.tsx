@@ -16,7 +16,8 @@ import {
   Layout,
   Globe,
   Bot,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 
 function CodeLabContent() {
@@ -151,12 +152,14 @@ function CodeLabContent() {
   const totalChecklistCount = currentAssignment.checklist.length;
 
   return (
-    <div className="main-inner enter flex flex-col min-h-[800px] md:min-h-[600px] h-auto md:h-[calc(100vh-40px)] mb-20 md:mb-0">
-      <div className="topline shrink-0 flex flex-wrap gap-2 items-center justify-between">
-        <span className="path-pill"><Terminal className="w-3.5 h-3.5" />~/ฝึกเขียนโค้ด_CodeLab</span>
+    <div className="main-inner enter flex flex-col min-h-[800px] md:min-h-[600px] h-auto md:h-[calc(100vh-40px)] mb-20 md:mb-0 max-w-[1400px] mx-auto pt-6">
+      <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
+        <span className="flex items-center gap-2 text-sm font-bold text-muted bg-surface px-4 py-2 rounded-full border border-line">
+          <Terminal className="w-4 h-4 text-primary" /> ~/mission/lab
+        </span>
         <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
           <select 
-            className="chip chip-line mono w-full sm:w-auto bg-white border border-line py-2 px-3 text-[13px] cursor-pointer" 
+            className="chip bg-surface border border-line py-2 px-3 text-[13px] text-ink cursor-pointer font-bold" 
             value={currentAssignment.id}
             onChange={(e) => {
               const found = MOCK_ASSIGNMENTS.find((a) => a.id === e.target.value);
@@ -164,55 +167,55 @@ function CodeLabContent() {
             }}
           >
             {MOCK_ASSIGNMENTS.map((a) => (
-              <option key={a.id} value={a.id}>ภารกิจ: {a.title}</option>
+              <option key={a.id} value={a.id}>QUEST: {a.title}</option>
             ))}
           </select>
-          <button className="btn btn-navy btn-sm w-full sm:w-auto justify-center" onClick={handleSubmitAssignment} disabled={isSubmitting}>
+          <button className="btn btn-primary btn-sm w-full sm:w-auto justify-center" onClick={handleSubmitAssignment} disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            {isSubmitting ? 'กำลังตรวจ...' : 'ส่งตรวจโค้ด'}
+            {isSubmitting ? 'กำลังตรวจ...' : 'ส่งมอบภารกิจ'}
           </button>
         </div>
       </div>
 
-      <section className="win flex flex-col flex-1 min-h-0 mt-4 md:mt-0">
+      <section className="win flex flex-col flex-1 min-h-0">
         <div className="win-bar shrink-0">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-          <div className="win-title"><em>&lt;/&gt;</em> editor.html</div>
+          <div className="win-title"><em>&lt;/&gt;</em> lab_environment.html</div>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden bg-bg-base">
           
           {/* Editor */}
-          <div className="flex flex-col rounded-2xl overflow-hidden border border-code-line min-h-[400px] lg:min-h-0 relative">
-            <div className="bg-code-bg-2 p-2.5 px-3.5 flex items-center justify-between border-b border-code-line shrink-0">
+          <div className="flex flex-col rounded-xl overflow-hidden border border-line min-h-[400px] lg:min-h-0 relative bg-[#0d1424]">
+            <div className="bg-[#172033] p-2.5 px-3.5 flex items-center justify-between border-b border-line shrink-0">
               <div className="flex items-center gap-3">
                 <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-                <span className="chip mono bg-green-900/20 text-theme-green"><Code2 className="w-3.5 h-3.5" />index.html</span>
+                <span className="chip chip-mono bg-primary/20 text-primary border border-primary/20"><Code2 className="w-3.5 h-3.5" />index.html</span>
               </div>
               <div className="flex gap-1">
-                <button className="icon-btn border-0 bg-transparent text-theme-green hover:bg-white/5" title="รันโค้ด" onClick={handleRun}><Play className="w-4 h-4" /></button>
+                <button className="icon-btn border-0 bg-transparent text-success hover:bg-success/10" title="รันโค้ด" onClick={handleRun}><Play className="w-4 h-4" /></button>
                 <button className="icon-btn border-0 bg-transparent text-muted hover:bg-white/5" title="บันทึกร่าง" onClick={handleSaveDraft}><Save className="w-4 h-4" /></button>
                 <button className="icon-btn border-0 bg-transparent text-muted hover:bg-white/5" title="รีเซ็ต" onClick={handleReset}><RotateCcw className="w-4 h-4" /></button>
               </div>
             </div>
             <textarea 
               spellCheck="false" 
-              className="flex-1 bg-code-bg text-[#c9d4e8] border-0 p-[18px] font-mono text-[12.5px] leading-[1.8] resize-none focus:outline-none"
+              className="flex-1 bg-transparent text-[#e2e8f0] border-0 p-[18px] font-mono text-[13px] leading-[1.8] resize-none focus:outline-none"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
             {savedDraftToast && (
-              <div className="absolute right-3.5 bottom-5 bg-green-500 text-white text-[11.5px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-10 animate-in fade-in slide-in-from-bottom-2">บันทึกร่างแล้ว ✓</div>
+              <div className="absolute right-3.5 bottom-5 bg-success text-white text-[11.5px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-10 animate-in fade-in slide-in-from-bottom-2">ร่างภารกิจถูกบันทึกแล้ว ✓</div>
             )}
           </div>
 
           {/* Preview + Checklist */}
           <div className="flex flex-col gap-3 min-h-[400px] lg:min-h-0">
-            <div className="flex-1 flex flex-col rounded-2xl overflow-hidden border border-line min-h-[250px]">
-              <div className="bg-soft p-2.5 px-3.5 flex items-center gap-2.5 border-b border-line shrink-0">
+            <div className="flex-1 flex flex-col rounded-xl overflow-hidden border border-line min-h-[250px]">
+              <div className="bg-surface p-2.5 px-3.5 flex items-center gap-2.5 border-b border-line shrink-0">
                 <div className="win-dots"><i className="bg-line"></i><i className="bg-line"></i><i className="bg-line"></i></div>
-                <div className="flex-1 bg-white border border-line rounded-lg px-3 py-1.5 flex items-center gap-2 text-[11px] text-muted">
-                  <Globe className="w-3 h-3 text-theme-blue" />preview://index.html
+                <div className="flex-1 bg-bg-base border border-line rounded-lg px-3 py-1.5 flex items-center gap-2 text-[11px] text-muted">
+                  <Globe className="w-3 h-3 text-primary" />localhost:3000/preview
                 </div>
               </div>
               <iframe 
@@ -224,18 +227,23 @@ function CodeLabContent() {
             </div>
 
             <div className="card shrink-0">
-              <div className="flex items-center justify-between p-3 px-4 border-b border-line">
-                <div className="flex items-center gap-2 text-[12.5px] font-bold">
-                  <Layout className="w-3.5 h-3.5 text-theme-blue" />เงื่อนไขภารกิจ
+              <div className="flex items-center justify-between p-3 px-4 border-b border-line bg-surface">
+                <div className="flex items-center gap-2 text-[12.5px] font-bold text-ink">
+                  <Layout className="w-3.5 h-3.5 text-primary" />Mission Checklist
                 </div>
-                <span className="chip chip-line mono">{passedChecklistCount}/{totalChecklistCount}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold text-highlight bg-highlight-dim px-2 py-0.5 rounded border border-highlight-dim">+150 XP</span>
+                  <span className="chip chip-line chip-mono">{passedChecklistCount}/{totalChecklistCount}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 px-4 bg-bg-base">
                 {currentAssignment.checklist.map(item => {
                   const passed = checklistStatus[item.id];
                   return (
-                    <div key={item.id} className={`flex items-center gap-2 text-[11.5px] ${passed ? 'text-theme-green font-bold' : 'text-muted'}`}>
-                      <span className={`w-3.5 h-3.5 rounded-full border-[1.5px] shrink-0 ${passed ? 'border-theme-green bg-theme-green' : 'border-line bg-transparent'}`}></span>
+                    <div key={item.id} className={`flex items-center gap-2 text-[12px] ${passed ? 'text-success font-bold' : 'text-muted font-medium'}`}>
+                      <span className={`w-4 h-4 rounded-sm border-[1.5px] shrink-0 flex items-center justify-center ${passed ? 'border-success bg-success' : 'border-muted bg-transparent'}`}>
+                        {passed && <CheckCircle2 className="w-3 h-3 text-white" />}
+                      </span>
                       {item.label}
                     </div>
                   );
@@ -244,11 +252,16 @@ function CodeLabContent() {
             </div>
 
             {reviewResult && (
-              <div className="card p-4 bg-purple-dim border-purple-500/30 shrink-0">
-                <div className="flex items-center gap-2 font-bold text-[12.5px] text-theme-purple mb-1.5">
-                  <Bot className="w-4 h-4" />AI Code Review ({reviewResult.score}/100)
+              <div className={`card p-4 shrink-0 border-l-4 ${reviewResult.passed ? 'border-l-success bg-success-dim' : 'border-l-warning bg-warning-dim'}`}>
+                <div className={`flex items-center justify-between font-bold text-[13px] mb-2 ${reviewResult.passed ? 'text-success' : 'text-warning'}`}>
+                  <div className="flex items-center gap-2">
+                    <Bot className="w-4 h-4" /> AI Advisor Review
+                  </div>
+                  {reviewResult.passed && (
+                    <span className="chip chip-success chip-mono text-[10px]">MISSION CLEARED</span>
+                  )}
                 </div>
-                <p className="m-0 text-xs leading-[1.7] text-ink">
+                <p className="m-0 text-sm leading-relaxed text-ink">
                   {reviewResult.summary}
                 </p>
               </div>
