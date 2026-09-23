@@ -24,8 +24,7 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    // Student portal defaults to dark mode (WebAI Adventure theme)
-    document.documentElement.classList.add('dark');
+    // Dark mode is no longer forced for the landing page
   }, []);
 
   if (!mounted) return null;
