@@ -10,17 +10,13 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Sun,
-  Moon,
-  Search,
-  Bell,
-  Settings,
-  LineChart,
-  FileQuestion,
-  Activity,
   Map,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  Activity,
+  FileQuestion,
+  User,
+  Sparkles
 } from 'lucide-react';
 
 const navItems = [
@@ -42,32 +38,13 @@ export default function TeacherLayout({
   const { profile, signOut } = useAuth();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (document.documentElement.classList.contains('dark')) {
-      setTheme('dark');
-    }
+    // Force global dark theme class for Deep Space aesthetic
+    document.documentElement.classList.add('dark');
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const handleLogout = async () => {
     await signOut();
@@ -77,27 +54,29 @@ export default function TeacherLayout({
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300 font-sans">
-      {/* Playful Soft Background */}
-      <div className="playful-bg" aria-hidden="true" />
-      
-      {/* Sidebar for Desktop */}
-      <aside className={`hidden md:flex flex-col fixed inset-y-4 left-4 z-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-3xl shadow-sm transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-        <div className={`flex items-center h-20 ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'} border-b border-slate-100 dark:border-slate-700`}>
+    <div className="min-h-screen transition-colors duration-300 font-sans text-white">
+      {/* Sidebar for Desktop - Glassmorphism */}
+      <aside className={`hidden md:flex flex-col fixed inset-y-4 left-4 z-40 bg-[#0d1424]/60 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-2xl transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <div className={`flex items-center h-20 ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'} border-b border-white/5`}>
           {!isSidebarCollapsed && (
-            <span className="font-extrabold text-xl tracking-tight text-slate-800 dark:text-white">
-              Teacher Pro
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#00ff9d] text-black flex items-center justify-center shadow-[0_0_15px_rgba(0,255,157,0.4)]">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span className="font-extrabold text-xl tracking-tight text-white drop-shadow-[0_0_10px_rgba(0,255,157,0.3)]">
+                Teacher Pro
+              </span>
+            </div>
           )}
           <button 
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 transition-colors"
+            className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 transition-colors"
           >
             {isSidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </button>
         </div>
 
-        <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto overflow-x-hidden scrollbar-hide">
+        <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto overflow-x-hidden scrollbar-hide">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/teacher');
             
@@ -105,15 +84,18 @@ export default function TeacherLayout({
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-4'} py-3 pill-button transition-all duration-300 ${
+                className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl font-bold text-sm transition-all duration-300 relative group ${
                   isActive
-                    ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                    ? "text-white bg-[rgba(0,255,157,0.1)] border border-[rgba(0,255,157,0.2)] shadow-[0_0_15px_rgba(0,255,157,0.05)]"
+                    : "text-slate-400 hover:text-white hover:bg-white/5 border border-transparent"
                 }`}
                 title={isSidebarCollapsed ? item.name : undefined}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#00ff9d] rounded-r-md shadow-[0_0_10px_#00ff9d]" />
+                )}
                 <div className="relative flex-shrink-0">
-                  <item.icon className={`w-5 h-5 ${isActive ? "opacity-100" : "opacity-70"}`} strokeWidth={2} />
+                  <item.icon className={`w-[18px] h-[18px] ${isActive ? "text-[#00ff9d] drop-shadow-[0_0_8px_rgba(0,255,157,0.6)]" : "opacity-70 group-hover:text-[#00ff9d]"}`} strokeWidth={2.5} />
                 </div>
                 {!isSidebarCollapsed && <span>{item.name}</span>}
               </Link>
@@ -121,21 +103,23 @@ export default function TeacherLayout({
           })}
         </nav>
 
-        <div className="mt-auto pt-4 pb-6 border-t border-slate-100 dark:border-slate-700 px-3 flex flex-col gap-1.5">
-          <button 
-            onClick={toggleTheme} 
-            className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-4'} py-3 w-full pill-button text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-300`} 
-            title={isSidebarCollapsed ? "สลับโหมดหน้าจอ" : undefined}
-          >
-            {theme === 'dark' ? (
-              <><Sun className="w-5 h-5 flex-shrink-0 opacity-70" strokeWidth={2} />{!isSidebarCollapsed && <span>โหมดสว่าง</span>}</>
-            ) : (
-              <><Moon className="w-5 h-5 flex-shrink-0 opacity-70" strokeWidth={2} />{!isSidebarCollapsed && <span>โหมดมืด</span>}</>
-            )}
-          </button>
+        <div className="mt-auto pt-4 pb-6 border-t border-white/5 px-3 flex flex-col gap-2">
+          {!isSidebarCollapsed && profile && (
+            <div className="px-4 py-2 mb-2 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00ff9d] to-[#00e5ff] flex items-center justify-center p-[2px]">
+                <div className="w-full h-full bg-[#0d1424] rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-white/80" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white truncate">{profile?.full_name || 'ผู้สอน'}</p>
+                <p className="text-[10px] text-[#00ff9d] font-mono">TEACHER</p>
+              </div>
+            </div>
+          )}
           
-          <button onClick={handleLogout} className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-4 px-4'} py-3 w-full pill-button text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300`} title={isSidebarCollapsed ? "ออกจากระบบ" : undefined}>
-            <LogOut className="w-5 h-5 flex-shrink-0 opacity-70" strokeWidth={2} />
+          <button onClick={handleLogout} className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 w-full rounded-xl text-slate-400 hover:text-[#ff3366] hover:bg-[#ff3366]/10 hover:border hover:border-[#ff3366]/20 transition-all duration-300 font-bold text-sm border border-transparent`} title={isSidebarCollapsed ? "ออกจากระบบ" : undefined}>
+            <LogOut className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={2.5} />
             {!isSidebarCollapsed && <span>ออกจากระบบ</span>}
           </button>
         </div>
@@ -143,16 +127,15 @@ export default function TeacherLayout({
 
       {/* Main Content Area */}
       <div className={`${isSidebarCollapsed ? 'md:ml-28' : 'md:ml-72'} flex flex-col min-h-screen transition-all duration-300 mr-4`}>
-        
-        {/* Page Content */}
-        <main className="flex-1 pb-32 md:pb-8 relative z-10 w-full">
+        <main className="flex-1 pb-32 md:pb-8 pt-6 md:pt-10 relative z-10 w-full">
           {children}
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300" id="teacher-bottom-nav">
-        <nav className="bg-white dark:bg-slate-900 flex items-center justify-around pt-3 pb-8 px-2 border-t border-slate-100 dark:border-slate-800 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] rounded-t-3xl overflow-x-auto">
+      {/* Mobile Bottom Nav - Glassmorphism */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 pb-safe">
+        <div className="absolute inset-0 bg-[#0d1424]/80 backdrop-blur-xl border-t border-white/10" />
+        <nav className="relative flex items-center justify-around pt-3 pb-6 px-2">
           {navItems.slice(0, 5).map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/teacher');
             
@@ -168,11 +151,11 @@ export default function TeacherLayout({
                 key={item.name}
                 href={item.href}
                 className={`flex flex-col items-center justify-center gap-1 p-2 rounded-2xl transition-all duration-300 relative min-w-[64px] ${
-                  isActive ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  isActive ? "text-[#00ff9d]" : "text-slate-400 hover:text-white"
                 }`}
               >
-                <div className={`relative flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isActive ? 'bg-emerald-100 dark:bg-emerald-900/40 scale-110 shadow-sm' : 'bg-transparent'}`}>
-                  <item.icon className={`w-5 h-5 ${isActive ? "opacity-100" : "opacity-80"}`} strokeWidth={isActive ? 2.5 : 2} />
+                <div className={`relative flex items-center justify-center p-2 rounded-xl transition-all duration-300 ${isActive ? 'bg-[rgba(0,255,157,0.15)] border border-[rgba(0,255,157,0.3)] shadow-[0_0_15px_rgba(0,255,157,0.2)] scale-110' : 'bg-transparent border border-transparent'}`}>
+                  <item.icon className={`w-5 h-5 ${isActive ? "drop-shadow-[0_0_8px_rgba(0,255,157,0.8)]" : ""}`} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 <span className={`text-[10px] leading-none mt-1 ${isActive ? 'font-bold' : 'font-medium'}`}>{shortName}</span>
               </Link>
