@@ -18,14 +18,11 @@ import {
 } from 'lucide-react';
 
 const SKILLS = [
-  { id: 'H1', title: 'HTML Structure', status: 'MASTERED', progress: 100, icon: Globe },
-  { id: 'H2', title: 'Text & Headings', status: 'MASTERED', progress: 100, icon: FileCode },
-  { id: 'H3', title: 'Hyperlinks', status: 'IN_PROGRESS', progress: 65, icon: Network },
-  { id: 'H4', title: 'Images & Media', status: 'AVAILABLE', progress: 0, icon: LayoutTemplate },
-  { id: 'H5', title: 'Lists', status: 'LOCKED', progress: 0, icon: Terminal },
-  { id: 'H6', title: 'Tables', status: 'LOCKED', progress: 0, icon: Database },
-  { id: 'H7', title: 'Forms', status: 'NEEDS_PRACTICE', progress: 30, icon: FormInput },
-  { id: 'H8', title: 'Semantic HTML', status: 'LOCKED', progress: 0, icon: Cpu },
+  { id: 'H1', title: '3.1 โครงสร้างพื้นฐานของภาษา HTML', status: 'MASTERED', progress: 100, icon: Globe },
+  { id: 'H2', title: '3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ', status: 'MASTERED', progress: 85, icon: FileCode },
+  { id: 'H3', title: '3.3 การแทรกรูปภาพและตารางในหน้าเว็บ', status: 'IN_PROGRESS', progress: 50, icon: LayoutTemplate },
+  { id: 'H4', title: '3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML', status: 'AVAILABLE', progress: 15, icon: Cpu },
+  { id: 'H5', title: '3.5 การสร้างฟอร์มรับข้อมูล', status: 'LOCKED', progress: 0, icon: FormInput },
 ];
 
 export default function StudentSkillMapPage() {

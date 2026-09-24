@@ -173,11 +173,11 @@ export default function AssessmentManagementPage() {
 
                   <div className="pt-2">
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Content Balance</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'].map(h => (
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      {['H1', 'H2', 'H3', 'H4', 'H5'].map(h => (
                         <div key={h} className="flex items-center justify-between p-2 rounded bg-slate-100 dark:bg-white/5">
                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{h}</span>
-                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">12.5%</span>
+                          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">20%</span>
                         </div>
                       ))}
                     </div>

@@ -20,14 +20,11 @@ import {
 } from 'lucide-react';
 
 const JOURNEY_NODES = [
-  { id: 'H1', title: 'หน่วยที่ 1: โครงสร้างเอกสาร HTML พื้นฐาน', desc: 'DOCTYPE, html, head, body, title และ meta charset', icon: Globe, status: 'mastered' },
-  { id: 'H2', title: 'หน่วยที่ 2: การจัดการข้อความและหัวข้อ', desc: 'Heading h1-h6, ย่อหน้า p, การตัดบรรทัด br, hr และตัวหนา', icon: FileCode, status: 'mastered' },
-  { id: 'H3', title: 'หน่วยที่ 3: การเชื่อมโยงลิงก์และ Navigation', desc: 'แท็ก a, แอตทริบิวต์ href, target และการเชื่อมโยงภายในหน้า', icon: Network, status: 'progress' },
-  { id: 'H4', title: 'หน่วยที่ 4: การแทรกรูปภาพและสื่อประสม', desc: 'แท็ก img, แอตทริบิวต์ alt, figure และการจัดวางรูปภาพ', icon: LayoutTemplate, status: 'available' },
-  { id: 'H5', title: 'หน่วยที่ 5: การสร้างตารางข้อมูล (Tables)', desc: 'table, tr, td, th, thead, tbody และการผสานเซลล์', icon: Database, status: 'locked' },
-  { id: 'H6', title: 'หน่วยที่ 6: การจัดการรายการข้อมูล (Lists)', desc: 'รายการแบบไม่มีลำดับ ul, มีลำดับ ol และรายการ li', icon: Terminal, status: 'locked' },
-  { id: 'H7', title: 'หน่วยที่ 7: การสร้างแบบฟอร์มรับข้อมูล (Forms)', desc: 'form, input, label, select, textarea และปุ่ม button', icon: FormInput, status: 'locked' },
-  { id: 'H8', title: 'หน่วยที่ 8: โครงสร้าง Semantic HTML5', desc: 'header, nav, main, section, article, aside และ footer', icon: Cpu, status: 'locked' },
+  { id: 'H1', title: '3.1 โครงสร้างพื้นฐานของภาษา HTML', desc: 'โครงสร้างเอกสาร HTML5, ความหมาย Tag, Tag เปิด-ปิด, Comment, <head>, <body>, <title>', icon: Globe, status: 'mastered' },
+  { id: 'H2', title: '3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ', desc: 'Heading, Paragraph, การจัดรูปแบบข้อความ, การขึ้นบรรทัด/เส้นคั่น, Lists (Ordered/Unordered) และการสร้างลิงก์', icon: FileCode, status: 'progress' },
+  { id: 'H3', title: '3.3 การแทรกรูปภาพและตารางในหน้าเว็บ', desc: 'แท็ก <img>, Relative/Absolute Path, การสร้างตาราง <table>, แถว คอลัมน์ และหัวตาราง', icon: LayoutTemplate, status: 'available' },
+  { id: 'H4', title: '3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML', desc: 'Semantic Tags (Header, Nav, Main, Section, Article, Aside, Footer), Div/Span, Block และ Inline Element', icon: Cpu, status: 'locked' },
+  { id: 'H5', title: '3.5 การสร้างฟอร์มรับข้อมูล', desc: 'Form Tag, Label, Input ชนิดต่างๆ (Text, Email, Password, Number, Date), Textarea, Select, Radio, Checkbox, Button', icon: FormInput, status: 'locked' },
 ];
 
 export default function StudentJourneyPage() {

@@ -25,13 +25,10 @@ export const CAT_CONFIG: CATConfiguration = {
   maxItems: 30,
   targetSE: 0.30,
   domainCoverage: {
-    H1: 0.125,
-    H2: 0.125,
-    H3: 0.125,
-    H4: 0.125,
-    H5: 0.125,
-    H6: 0.125,
-    H7: 0.125,
-    H8: 0.125,
+    H1: 0.20,
+    H2: 0.20,
+    H3: 0.20,
+    H4: 0.20,
+    H5: 0.20,
   }
 };

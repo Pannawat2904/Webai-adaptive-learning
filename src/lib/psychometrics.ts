@@ -143,9 +143,6 @@ export function calculateSubDomainKR20(
       H3: 2.98,
       H4: 3.55,
       H5: 3.20,
-      H6: 3.05,
-      H7: 3.60,
-      H8: 3.48,
     };
     const mockKR20: Record<SubDomainCode, number> = {
       H1: 0.84,
@@ -153,9 +150,6 @@ export function calculateSubDomainKR20(
       H3: 0.76,
       H4: 0.81,
       H5: 0.78,
-      H6: 0.82,
-      H7: 0.85,
-      H8: 0.80,
     };
     const kr20Val = mockKR20[subDomainCode] ?? 0.78;
     return {

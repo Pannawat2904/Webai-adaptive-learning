@@ -35,15 +35,15 @@ export default function StudentLearningProfilePage() {
     }
   }, []);
 
-  const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+  const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5'];
 
-  // Radar Chart Math (8 vertices)
+  // Radar Chart Math (5 vertices for the 5 topics)
   const size = 340;
   const center = size / 2;
   const radius = center - 50;
 
   const getCoordinates = (index: number, valuePercentage: number) => {
-    const angle = (Math.PI * 2 / 8) * index - Math.PI / 2;
+    const angle = ((Math.PI * 2) / subDomainCodes.length) * index - Math.PI / 2;
     const r = (radius * valuePercentage) / 100;
     const x = center + r * Math.cos(angle);
     const y = center + r * Math.sin(angle);
@@ -79,7 +79,7 @@ export default function StudentLearningProfilePage() {
           โปรไฟล์ความเชี่ยวชาญเฉพาะบุคคล (HTML Structure)
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          ผลการวิเคราะห์ระดับความรู้ 8 Sub-domain โครงสร้างภาษา HTML ของ {profile.full_name || 'ผู้ใช้'}
+          ผลการวิเคราะห์ระดับความรู้ 5 หัวข้อหลัก โครงสร้างภาษา HTML ของ {profile.full_name || 'ผู้ใช้'}
         </p>
       </div>
 
@@ -108,15 +108,15 @@ export default function StudentLearningProfilePage() {
         </div>
       )}
 
-      {/* Main Grid: 8-Axis Radar Chart + AI Diagnostics */}
+      {/* Main Grid: 5-Axis Radar Chart + AI Diagnostics */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left: 8-Axis Radar Chart */}
+        {/* Left: 5-Axis Radar Chart */}
         <div className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col items-center space-y-6">
           <div className="w-full flex items-center justify-between">
             <h2 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-600" />
-              <span>เรดาร์ความสามารถ 8 มิติ</span>
+              <span>เรดาร์ความสามารถ 5 ด้าน</span>
             </h2>
             <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md">
               0 - 100%

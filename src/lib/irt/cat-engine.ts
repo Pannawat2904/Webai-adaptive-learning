@@ -26,7 +26,7 @@ function getTargetSubDomain(answeredDomains: SubDomainCode[]): SubDomainCode {
   }
 
   const currentCounts: Record<SubDomainCode, number> = {
-    H1: 0, H2: 0, H3: 0, H4: 0, H5: 0, H6: 0, H7: 0, H8: 0
+    H1: 0, H2: 0, H3: 0, H4: 0, H5: 0
   };
 
   for (const d of answeredDomains) {
@@ -36,7 +36,7 @@ function getTargetSubDomain(answeredDomains: SubDomainCode[]): SubDomainCode {
   let mostUnderRepresented: SubDomainCode = 'H1';
   let maxDeficit = -Infinity;
 
-  const domains: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+  const domains: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5'];
   for (const d of domains) {
     const currentRatio = currentCounts[d] / totalAnswered;
     const targetRatio = CAT_CONFIG.domainCoverage[d];

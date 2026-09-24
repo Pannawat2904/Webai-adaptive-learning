@@ -1,6 +1,6 @@
 export type UserRole = 'student' | 'teacher' | 'admin';
 
-export type SubDomainCode = 'H1' | 'H2' | 'H3' | 'H4' | 'H5' | 'H6' | 'H7' | 'H8';
+export type SubDomainCode = 'H1' | 'H2' | 'H3' | 'H4' | 'H5';
 
 export interface SubDomainInfo {
   code: SubDomainCode;
@@ -13,59 +13,38 @@ export interface SubDomainInfo {
 export const SUB_DOMAINS: Record<SubDomainCode, SubDomainInfo> = {
   H1: {
     code: 'H1',
-    title: 'H1: โครงสร้างเอกสาร HTML พื้นฐาน',
-    name: 'โครงสร้างเอกสารพื้นฐาน',
-    description: 'DOCTYPE, html, head, body, title, meta charset และ viewport',
+    title: '3.1 โครงสร้างพื้นฐานของภาษา HTML',
+    name: 'โครงสร้างพื้นฐานของภาษา HTML',
+    description: 'โครงสร้างเอกสาร HTML5, ความหมายของ Tag, Tag เปิด-ปิด, Comment และส่วนประกอบ <head>, <body>, <title>',
     iconName: 'FileCode2',
   },
   H2: {
     code: 'H2',
-    title: 'H2: การจัดการข้อความและ Heading/Paragraph',
-    name: 'ข้อความและ Heading/Paragraph',
-    description: 'h1-h6, p, br, hr, strong, em, mark และการจัดวรรคตอน',
+    title: '3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ',
+    name: 'การแทรกข้อความและลิงก์ในหน้าเว็บ',
+    description: 'Heading Tags, Paragraph Tag, การจัดรูปแบบข้อความ, การขึ้นบรรทัดและเส้นคั่น, Lists (Ordered/Unordered List) และการสร้างลิงก์ภายใน-ภายนอก',
     iconName: 'Type',
   },
   H3: {
     code: 'H3',
-    title: 'H3: Hyperlink และการเชื่อมโยง',
-    name: 'Hyperlink และการเชื่อมโยง',
-    description: 'แท็ก a, แอตทริบิวต์ href, target="_blank", anchor # ภายในหน้า',
-    iconName: 'Link',
+    title: '3.3 การแทรกรูปภาพและตารางในหน้าเว็บ',
+    name: 'การแทรกรูปภาพและตารางในหน้าเว็บ',
+    description: 'การแทรกรูปภาพ <img>, กำหนดขนาดรูปภาพ, Relative/Absolute Path, ตาราง <table>, แถว, คอลัมน์ และหัวตาราง',
+    iconName: 'Image',
   },
   H4: {
     code: 'H4',
-    title: 'H4: รูปภาพและสื่อ',
-    name: 'รูปภาพและสื่อประสม',
-    description: 'แท็ก img, แอตทริบิวต์ alt, figure, figcaption, video และ audio เบื้องต้น',
-    iconName: 'Image',
+    title: '3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+    name: 'การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+    description: 'Semantic HTML (Header, Navigation, Main, Section, Article, Aside, Footer), Div & Span, Block Element และ Inline Element',
+    iconName: 'LayoutTemplate',
   },
   H5: {
     code: 'H5',
-    title: 'H5: รายการข้อมูล',
-    name: 'รายการข้อมูล (Lists)',
-    description: 'รายการแบบไม่มีลำดับ ul, มีลำดับ ol, รายการ li และคำนิยาม dl/dt/dd',
-    iconName: 'ListOrdered',
-  },
-  H6: {
-    code: 'H6',
-    title: 'H6: ตาราง',
-    name: 'ตาราง (Tables)',
-    description: 'table, tr, td, th, ส่วน thead/tbody/tfoot และ colspan/rowspan',
-    iconName: 'Table',
-  },
-  H7: {
-    code: 'H7',
-    title: 'H7: ฟอร์ม',
-    name: 'ฟอร์มและการรับข้อมูล',
-    description: 'form, input ชนิดต่างๆ, label, select, textarea และปุ่ม button',
+    title: '3.5 การสร้างฟอร์มรับข้อมูล',
+    name: 'การสร้างฟอร์มรับข้อมูล',
+    description: 'Form Tag, Label & Input ชนิดต่างๆ (Text, Email, Password, Number, Date), Textarea, Select, Radio, Checkbox, Button',
     iconName: 'CheckSquare',
-  },
-  H8: {
-    code: 'H8',
-    title: 'H8: Semantic HTML5 และโครงสร้างหน้าเว็บทั้งหน้า',
-    name: 'Semantic HTML5 ทั้งหน้า',
-    description: 'header, nav, main, section, article, aside และ footer',
-    iconName: 'LayoutTemplate',
   },
 };
 

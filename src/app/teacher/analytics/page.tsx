@@ -26,13 +26,13 @@ export default function AnalyticsPage() {
   
   // Data for Heatmap
   const students = MOCK_CLASS_STUDENTS;
-  const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+  const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5'];
   const classAverages: Record<SubDomainCode, number> = {} as any;
   subDomainCodes.forEach((code) => {
     const total = students.reduce((acc, std) => acc + (std.scores[code] || 0), 0);
     classAverages[code] = Math.round(total / students.length);
   });
-  const overallClassAvg = Math.round(Object.values(classAverages).reduce((a, b) => a + b, 0) / 8);
+  const overallClassAvg = Math.round(Object.values(classAverages).reduce((a, b) => a + b, 0) / subDomainCodes.length);
 
   // Data for Item Analytics
   const itemAnalytics = MOCK_QUESTIONS.map((q) => {
@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
         {activeTab === 'heatmap' && (
           <div className="space-y-6 animate-in fade-in">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Heatmap ความเข้าใจรายบุคคล (H1-H8)</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Heatmap ความเข้าใจรายบุคคล (3.1 - 3.5)</h3>
               <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                 <span>ระดับ:</span>
                 <span className="px-2 py-1 rounded bg-[#16a34a]/10 dark:bg-[#00ff9d]/20 text-[#16a34a] dark:text-[#00ff9d]">ดีเยี่ยม (&ge;80)</span>

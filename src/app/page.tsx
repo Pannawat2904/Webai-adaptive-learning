@@ -187,7 +187,7 @@ export default function Home() {
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
               <MapIcon className="w-6 h-6" />
             </div>
-            <h3 className="text-3xl font-mono font-bold text-ink mb-1">8</h3>
+            <h3 className="text-3xl font-mono font-bold text-ink mb-1">5</h3>
             <p className="text-muted text-sm font-medium">หน่วยการเรียนรู้</p>
           </div>
           <div className="card p-6 text-center flex flex-col items-center border-l-4 border-l-secondary">

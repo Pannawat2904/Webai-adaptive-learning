@@ -53,31 +53,33 @@ const SOMCHAI_COVERAGE_SEQUENCE: {
   correct: boolean;
   reason: string;
 }[] = [
+  // Round 1
   { sub: 'H1', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
   { sub: 'H2', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
   { sub: 'H3', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
   { sub: 'H4', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
   { sub: 'H5', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
-  { sub: 'H6', prev: 'medium', sel: 'easy', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Medium เป็น Easy (Stepwise Down)' },
-  { sub: 'H7', prev: 'easy', sel: 'medium', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Easy เป็น Medium (Stepwise Up)' },
-  { sub: 'H8', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
-  // Round 2 Content Balancing
+  // Round 2
   { sub: 'H1', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
   { sub: 'H2', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
   { sub: 'H3', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
   { sub: 'H4', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
-  { sub: 'H5', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
-  { sub: 'H6', prev: 'medium', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Medium เป็น Easy (Stepwise Down)' },
-  { sub: 'H7', prev: 'easy', sel: 'medium', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Easy เป็น Medium (Stepwise Up)' },
-  { sub: 'H8', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
-  // Round 3 (Targeted)
-  { sub: 'H6', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
-  { sub: 'H5', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
+  { sub: 'H5', prev: 'medium', sel: 'easy', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Medium เป็น Easy (Stepwise Down)' },
+  // Round 3
   { sub: 'H1', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
-  { sub: 'H3', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
+  { sub: 'H2', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
+  { sub: 'H3', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
+  { sub: 'H4', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
+  { sub: 'H5', prev: 'easy', sel: 'medium', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Easy เป็น Medium (Stepwise Up)' },
+  // Round 4 (Targeted)
+  { sub: 'H1', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
+  { sub: 'H2', prev: 'hard', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> คงระดับความยากสูงสุด Hard (Ceiling Retained)' },
+  { sub: 'H3', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
+  { sub: 'H4', prev: 'hard', sel: 'medium', correct: false, reason: 'ตอบไม่ถูกต้อง -> ปรับลดระดับความยากจาก Hard เป็น Medium (Stepwise Down)' },
+  { sub: 'H5', prev: 'medium', sel: 'hard', correct: true, reason: 'ตอบถูกต้อง -> ปรับเพิ่มระดับความยากจาก Medium เป็น Hard (Stepwise Up)' },
 ];
 
-const somchaiSnapshot: Record<SubDomainCode, number> = { H1: 0, H2: 0, H3: 0, H4: 0, H5: 0, H6: 0, H7: 0, H8: 0 };
+const somchaiSnapshot: Record<SubDomainCode, number> = { H1: 0, H2: 0, H3: 0, H4: 0, H5: 0 };
 export const MOCK_ATTEMPTS_SOMCHAI: Attempt[] = SOMCHAI_COVERAGE_SEQUENCE.map((item, idx) => {
   somchaiSnapshot[item.sub] = (somchaiSnapshot[item.sub] || 0) + 1;
   const isLast = idx === 19;
@@ -186,63 +188,63 @@ export const MOCK_CLASS_PRE_POST: StudentPrePostRecord[] = [
     studentName: 'สมชาย รักการเรียน',
     preTotal: 45,
     postTotal: 75,
-    subDomainPre: { H1: 50, H2: 40, H3: 45, H4: 55, H5: 35, H6: 30, H7: 45, H8: 60 },
-    subDomainPost: { H1: 85, H2: 75, H3: 80, H4: 85, H5: 70, H6: 60, H7: 75, H8: 85 },
+    subDomainPre: { H1: 50, H2: 40, H3: 45, H4: 55, H5: 35 },
+    subDomainPost: { H1: 85, H2: 75, H3: 80, H4: 85, H5: 70 },
   },
   {
     studentId: 's002-student-uuid-2222',
     studentName: 'สมหญิง ตั้งใจดี',
     preTotal: 52,
     postTotal: 88,
-    subDomainPre: { H1: 60, H2: 50, H3: 50, H4: 60, H5: 45, H6: 40, H7: 55, H8: 65 },
-    subDomainPost: { H1: 95, H2: 90, H3: 85, H4: 90, H5: 80, H6: 80, H7: 85, H8: 95 },
+    subDomainPre: { H1: 60, H2: 50, H3: 50, H4: 60, H5: 45 },
+    subDomainPost: { H1: 95, H2: 90, H3: 85, H4: 90, H5: 80 },
   },
   {
     studentId: 's003-student-uuid-3333',
     studentName: 'ธีรภัทร์ เก่งโค้ด',
     preTotal: 58,
     postTotal: 92,
-    subDomainPre: { H1: 65, H2: 60, H3: 55, H4: 65, H5: 50, H6: 45, H7: 60, H8: 70 },
-    subDomainPost: { H1: 100, H2: 95, H3: 90, H4: 95, H5: 85, H6: 85, H7: 90, H8: 95 },
+    subDomainPre: { H1: 65, H2: 60, H3: 55, H4: 65, H5: 50 },
+    subDomainPost: { H1: 100, H2: 95, H3: 90, H4: 95, H5: 85 },
   },
   {
     studentId: 's004-student-uuid-4444',
     studentName: 'กานดา วิจิตรสื่อ',
     preTotal: 38,
     postTotal: 68,
-    subDomainPre: { H1: 45, H2: 35, H3: 35, H4: 40, H5: 30, H6: 30, H7: 40, H8: 50 },
-    subDomainPost: { H1: 80, H2: 70, H3: 65, H4: 75, H5: 60, H6: 55, H7: 65, H8: 75 },
+    subDomainPre: { H1: 45, H2: 35, H3: 35, H4: 40, H5: 30 },
+    subDomainPost: { H1: 80, H2: 70, H3: 65, H4: 75, H5: 60 },
   },
   {
     studentId: 's005-student-uuid-5555',
     studentName: 'นภัสสร อักษรศิลป์',
     preTotal: 42,
     postTotal: 80,
-    subDomainPre: { H1: 45, H2: 45, H3: 40, H4: 45, H5: 35, H6: 35, H7: 45, H8: 55 },
-    subDomainPost: { H1: 90, H2: 85, H3: 80, H4: 85, H5: 75, H6: 70, H7: 80, H8: 85 },
+    subDomainPre: { H1: 45, H2: 45, H3: 40, H4: 45, H5: 35 },
+    subDomainPost: { H1: 90, H2: 85, H3: 80, H4: 85, H5: 75 },
   },
   {
     studentId: 's006-student-uuid-6666',
     studentName: 'วรเมธ เทคโนล้ำ',
     preTotal: 50,
     postTotal: 84,
-    subDomainPre: { H1: 55, H2: 50, H3: 45, H4: 55, H5: 45, H6: 40, H7: 50, H8: 60 },
-    subDomainPost: { H1: 90, H2: 85, H3: 85, H4: 90, H5: 80, H6: 75, H7: 80, H8: 90 },
+    subDomainPre: { H1: 55, H2: 50, H3: 45, H4: 55, H5: 45 },
+    subDomainPost: { H1: 90, H2: 85, H3: 85, H4: 90, H5: 80 },
   },
   {
     studentId: 's007-student-uuid-7777',
     studentName: 'ชญานิศ ขยันยิ่ง',
     preTotal: 46,
     postTotal: 82,
-    subDomainPre: { H1: 50, H2: 45, H3: 40, H4: 50, H5: 40, H6: 35, H7: 45, H8: 60 },
-    subDomainPost: { H1: 90, H2: 80, H3: 85, H4: 85, H5: 75, H6: 75, H7: 85, H8: 90 },
+    subDomainPre: { H1: 50, H2: 45, H3: 40, H4: 50, H5: 40 },
+    subDomainPost: { H1: 90, H2: 80, H3: 85, H4: 85, H5: 75 },
   },
   {
     studentId: 's008-student-uuid-8888',
     studentName: 'ปวีณ์กร เขียนเว็บ',
     preTotal: 40,
     postTotal: 74,
-    subDomainPre: { H1: 45, H2: 40, H3: 35, H4: 45, H5: 35, H6: 30, H7: 40, H8: 50 },
-    subDomainPost: { H1: 85, H2: 75, H3: 70, H4: 80, H5: 70, H6: 65, H7: 70, H8: 80 },
+    subDomainPre: { H1: 45, H2: 40, H3: 35, H4: 45, H5: 35 },
+    subDomainPost: { H1: 85, H2: 75, H3: 70, H4: 80, H5: 70 },
   },
 ];

@@ -33,9 +33,9 @@ export default function TeacherOverviewPage() {
   // Find at risk students (score < 60)
   const atRiskStudents = students.filter(s => s.avgScore < 60);
 
-  // Calculate skill overview (H1-H8 averages)
+  // Calculate skill overview (H1-H5 averages)
   const skillAverages: Record<string, number> = {
-    H1: 82, H2: 76, H3: 61, H4: 52, H5: 78, H6: 63, H7: 42, H8: 71
+    H1: 82, H2: 76, H3: 61, H4: 52, H5: 78
   };
 
   const getStatusColor = (val: number) => {
@@ -237,14 +237,11 @@ export default function TeacherOverviewPage() {
                 <div key={key}>
                   <div className="flex justify-between text-xs font-bold mb-1.5">
                     <span className="text-muted">
-                      {key === 'H1' ? 'โครงสร้างพื้นฐาน' : 
-                       key === 'H2' ? 'ข้อความ & Heading' :
-                       key === 'H3' ? 'Links & Navigation' :
-                       key === 'H4' ? 'Images & Media' :
-                       key === 'H5' ? 'Tables' :
-                       key === 'H6' ? 'Lists' :
-                       key === 'H7' ? 'Forms (กำลังมีปัญหา)' :
-                       key === 'H8' ? 'Semantic HTML' : key} ({key})
+                      {key === 'H1' ? '3.1 โครงสร้างพื้นฐาน HTML' : 
+                       key === 'H2' ? '3.2 ข้อความและลิงก์' :
+                       key === 'H3' ? '3.3 รูปภาพและตาราง' :
+                       key === 'H4' ? '3.4 Semantic HTML' :
+                       key === 'H5' ? '3.5 ฟอร์มรับข้อมูล' : key} ({key})
                     </span>
                     <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${getStatusColor(val)}`}>{val}%</span>
                   </div>

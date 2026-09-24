@@ -66,7 +66,7 @@ export interface AdaptiveEngineState {
   targetSubDomain?: SubDomainCode | null; // For Re-test mode
 }
 
-export const ALL_SUB_DOMAINS: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8'];
+export const ALL_SUB_DOMAINS: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5'];
 
 /**
  * กำหนดสถานะเริ่มต้นของ Rule-based Adaptive Testing
@@ -84,9 +84,6 @@ export function createInitialAdaptiveState(targetSubDomain?: SubDomainCode | nul
       H3: 0,
       H4: 0,
       H5: 0,
-      H6: 0,
-      H7: 0,
-      H8: 0,
     },
     attempts: [],
     targetSubDomain: targetSubDomain || null,
@@ -303,9 +300,6 @@ export function computeSkillProfiles(
     H3: { total: 0, correct: 0 },
     H4: { total: 0, correct: 0 },
     H5: { total: 0, correct: 0 },
-    H6: { total: 0, correct: 0 },
-    H7: { total: 0, correct: 0 },
-    H8: { total: 0, correct: 0 },
   };
 
   for (const att of attempts) {
