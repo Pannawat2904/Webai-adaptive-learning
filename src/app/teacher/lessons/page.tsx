@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { MOCK_UNITS, MOCK_LESSONS } from '@/lib/mock-data';
+import { MOCK_UNITS, MOCK_LESSONS, getCanvaEmbedUrl, getCanvaShareUrl } from '@/lib/mock-data';
 import { Unit, LessonMedia, SUB_DOMAINS } from '@/types/database';
 import {
   BookOpen,
@@ -16,6 +16,7 @@ import {
   Trash2,
   Save,
   CheckCircle2,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function TeacherLessonsManagerPage() {
@@ -26,26 +27,31 @@ export default function TeacherLessonsManagerPage() {
   const [mediaList, setMediaList] = useState<LessonMedia[]>(lesson.media || []);
   const [isSavedToast, setIsSavedToast] = useState(false);
 
-  const [canvaUrl, setCanvaUrl] = useState('');
-  const [lessonContent, setLessonContent] = useState('');
+  const defaultCanva = getCanvaEmbedUrl(lesson.media?.find((m) => m.media_type === 'slide')?.external_url, selectedUnitId);
+  const [canvaUrl, setCanvaUrl] = useState(defaultCanva);
+  const [lessonContent, setLessonContent] = useState(lesson.content || '');
 
   // Real-time: Load saved data from localStorage
   React.useEffect(() => {
+    const currentLesson = MOCK_LESSONS[selectedUnitId] || MOCK_LESSONS['u-h1'];
+    setMediaList(currentLesson.media || []);
+
+    const unitDefaultCanva = getCanvaEmbedUrl(currentLesson.media?.find((m) => m.media_type === 'slide')?.external_url, selectedUnitId);
     const saved = localStorage.getItem(`webai_lesson_data_${selectedUnitId}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setCanvaUrl(parsed.canvaUrl || '');
-        setLessonContent(parsed.content || lesson.content || '');
+        setCanvaUrl(parsed.canvaUrl ? getCanvaEmbedUrl(parsed.canvaUrl, selectedUnitId) : unitDefaultCanva);
+        setLessonContent(parsed.content || currentLesson.content || '');
       } catch {
-        setCanvaUrl('');
-        setLessonContent(lesson.content || '');
+        setCanvaUrl(unitDefaultCanva);
+        setLessonContent(currentLesson.content || '');
       }
     } else {
-      setCanvaUrl('');
-      setLessonContent(lesson.content || '');
+      setCanvaUrl(unitDefaultCanva);
+      setLessonContent(currentLesson.content || '');
     }
-  }, [selectedUnitId, lesson.content]);
+  }, [selectedUnitId]);
 
   // New media modal/state
   const [showAddMedia, setShowAddMedia] = useState(false);
@@ -91,12 +97,12 @@ export default function TeacherLessonsManagerPage() {
   };
 
   const handleSaveLessonData = () => {
-    // Save to localStorage for real-time syncing with student view
+    const formattedCanva = getCanvaEmbedUrl(canvaUrl, selectedUnitId);
     localStorage.setItem(`webai_lesson_data_${selectedUnitId}`, JSON.stringify({
-      canvaUrl,
+      canvaUrl: formattedCanva,
       content: lessonContent
     }));
-    
+    setCanvaUrl(formattedCanva);
     setIsSavedToast(true);
     setTimeout(() => setIsSavedToast(false), 2500);
   };
@@ -265,19 +271,45 @@ export default function TeacherLessonsManagerPage() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-              Canva Presentation Embed URL
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                Canva Presentation URL / Embed URL
+              </label>
+              {canvaUrl && (
+                <a
+                  href={getCanvaShareUrl(canvaUrl, selectedUnitId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
+                >
+                  เปิดสไลด์ใน Canva <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
             <input
               type="text"
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-              placeholder="https://www.canva.com/design/DAF.../view?embed"
+              placeholder="https://canva.link/... หรือ https://www.canva.com/design/.../view?embed"
               value={canvaUrl}
               onChange={(e) => setCanvaUrl(e.target.value)}
             />
             <p className="text-[11px] text-slate-500">
-              ตัวอย่าง: https://www.canva.com/design/DAF_example/view?embed
+              รองรับทั้งลิงก์ Canva แบบแชร์ (เช่น https://canva.link/...) และ Embed URL (ระบบจะแปลงให้อัตโนมัติเมื่อบันทึก)
             </p>
+
+            {/* Live Preview of Canva presentation */}
+            {canvaUrl && (
+              <div className="mt-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 aspect-video relative max-w-xl">
+                <iframe
+                  loading="lazy"
+                  className="w-full h-full border-0"
+                  src={getCanvaEmbedUrl(canvaUrl, selectedUnitId)}
+                  allowFullScreen
+                  allow="fullscreen"
+                  title="ตัวอย่างสไลด์ Canva"
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

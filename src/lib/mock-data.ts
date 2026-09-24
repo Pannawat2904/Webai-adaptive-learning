@@ -39,6 +39,66 @@ export const MOCK_PROFILES: Record<string, Profile> = {
   },
 };
 
+export interface CanvaSlideConfig {
+  shareUrl: string;
+  embedUrl: string;
+  title: string;
+}
+
+export const CANVA_SLIDES: Record<string, CanvaSlideConfig> = {
+  'u-h1': {
+    shareUrl: 'https://canva.link/geq34d04rrro6hn',
+    embedUrl: 'https://www.canva.com/design/DAHV5UVIPDU/AFS3va1WqPwspZLy-ifa2Q/view?embed',
+    title: 'โครงสร้างพื้นฐานของภาษา HTML',
+  },
+  'u-h2': {
+    shareUrl: 'https://canva.link/iizp2n89b4dfynx',
+    embedUrl: 'https://www.canva.com/design/DAHV-2jpdqc/G8-EZ9NaGqPb6CiKLuEB_Q/view?embed',
+    title: 'การแทรกข้อความและลิงก์ในหน้าเว็บ',
+  },
+  'u-h3': {
+    shareUrl: 'https://canva.link/du1a7rkdkkt93vk',
+    embedUrl: 'https://www.canva.com/design/DAHV_MAgbis/UTy0q7K2uxAlNj8Q9GOhPg/view?embed',
+    title: 'การแทรกรูปภาพและตารางในหน้าเว็บ',
+  },
+  'u-h4': {
+    shareUrl: 'https://canva.link/ugxpjq3x6j5u94a',
+    embedUrl: 'https://www.canva.com/design/DAHV_XO5tZQ/-CJ3FKM0Uwlg8kbCJ6dbOQ/view?embed',
+    title: 'การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+  },
+  'u-h5': {
+    shareUrl: 'https://canva.link/rhckotlpvhashhg',
+    embedUrl: 'https://www.canva.com/design/DAHV_ZnF178/SkcOPvSGg3mER9of0MhyxQ/view?embed',
+    title: 'การสร้างฟอร์มรับข้อมูล',
+  },
+};
+
+export function getCanvaEmbedUrl(url?: string | null, unitId?: string): string {
+  if (!url || url.trim() === '') {
+    return unitId && CANVA_SLIDES[unitId] ? CANVA_SLIDES[unitId].embedUrl : '';
+  }
+  const cleanUrl = url.trim();
+  for (const item of Object.values(CANVA_SLIDES)) {
+    if (cleanUrl === item.shareUrl) {
+      return item.embedUrl;
+    }
+  }
+  if (cleanUrl.includes('/edit')) {
+    return cleanUrl.split('/edit')[0] + '/view?embed';
+  }
+  if (cleanUrl.includes('canva.com/design/') && cleanUrl.includes('/view') && !cleanUrl.includes('embed')) {
+    return cleanUrl.includes('?') ? `${cleanUrl}&embed` : `${cleanUrl}?embed`;
+  }
+  return cleanUrl;
+}
+
+export function getCanvaShareUrl(url?: string | null, unitId?: string): string {
+  if (unitId && CANVA_SLIDES[unitId]) {
+    return CANVA_SLIDES[unitId].shareUrl;
+  }
+  return url || '';
+}
+
 export const MOCK_COURSE: Course = {
   id: '11111111-1111-1111-1111-111111111111',
   code: 'HTML-VOC-101',
@@ -151,9 +211,10 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         lesson_id: 'l-h1',
         media_type: 'slide',
         title: 'ชุดสไลด์: โครงสร้างพื้นฐานของภาษา HTML',
-        external_url: 'https://docs.google.com/presentation/d/e/2PACX-1vT-demo/embed',
+        external_url: 'https://www.canva.com/design/DAHV5UVIPDU/AFS3va1WqPwspZLy-ifa2Q/view?embed',
         meta: {
           pages: 6,
+          share_url: 'https://canva.link/geq34d04rrro6hn',
           slides: [
             'สไลด์ 1: แนะนำหน่วยที่ 3 งานสร้างหน้าเว็บด้วย HTML',
             'สไลด์ 2: โครงสร้างเอกสาร HTML5 และ DOCTYPE',
@@ -226,8 +287,10 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         lesson_id: 'l-h2',
         media_type: 'slide',
         title: 'ชุดสไลด์: การแทรกข้อความและลิงก์ในหน้าเว็บ',
+        external_url: 'https://www.canva.com/design/DAHV-2jpdqc/G8-EZ9NaGqPb6CiKLuEB_Q/view?embed',
         meta: {
           pages: 5,
+          share_url: 'https://canva.link/iizp2n89b4dfynx',
           slides: [
             'สไลด์ 1: Heading Tags h1-h6 และ Paragraph Tag',
             'สไลด์ 2: การจัดรูปแบบข้อความ strong, em, mark',
@@ -302,8 +365,10 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         lesson_id: 'l-h3',
         media_type: 'slide',
         title: 'ชุดสไลด์: การแทรกรูปภาพและตารางในหน้าเว็บ',
+        external_url: 'https://www.canva.com/design/DAHV_MAgbis/UTy0q7K2uxAlNj8Q9GOhPg/view?embed',
         meta: {
           pages: 5,
+          share_url: 'https://canva.link/du1a7rkdkkt93vk',
           slides: [
             'สไลด์ 1: การใช้แท็ก <img> และแอตทริบิวต์ src, alt',
             'สไลด์ 2: การกำหนดขนาดรูปภาพ width, height',
@@ -361,8 +426,10 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         lesson_id: 'l-h4',
         media_type: 'slide',
         title: 'ชุดสไลด์: การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+        external_url: 'https://www.canva.com/design/DAHV_XO5tZQ/-CJ3FKM0Uwlg8kbCJ6dbOQ/view?embed',
         meta: {
           pages: 5,
+          share_url: 'https://canva.link/ugxpjq3x6j5u94a',
           slides: [
             'สไลด์ 1: ความหมายและประโยชน์ของ Semantic HTML',
             'สไลด์ 2: โครงสร้างหลัก header, nav, main, footer',
@@ -427,8 +494,10 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         lesson_id: 'l-h5',
         media_type: 'slide',
         title: 'ชุดสไลด์: การสร้างฟอร์มรับข้อมูล',
+        external_url: 'https://www.canva.com/design/DAHV_ZnF178/SkcOPvSGg3mER9of0MhyxQ/view?embed',
         meta: {
           pages: 6,
+          share_url: 'https://canva.link/rhckotlpvhashhg',
           slides: [
             'สไลด์ 1: การใช้แท็ก <form> แอตทริบิวต์ action และ method',
             'สไลด์ 2: การจับคู่ <label for> กับ <input id>',
