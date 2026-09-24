@@ -192,14 +192,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     const supabase = createClient();
     if (supabase) {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) {
+          console.error("OAuth Error:", error.message);
+          alert(`ไม่สามารถเข้าสู่ระบบด้วย Google ได้: ${error.message} \n(กรุณาเช็กการตั้งค่า Google Provider ใน Supabase)`);
+        }
+      } catch (err: any) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
     } else {
       loginAsStudent();
+      // Navigate manually for fallback mode since we removed router.push from the button
+      window.location.href = '/student';
     }
   };
 
