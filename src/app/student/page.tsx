@@ -45,15 +45,15 @@ export default function StudentDashboardPage() {
     <div className="main-inner enter max-w-[1200px] mx-auto">
       <div className="flex flex-wrap gap-2 items-center justify-between mb-8">
         <span className="flex items-center gap-2 text-sm font-bold text-muted bg-surface px-4 py-2 rounded-full border border-line">
-          <Terminal className="w-4 h-4 text-primary" /> ~/journey/dashboard
+          <Terminal className="w-4 h-4 text-primary" /> ~/แดชบอร์ด
         </span>
         <div className="flex gap-2">
-          <span className="chip chip-warning chip-mono hidden md:inline-flex"><Zap className="w-3 h-3" />3 Day Streak</span>
+          <span className="chip chip-warning chip-mono hidden md:inline-flex"><Zap className="w-3 h-3" />เรียนต่อเนื่อง 3 วัน</span>
         </div>
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-ink mb-2">WebAI Adventure<span className="text-primary">.</span></h1>
+        <h1 className="text-3xl font-black text-ink mb-2">ศูนย์การเรียนรู้ WebAI<span className="text-primary">.</span></h1>
         <p className="text-muted">ยินดีต้อนรับสู่ศูนย์บัญชาการนักพัฒนา ติดตามภารกิจและการเติบโตของคุณที่นี่</p>
       </div>
 
@@ -68,7 +68,7 @@ export default function StudentDashboardPage() {
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-6">
               <span className="chip chip-primary chip-mono">
-                <Shield className="w-3 h-3" /> LEVEL 2 : HTML BUILDER
+                <Shield className="w-3 h-3" /> ระดับ 2 : ผู้สร้าง HTML
               </span>
               <div className="flex items-center gap-2 text-highlight font-bold bg-highlight-dim px-3 py-1 rounded-lg border border-highlight-dim text-sm">
                 <Sparkles className="w-4 h-4" /> 1,240 XP
@@ -76,7 +76,7 @@ export default function StudentDashboardPage() {
             </div>
             
             <h2 className="mb-2 text-2xl md:text-3xl font-bold leading-tight text-ink">
-              สวัสดี, {profile?.full_name?.split(' ')[0] || 'Developer'} 👋
+              สวัสดี, {profile?.full_name?.split(' ')[0] || 'นักเรียน'} 👋
             </h2>
             <p className="text-muted mb-8 text-sm leading-relaxed max-w-xl">
               คุณทำภารกิจสำเร็จไปแล้ว 3 ภารกิจในสัปดาห์นี้ ทักษะของคุณกำลังพัฒนาอย่างต่อเนื่อง ไปลุยภารกิจต่อไปกันเลย!
@@ -84,7 +84,7 @@ export default function StudentDashboardPage() {
             
             <div className="flex flex-col mb-4">
               <div className="flex justify-between text-xs font-bold text-muted mb-2 uppercase tracking-wide">
-                <span>Progress to Level 3</span>
+                <span>ความก้าวหน้าสู่ระดับ 3</span>
                 <span className="text-ink">1,240 / 2,000 XP</span>
               </div>
               <div className="bar"><span style={{ width: '62%' }}></span></div>
@@ -96,18 +96,18 @@ export default function StudentDashboardPage() {
         <div className="card p-6 bg-surface border-line quest-card flex flex-col justify-between hover:-translate-y-1 transition-transform">
           <div>
             <div className="flex justify-between items-start mb-4">
-              <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">Recommended Quest</div>
+              <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">ภารกิจแนะนำสำหรับคุณ</div>
               <div className="text-xs font-bold text-success bg-success-dim px-2 py-0.5 rounded flex items-center gap-1">
-                <Target className="w-3 h-3" /> MATCH
+                <Target className="w-3 h-3" /> เหมาะสม
               </div>
             </div>
-            <h3 className="text-xl font-bold text-ink mb-2">Form Builder Mission</h3>
+            <h3 className="text-xl font-bold text-ink mb-2">ภารกิจสร้างแบบฟอร์ม (Form Builder)</h3>
             <p className="text-sm text-muted mb-4">
               สร้างฟอร์มสมัครสมาชิกที่สมบูรณ์แบบ ทักษะ <strong className="text-ink">H7 (Forms)</strong> ของคุณต้องการการฝึกฝนเพิ่มเติม
             </p>
             
             <div className="flex gap-2 mb-6">
-              <span className="text-[10px] px-2 py-1 bg-bg-base border border-line rounded text-muted font-bold">Difficulty: Medium</span>
+              <span className="text-[10px] px-2 py-1 bg-bg-base border border-line rounded text-muted font-bold">ระดับความยาก: ปานกลาง</span>
               <span className="text-[10px] px-2 py-1 bg-highlight-dim border border-highlight-dim rounded text-highlight font-bold">+150 XP</span>
             </div>
           </div>
@@ -152,35 +152,35 @@ export default function StudentDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 items-start">
         <div className="card border-line">
           <div className="card-head">
-            <h3>Web Skill Map</h3>
-            <span className="chip chip-mono">MASTERY LEVELS</span>
+            <h3>แผนผังทักษะการสร้างเว็บไซต์</h3>
+            <span className="chip chip-mono">ระดับความเชี่ยวชาญ</span>
           </div>
           <div className="card-body flex flex-col gap-5">
             <div>
               <div className="flex justify-between items-center text-sm font-bold mb-2">
                 <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success"></div> H1 โครงสร้าง HTML</span>
-                <span className="text-success">Mastered</span>
+                <span className="text-success">ชำนาญแล้ว</span>
               </div>
               <div className="bar success"><span style={{ width: '100%' }}></span></div>
             </div>
             <div>
               <div className="flex justify-between items-center text-sm font-bold mb-2">
-                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success"></div> H2 Text & Headings</span>
-                <span className="text-success">Mastered</span>
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-success"></div> H2 ข้อความและหัวข้อ</span>
+                <span className="text-success">ชำนาญแล้ว</span>
               </div>
               <div className="bar success"><span style={{ width: '100%' }}></span></div>
             </div>
             <div>
               <div className="flex justify-between items-center text-sm font-bold mb-2">
-                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary"></div> H3 Hyperlinks</span>
-                <span className="text-primary">In Progress</span>
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary"></div> H3 ลิงก์เชื่อมโยง</span>
+                <span className="text-primary">กำลังเรียนรู้</span>
               </div>
               <div className="bar"><span style={{ width: '65%' }}></span></div>
             </div>
             <div>
               <div className="flex justify-between items-center text-sm font-bold mb-2">
-                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-danger"></div> H7 Forms</span>
-                <span className="text-danger">Needs Practice</span>
+                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-danger"></div> H7 แบบฟอร์ม</span>
+                <span className="text-danger">ควรฝึกฝนเพิ่ม</span>
               </div>
               <div className="bar danger"><span style={{ width: '30%' }}></span></div>
             </div>
@@ -193,8 +193,8 @@ export default function StudentDashboardPage() {
 
         <div className="card flex-1 border-line">
           <div className="card-head">
-            <h3>Recent Activity</h3>
-            <span className="chip chip-mono">LOGS</span>
+            <h3>กิจกรรมล่าสุด</h3>
+            <span className="chip chip-mono">บันทึกกิจกรรม</span>
           </div>
           <div className="card-body pt-2 space-y-1">
             <div className="flex gap-4 py-3 border-b border-dashed border-line">
@@ -202,7 +202,7 @@ export default function StudentDashboardPage() {
                 <Trophy className="w-4 h-4" />
               </div>
               <div>
-                <b className="text-sm block text-ink">Achievement Unlocked!</b>
+                <b className="text-sm block text-ink">ปลดล็อกความสำเร็จ!</b>
                 <small className="text-muted text-xs block mb-1">"Link Master" (เชื่อมโยงหน้าเว็บ 5 หน้า)</small>
                 <span className="text-[10px] text-highlight font-bold">+50 XP</span>
               </div>
@@ -212,7 +212,7 @@ export default function StudentDashboardPage() {
                 <Code2 className="w-4 h-4" />
               </div>
               <div>
-                <b className="text-sm block text-ink">Completed Mission: Links 101</b>
+                <b className="text-sm block text-ink">สำเร็จภารกิจ: การสร้างลิงก์พื้นฐาน</b>
                 <small className="text-muted text-xs block mb-1">ผ่านภารกิจการสร้างแท็ก &lt;a&gt;</small>
                 <span className="text-[10px] text-highlight font-bold">+100 XP</span>
               </div>
@@ -222,8 +222,8 @@ export default function StudentDashboardPage() {
                 <Activity className="w-4 h-4" />
               </div>
               <div>
-                <b className="text-sm block text-ink">Adaptive Test (H1-H2)</b>
-                <small className="text-muted text-xs block mb-1">θ อัพเดทเป็น 0.85</small>
+                <b className="text-sm block text-ink">แบบทดสอบปรับเหมาะ (H1-H2)</b>
+                <small className="text-muted text-xs block mb-1">θ อัปเดตเป็น 0.85</small>
                 <span className="text-[10px] text-muted font-bold">2 วันที่แล้ว</span>
               </div>
             </div>

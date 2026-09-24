@@ -219,7 +219,7 @@ function AssessmentContent() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-black text-ink mb-2">Assessment Completed<span className="text-primary">.</span></h1>
+          <h1 className="text-3xl font-black text-ink mb-2">ประเมินผลเสร็จสิ้น<span className="text-primary">.</span></h1>
           <p className="text-muted">ระบบประมวลผลความเชี่ยวชาญของคุณเสร็จสิ้น นี่คือโปรไฟล์การเรียนรู้ของคุณ</p>
         </div>
 
@@ -233,14 +233,14 @@ function AssessmentContent() {
             
             {/* IRT Ability Block */}
             <div className="card p-5 border-primary">
-              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">Adaptive Ability</h3>
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">ระดับความสามารถ (Adaptive Ability)</h3>
               <div className="flex justify-between items-end mb-4">
                 <div>
-                  <div className="text-[10px] text-muted font-bold mb-1">OVERALL THETA (θ)</div>
+                  <div className="text-[10px] text-muted font-bold mb-1">ระดับความสามารถรวม (θ)</div>
                   <div className="text-4xl font-black text-ink">{theta}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] text-muted font-bold mb-1">MEASUREMENT ERROR (SE)</div>
+                  <div className="text-[10px] text-muted font-bold mb-1">ความคลาดเคลื่อนมาตรฐาน (SE)</div>
                   <div className="text-2xl font-bold text-muted">{se}</div>
                 </div>
               </div>
@@ -251,18 +251,18 @@ function AssessmentContent() {
 
             {/* Micro Skill Map */}
             <div className="card p-5 border-line">
-              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">Skill Diagnosis</h3>
+              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">การวิเคราะห์ทักษะ (Skill Diagnosis)</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">Strong Skills</span>
+                  <span className="font-bold text-ink">ทักษะที่ทำได้ดี</span>
                   <span className="chip chip-success chip-mono py-0 px-2 text-[10px]">H1, H2</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">Developing</span>
+                  <span className="font-bold text-ink">กำลังพัฒนา</span>
                   <span className="chip chip-primary chip-mono py-0 px-2 text-[10px]">H3, H4</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">Needs Practice</span>
+                  <span className="font-bold text-ink">ควรฝึกฝนเพิ่ม</span>
                   <span className="chip chip-danger chip-mono py-0 px-2 text-[10px]">H7</span>
                 </div>
               </div>
@@ -273,8 +273,8 @@ function AssessmentContent() {
 
         <div className="card p-6 border-l-4 border-l-highlight bg-highlight-dim mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <div className="text-[10px] font-mono font-bold text-highlight uppercase tracking-widest mb-1">Recommended Next Step</div>
-            <h3 className="text-lg font-bold text-ink mb-1">Form Builder Mission</h3>
+            <div className="text-[10px] font-mono font-bold text-highlight uppercase tracking-widest mb-1">ขั้นตอนแนะนำถัดไป</div>
+            <h3 className="text-lg font-bold text-ink mb-1">ภารกิจสร้างแบบฟอร์ม (Form Builder)</h3>
             <p className="text-sm text-muted">ระบบตรวจพบว่าคุณควรฝึกฝนเรื่อง Form เพิ่มเติมเพื่อเพิ่มค่า Ability (θ)</p>
           </div>
           <button className="btn btn-primary whitespace-nowrap" onClick={() => router.push('/student')}>
@@ -419,7 +419,7 @@ function AssessmentContent() {
               <div className="flex items-center gap-2"><span style={{ width: '11px', height: '11px', borderRadius: '3px', border: '1px solid var(--line)', display: 'inline-block' }}></span>ยังไม่ถึง</div>
             </div>
             <div style={{ marginTop: '18px', padding: '12px', background: 'var(--blue-dim)', borderRadius: '12px' }}>
-              <b style={{ fontSize: '11px', color: 'var(--blue)', display: 'block', marginBottom: '4px' }}>Adaptive Mode Active</b>
+              <b style={{ fontSize: '11px', color: 'var(--blue)', display: 'block', marginBottom: '4px' }}>ระบบปรับเหมาะกำลังทำงาน</b>
               <p style={{ margin: 0, fontSize: '10px', color: 'var(--blue)', lineHeight: 1.6, opacity: .85 }}>ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณโดยอัตโนมัติ</p>
             </div>
           </aside>

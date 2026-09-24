@@ -123,7 +123,7 @@ export default function StudentLayout({
         <header className="h-16 flex items-center justify-between px-6 mt-4 rounded-[20px] bg-surface/80 backdrop-blur-xl border border-line shadow-sm shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-primary bg-primary-dim px-3 py-1.5 rounded-full border border-primary/20 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> WebAI Student
+              <Sparkles className="w-3.5 h-3.5" /> ระบบการเรียนรู้ WebAI
             </span>
           </div>
 

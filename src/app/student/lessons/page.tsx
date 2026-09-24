@@ -20,14 +20,14 @@ import {
 } from 'lucide-react';
 
 const JOURNEY_NODES = [
-  { id: 'H1', title: 'Web Explorer', desc: 'โครงสร้างเอกสาร HTML พื้นฐาน', icon: Globe, status: 'mastered' },
-  { id: 'H2', title: 'Structure Builder', desc: 'การจัดการข้อความและ Heading', icon: FileCode, status: 'mastered' },
-  { id: 'H3', title: 'Web Connector', desc: 'การเชื่อมโยง (Links) และ Navigation', icon: Network, status: 'progress' },
-  { id: 'H4', title: 'Media Integrator', desc: 'การแทรกรูปภาพและสื่อต่างๆ', icon: LayoutTemplate, status: 'available' },
-  { id: 'H5', title: 'Data Builder', desc: 'การสร้างตารางข้อมูล', icon: Database, status: 'locked' },
-  { id: 'H6', title: 'List Organizer', desc: 'การจัดการรายการ (Lists)', icon: Terminal, status: 'locked' },
-  { id: 'H7', title: 'Form Creator', desc: 'การสร้างแบบฟอร์มรับข้อมูล', icon: FormInput, status: 'locked' },
-  { id: 'H8', title: 'Semantic Architect', desc: 'โครงสร้าง Semantic HTML', icon: Cpu, status: 'locked' },
+  { id: 'H1', title: 'หน่วยที่ 1: โครงสร้างเอกสาร HTML พื้นฐาน', desc: 'DOCTYPE, html, head, body, title และ meta charset', icon: Globe, status: 'mastered' },
+  { id: 'H2', title: 'หน่วยที่ 2: การจัดการข้อความและหัวข้อ', desc: 'Heading h1-h6, ย่อหน้า p, การตัดบรรทัด br, hr และตัวหนา', icon: FileCode, status: 'mastered' },
+  { id: 'H3', title: 'หน่วยที่ 3: การเชื่อมโยงลิงก์และ Navigation', desc: 'แท็ก a, แอตทริบิวต์ href, target และการเชื่อมโยงภายในหน้า', icon: Network, status: 'progress' },
+  { id: 'H4', title: 'หน่วยที่ 4: การแทรกรูปภาพและสื่อประสม', desc: 'แท็ก img, แอตทริบิวต์ alt, figure และการจัดวางรูปภาพ', icon: LayoutTemplate, status: 'available' },
+  { id: 'H5', title: 'หน่วยที่ 5: การสร้างตารางข้อมูล (Tables)', desc: 'table, tr, td, th, thead, tbody และการผสานเซลล์', icon: Database, status: 'locked' },
+  { id: 'H6', title: 'หน่วยที่ 6: การจัดการรายการข้อมูล (Lists)', desc: 'รายการแบบไม่มีลำดับ ul, มีลำดับ ol และรายการ li', icon: Terminal, status: 'locked' },
+  { id: 'H7', title: 'หน่วยที่ 7: การสร้างแบบฟอร์มรับข้อมูล (Forms)', desc: 'form, input, label, select, textarea และปุ่ม button', icon: FormInput, status: 'locked' },
+  { id: 'H8', title: 'หน่วยที่ 8: โครงสร้าง Semantic HTML5', desc: 'header, nav, main, section, article, aside และ footer', icon: Cpu, status: 'locked' },
 ];
 
 export default function StudentJourneyPage() {
@@ -35,12 +35,12 @@ export default function StudentJourneyPage() {
     <div className="main-inner enter max-w-[900px] mx-auto">
       <div className="flex flex-wrap gap-2 items-center justify-between mb-8">
         <span className="flex items-center gap-2 text-sm font-bold text-muted bg-surface px-4 py-2 rounded-full border border-line">
-          <Terminal className="w-4 h-4 text-primary" /> ~/journey/map
+          <Terminal className="w-4 h-4 text-primary" /> ~/เส้นทางการเรียนรู้
         </span>
       </div>
 
       <div className="mb-12 text-center">
-        <h1 className="text-3xl font-black text-ink mb-2">Learning Journey<span className="text-primary">.</span></h1>
+        <h1 className="text-3xl font-black text-ink mb-2">เส้นทางการเรียนรู้<span className="text-primary">.</span></h1>
         <p className="text-muted">เส้นทางการเดินทางเพื่อเป็นนักพัฒนาเว็บไซต์ของคุณ</p>
       </div>
 
@@ -54,7 +54,7 @@ export default function StudentJourneyPage() {
           
           <div className="flex items-center justify-start md:justify-center mb-4">
             <div className="bg-surface border border-line px-4 py-2 rounded-full text-xs font-bold font-mono tracking-widest text-muted z-10 md:mr-0 ml-[10px] md:ml-0">
-              START
+              เริ่มต้น
             </div>
           </div>
 
@@ -108,8 +108,8 @@ export default function StudentJourneyPage() {
                     
                     {node.status !== 'locked' && (
                       <div className="flex items-center gap-2 mt-auto">
-                        <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase ${statusBg} ${statusColor}`}>
-                          {node.status === 'mastered' ? 'Mastered' : node.status === 'progress' ? 'In Progress' : 'Available'}
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${statusBg} ${statusColor}`}>
+                          {node.status === 'mastered' ? 'เรียนรู้แล้ว' : node.status === 'progress' ? 'กำลังเรียน' : 'พร้อมเรียน'}
                         </span>
                       </div>
                     )}
