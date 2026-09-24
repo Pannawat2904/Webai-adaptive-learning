@@ -172,9 +172,20 @@ function TeacherLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isDarkMode, toggleDarkMode } = useTeacherContext();
 
+  const isLoginPage = pathname === '/teacher/login';
+
+  useEffect(() => {
+    if (!isLoginPage) {
+      const isAuth = localStorage.getItem('webai_admin_auth') === 'true';
+      if (!isAuth) {
+        window.location.href = '/teacher/login';
+      }
+    }
+  }, [isLoginPage]);
+
   const handleLogout = async () => {
     await signOut();
-    window.location.href = '/';
+    window.location.href = '/teacher/login';
   };
 
   // Generate breadcrumbs from pathname
@@ -197,6 +208,14 @@ function TeacherLayoutContent({ children }: { children: React.ReactNode }) {
     if (p1 === 'students' && pathParts.length > 1) {
       breadcrumbs.push({ name: 'โปรไฟล์นักเรียน', href: '#' });
     }
+  }
+
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#060c18] text-slate-900 dark:text-white transition-colors duration-300 font-sans">
+        {children}
+      </div>
+    );
   }
 
   return (
