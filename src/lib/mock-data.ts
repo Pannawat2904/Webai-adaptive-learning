@@ -42,8 +42,8 @@ export const MOCK_PROFILES: Record<string, Profile> = {
 export const MOCK_COURSE: Course = {
   id: '11111111-1111-1111-1111-111111111111',
   code: 'HTML-VOC-101',
-  name: 'โครงสร้างภาษา HTML (HTML Structure)',
-  description: 'การพัฒนานวัตกรรมการเรียนรู้แบบปรับเหมาะเฉพาะบุคคลโดยบูรณาการพื้นที่จำลองการเขียนโค้ด เรื่อง โครงสร้างภาษา HTML เพื่อส่งเสริมทักษะทางวิชาชีพด้านการพัฒนาเว็บไซต์ สำหรับนักเรียนระดับชั้นประกาศนียบัตรวิชาชีพ',
+  name: 'การสร้างเว็บไซต์',
+  description: 'การสร้างเว็บไซต์เบื้องต้น งานวิเคราะห์กระบวนการและโครงสร้างการทำงานของเว็บไซต์',
   status: 'active',
   created_at: new Date().toISOString(),
 };
@@ -53,64 +53,64 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h1',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H1',
-    title: 'หน่วยที่ 1: โครงสร้างเอกสาร HTML พื้นฐาน',
-    description: '<!DOCTYPE html>, <html>, <head>, <body>, <title>, และ <meta>',
+    title: '1.1 ความรู้พื้นฐานเกี่ยวกับอินเทอร์เน็ต',
+    description: 'ความหมาย, การเชื่อมต่อ, IP Address และ URL',
     order_no: 1,
   },
   {
     id: 'u-h2',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H2',
-    title: 'หน่วยที่ 2: การจัดการข้อความและ Heading/Paragraph',
-    description: 'h1-h6, p, br, hr, strong, em และการจัดวรรคตอนข้อความ',
+    title: '1.2 การทำงานของเว็บไซต์เบื้องต้น',
+    description: 'Domain Name, DNS, Web Hosting, Client-Server และ HTTP',
     order_no: 2,
   },
   {
     id: 'u-h3',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H3',
-    title: 'หน่วยที่ 3: Hyperlink และการเชื่อมโยงเว็บเพจ',
-    description: 'แท็ก a, แอตทริบิวต์ href, target="_blank", anchor # ภายในหน้า',
+    title: '1.3 องค์ประกอบของเว็บไซต์',
+    description: 'HTML, CSS, JavaScript, Frontend/Backend และโครงสร้างไฟล์',
     order_no: 3,
   },
   {
     id: 'u-h4',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H4',
-    title: 'หน่วยที่ 4: การแทรกรูปภาพและสื่อประสม',
-    description: 'แท็ก img, src, alt, figure, figcaption และการฝัง video/audio',
+    title: '1.4 การเขียนแผนภาพโครงสร้างเว็บไซต์',
+    description: 'แผนภาพการทำงาน แผนภาพ Client-Server และแผนภาพโครงสร้างไฟล์',
     order_no: 4,
   },
   {
     id: 'u-h5',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H5',
-    title: 'หน่วยที่ 5: รายการข้อมูล (Lists)',
-    description: 'รายการไม่มีลำดับ ul, มีลำดับ ol, รายการ li และคำนิยาม dl/dt/dd',
+    title: '1.5 ขั้นตอนการสร้างเว็บไซต์',
+    description: 'การวางแผน ออกแบบ พัฒนา ทดสอบ เผยแพร่ และดูแลรักษา',
     order_no: 5,
   },
   {
     id: 'u-h6',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H6',
-    title: 'หน่วยที่ 6: การสร้างตารางแสดงผล (Tables)',
-    description: 'table, tr, td, th, thead/tbody/tfoot, colspan และ rowspan',
+    title: '1.6 ประเภทของเว็บไซต์',
+    description: 'เว็บไซต์ข่าว องค์กร พอร์ตโฟลิโอ อีคอมเมิร์ซ โซเชียลมีเดีย และ Static/Dynamic',
     order_no: 6,
   },
   {
     id: 'u-h7',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H7',
-    title: 'หน่วยที่ 7: ฟอร์มและการรับข้อมูล (Forms & Inputs)',
-    description: 'form, input ชนิดต่างๆ, label, select, textarea และปุ่ม button',
+    title: '1.7 เครื่องมือพื้นฐานสำหรับพัฒนาเว็บไซต์',
+    description: 'VS Code, Web Browser, Chrome DevTools และ Figma เบื้องต้น',
     order_no: 7,
   },
   {
     id: 'u-h8',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H8',
-    title: 'หน่วยที่ 8: Semantic HTML5 และโครงสร้างหน้าเว็บทั้งหน้า',
-    description: 'header, nav, main, section, article, aside และ footer',
+    title: '1.8 บทสรุปและทบทวน',
+    description: 'ทบทวนความรู้และฝึกปฏิบัติเพื่อเตรียมสร้างเว็บไซต์',
     order_no: 8,
   },
 ];
@@ -119,28 +119,16 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h1': {
     id: 'l-h1',
     unit_id: 'u-h1',
-    title: 'บทเรียนที่ 1.1: กายวิภาคของเอกสาร HTML พื้นฐาน',
+    title: '1.1 ความรู้พื้นฐานเกี่ยวกับอินเทอร์เน็ต',
     content: `
-### กายวิภาคและโครงสร้างหลักของ HTML5
+### ความรู้พื้นฐานเกี่ยวกับอินเทอร์เน็ต
+เรียนรู้เกี่ยวกับ:
+- ความหมายของอินเทอร์เน็ต
+- การเชื่อมต่ออินเทอร์เน็ต
+- IP Address เบื้องต้น
+- URL และส่วนประกอบของ URL
 
-เอกสาร HTML ทุกหน้าต้องเริ่มต้นด้วยคำประกาศประเภทเอกสาร เพื่อให้เว็บเบราว์เซอร์สามารถประมวลผลโค้ดได้อย่างถูกต้องและเข้าสู่โหมดมาตรฐาน (Standards Mode)
-
-#### 1. คำประกาศ \`<!DOCTYPE html>\`
-- เขียนไว้ที่บรรทัดแรกสุดเสมอ (บรรทัดที่ 1)
-- ไม่ใช่แท็ก HTML แต่เป็นคำสั่งแจ้งเบราว์เซอร์ว่าไฟล์นี้เขียนด้วยไวยากรณ์ **HTML5**
-
-#### 2. แท็กราก \`<html lang="th">\`
-- แท็กที่ครอบคลุมเนื้อหาทั้งหมดของเว็บเพจ
-- แอตทริบิวต์ \`lang="th"\` มีความสำคัญอย่างยิ่งเพื่อบอกภาษาไทยแก่เบราว์เซอร์และ Screen Reader
-
-#### 3. ส่วนหัวข้อมูล \`<head>\`
-- ประกอบด้วยข้อมูลอภิพันธุ์ (Metadata) เช่น:
-  - \`<meta charset="UTF-8">\`: กำหนดชุดอักขระสากล ป้องกันข้อความภาษาไทยเป็นตัวเอเลี่ยน/ภาษาต่างดาว
-  - \`<meta name="viewport" content="width=device-width, initial-scale=1.0">\`: รองรับหน้าจอมือถือ Responsive
-  - \`<title>\`: ชื่อของหน้าเว็บที่จะไปปรากฏบนแท็บเบราว์เซอร์
-
-#### 4. ส่วนเนื้อหาที่แสดงผล \`<body>\`
-- เก็บองค์ประกอบทั้งหมดที่ผู้ใช้มองเห็นบนหน้าเว็บ เช่น ข้อความ รูปภาพ ตาราง ฟอร์ม
+*(เนื้อหาวิดีโอและสไลด์จะถูกเพิ่มโดยคุณครูในภายหลังผ่านระบบจัดการ)*
     `,
     order_no: 1,
     media: [

@@ -49,16 +49,16 @@ export default function Home() {
 
           <nav className="hidden lg:flex items-center gap-2 p-1.5 bg-surface border border-line rounded-2xl">
             <Link href="/student" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <LayoutDashboard className="w-4 h-4 text-accent" /> Dashboard
+              <LayoutDashboard className="w-4 h-4 text-accent" /> หน้าแรก
             </Link>
             <Link href="/student/lessons" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <MapIcon className="w-4 h-4 text-primary" /> Journey
+              <MapIcon className="w-4 h-4 text-primary" /> บทเรียน
             </Link>
             <Link href="/student/codelab" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <Terminal className="w-4 h-4 text-highlight" /> Code Lab
+              <Terminal className="w-4 h-4 text-highlight" /> ห้องปฏิบัติการโค้ด
             </Link>
             <Link href="/student/tutor" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <Bot className="w-4 h-4 text-secondary" /> AI Advisor
+              <Bot className="w-4 h-4 text-secondary" /> ผู้ช่วย AI
             </Link>
           </nav>
 
@@ -75,16 +75,16 @@ export default function Home() {
         {/* Hero Section */}
         <section className="max-w-[1000px] mx-auto px-6 text-center mb-24 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-8">
-            <Compass className="w-4 h-4" /> WebAI Adventure V2.0
+            <Compass className="w-4 h-4" /> รายวิชา การสร้างเว็บไซต์
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1] text-ink">
             เริ่มต้นเส้นทาง <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-              นักพัฒนาเว็บไซต์
+              การสร้างเว็บไซต์
             </span>
           </h1>
           <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-            เรียนรู้ HTML, CSS และการพัฒนาเว็บไซต์ผ่านภารกิจ (Quest) ที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และเขียนโค้ดได้จริง
+            เรียนรู้งานวิเคราะห์กระบวนการและโครงสร้างการทำงานของเว็บไซต์ ผ่านภารกิจที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และนำไปใช้ได้จริง
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
@@ -108,7 +108,7 @@ export default function Home() {
                 <span>localhost:3000/quest/01</span>
               </div>
               <div className="win-actions hidden sm:flex text-xs font-mono text-muted uppercase">
-                Network Connected
+                เชื่อมต่อระบบสำเร็จ
               </div>
             </div>
             
@@ -120,14 +120,14 @@ export default function Home() {
                   <Code2 className="w-4 h-4" /> index.html
                 </div>
                 <pre className="text-muted">
-                  <span className="text-faint">&lt;!-- 🎯 Mission: โครงสร้างเอกสาร --&gt;</span>{'\n'}
+                  <span className="text-faint">&lt;!-- 🎯 ภารกิจ: โครงสร้างเอกสาร --&gt;</span>{'\n'}
                   <span className="text-danger">&lt;!DOCTYPE html&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;html</span> <span className="text-accent">lang</span>=<span className="text-highlight">"th"</span><span className="text-secondary">&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;head&gt;</span>{'\n'}
-                  {'  '}<span className="text-secondary">&lt;title&gt;</span><span className="text-ink">WebAI Adventure</span><span className="text-secondary">&lt;/title&gt;</span>{'\n'}
+                  {'  '}<span className="text-secondary">&lt;title&gt;</span><span className="text-ink">การสร้างเว็บไซต์</span><span className="text-secondary">&lt;/title&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;/head&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;body</span> <span className="text-accent">class</span>=<span className="text-highlight">"developer-journey"</span><span className="text-secondary">&gt;</span>{'\n'}
-                  {'  '}<span className="text-secondary">&lt;h1&gt;</span><span className="text-ink">Level 1: Web Explorer</span><span className="text-secondary">&lt;/h1&gt;</span>{'\n'}
+                  {'  '}<span className="text-secondary">&lt;h1&gt;</span><span className="text-ink">หน่วยที่ 1: พื้นฐานเว็บไซต์</span><span className="text-secondary">&lt;/h1&gt;</span>{'\n'}
                   {'  '}<span className="text-secondary">&lt;p&gt;</span><span className="text-muted">เตรียมพร้อมสู่การเป็นนักพัฒนา</span><span className="text-secondary">&lt;/p&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;/body&gt;</span>{'\n'}
                   <span className="text-secondary">&lt;/html&gt;</span>
@@ -142,18 +142,18 @@ export default function Home() {
                 </div>
                 
                 <div className="card p-6 border-line bg-bg-base mt-6">
-                  <div className="text-[10px] font-mono font-bold text-primary mb-1 uppercase">Recommended Quest</div>
+                  <div className="text-[10px] font-mono font-bold text-primary mb-1 uppercase">ภารกิจแนะนำสำหรับคุณ</div>
                   <h3 className="text-xl font-bold text-ink mb-2">โครงสร้าง HTML พื้นฐาน</h3>
                   <p className="text-sm text-muted mb-6">เรียนรู้องค์ประกอบที่สำคัญที่สุดของการสร้างเว็บไซต์ (HTML, HEAD, BODY)</p>
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 className="w-4 h-4" /></div>
-                      <span className="text-sm text-ink font-medium">DOOTYPE Declaration</span>
+                      <span className="text-sm text-ink font-medium">ประกาศประเภทเอกสาร HTML5</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center"></div>
-                      <span className="text-sm text-muted font-medium">Head Element</span>
+                      <span className="text-sm text-muted font-medium">ส่วนหัวข้อมูลเว็บไซต์ (Head)</span>
                     </div>
                   </div>
                   
@@ -179,21 +179,21 @@ export default function Home() {
               <MapIcon className="w-6 h-6" />
             </div>
             <h3 className="text-3xl font-mono font-bold text-ink mb-1">8</h3>
-            <p className="text-muted text-sm font-medium">Web Domains</p>
+            <p className="text-muted text-sm font-medium">หน่วยการเรียนรู้</p>
           </div>
           <div className="card p-6 text-center flex flex-col items-center border-l-4 border-l-secondary">
             <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
               <Terminal className="w-6 h-6" />
             </div>
             <h3 className="text-3xl font-mono font-bold text-ink mb-1">40+</h3>
-            <p className="text-muted text-sm font-medium">Code Missions</p>
+            <p className="text-muted text-sm font-medium">ภารกิจท้าทาย</p>
           </div>
           <div className="card p-6 text-center flex flex-col items-center">
             <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4 text-accent">
               <BrainCircuit className="w-6 h-6" />
             </div>
             <h3 className="text-3xl font-mono font-bold text-ink mb-1">100%</h3>
-            <p className="text-muted text-sm font-medium">Adaptive Engine</p>
+            <p className="text-muted text-sm font-medium">ระบบปรับเหมาะอัตโนมัติ</p>
           </div>
         </section>
 
