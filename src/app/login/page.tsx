@@ -7,13 +7,8 @@ import { Code2, Sparkles, LogIn, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const { signInWithGoogle, switchRole } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const router = useRouter();
-
-  const handleDemoLogin = (targetRole: 'student') => {
-    switchRole(targetRole);
-    router.push('/student');
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-8 relative">
@@ -74,28 +69,6 @@ export default function LoginPage() {
           <p className="text-xs text-center text-slate-400 dark:text-slate-500">
             ระบบจะสร้างบัญชีนักเรียนให้อัตโนมัติเมื่อเข้าใช้งานครั้งแรก
           </p>
-        </div>
-
-        <div className="relative flex items-center justify-center my-6">
-          <div className="border-t border-slate-200 dark:border-slate-800 w-full"></div>
-          <span className="bg-white dark:bg-slate-900 px-3 text-xs font-semibold text-slate-400 absolute rounded-full">
-            ทดลองใช้งาน
-          </span>
-        </div>
-
-        {/* Demo Roles for immediate evaluation */}
-        <div className="space-y-3">
-          <button
-            onClick={() => handleDemoLogin('student')}
-            className="w-full flex items-center justify-between p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 border-2 border-emerald-100 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all text-left group active:scale-95"
-          >
-            <div>
-              <div className="font-bold text-sm flex items-center gap-1.5">
-                <span>👨‍🎓 เข้าใช้งานในฐานะนักเรียน (Demo)</span>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-emerald-600 group-hover:translate-x-1 transition-transform" />
-          </button>
         </div>
 
         <div className="pt-4 text-center">
