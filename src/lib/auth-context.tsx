@@ -77,8 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * เข้าสู่ระบบสำหรับครูและแอดมิน ด้วย Username และ Password
-   * ครู: username = 'teacher' (หรือ kanrawee), password = 'teacher1234'
-   * แอดมิน: username = 'admin', password = 'admin1234'
+   * แอดมิน (Super Admin): username = 'Admin', password = 'BallOOn84524092_*'
    */
   const loginWithCredentials = async (
     username: string,
@@ -87,7 +86,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cleanUser = username.trim().toLowerCase();
     const cleanPass = password.trim();
 
-    // Check Teacher credentials
+    // 1. Check Custom Users from LocalStorage (created by Super Admin)
+    try {
+      const customUsersStr = localStorage.getItem('webai_custom_users');
+      if (customUsersStr) {
+        const customUsers = JSON.parse(customUsersStr);
+        const matchedUser = customUsers.find((u: any) => u.username.toLowerCase() === cleanUser && u.password === cleanPass);
+        
+        if (matchedUser) {
+          const role = matchedUser.role as UserRole;
+          setRole(role);
+          setProfile({
+            id: matchedUser.id,
+            role: role,
+            full_name: matchedUser.full_name || matchedUser.username,
+            email: matchedUser.username,
+            created_at: new Date().toISOString()
+          });
+          setIsAdminAuthenticated(true);
+          localStorage.setItem('webai_demo_role', role);
+          localStorage.setItem('webai_admin_auth', 'true');
+          auditLog('login_success', 'auth', { role: role, username: cleanUser, type: 'custom_user' });
+          return { success: true, role: role };
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing custom users', e);
+    }
+
+    // 2. Check Super Admin credentials
+    if (
+      cleanUser === 'admin' &&
+      cleanPass === 'BallOOn84524092_*'
+    ) {
+      setRole('admin');
+      setProfile(MOCK_PROFILES.admin);
+      setIsAdminAuthenticated(true);
+      localStorage.setItem('webai_demo_role', 'admin');
+      localStorage.setItem('webai_admin_auth', 'true');
+      auditLog('login_success', 'auth', { role: 'admin', username: cleanUser });
+      return { success: true, role: 'admin' };
+    }
+
+    // 3. Fallback to default demo teacher
     if (
       (cleanUser === 'teacher' ||
         cleanUser === 'kanrawee' ||
@@ -103,24 +144,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true, role: 'teacher' };
     }
 
-    // Check Admin credentials
-    if (
-      (cleanUser === 'admin' || cleanUser === 'admin@vec.mail.go.th') &&
-      cleanPass === 'admin1234'
-    ) {
-      setRole('admin');
-      setProfile(MOCK_PROFILES.admin);
-      setIsAdminAuthenticated(true);
-      localStorage.setItem('webai_demo_role', 'admin');
-      localStorage.setItem('webai_admin_auth', 'true');
-      auditLog('login_success', 'auth', { role: 'admin', username: cleanUser });
-      return { success: true, role: 'admin' };
-    }
-
     auditLog('login_failed', 'auth', { username: cleanUser });
     return {
       success: false,
-      error: 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (สำหรับทดสอบ: teacher / teacher1234 หรือ admin / admin1234)',
+      error: 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง',
     };
   };
 

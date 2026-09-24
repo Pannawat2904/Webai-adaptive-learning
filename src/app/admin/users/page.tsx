@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { UserRole, Profile } from '@/types/database';
 import { MOCK_PROFILES } from '@/lib/mock-data';
-import { Users, Shield, UserCheck, Search, ArrowLeft } from 'lucide-react';
+import { Users, Shield, UserCheck, Search, ArrowLeft, Plus, CheckCircle2 } from 'lucide-react';
 import { TeacherAdminGuard } from '@/components/auth/TeacherAdminGuard';
 
 export default function AdminUsersPage() {
@@ -31,6 +31,75 @@ export default function AdminUsersPage() {
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Custom Users State
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newFullName, setNewFullName] = useState('');
+  const [newRole, setNewRole] = useState<UserRole>('teacher');
+  const [isSavedToast, setIsSavedToast] = useState(false);
+
+  useEffect(() => {
+    // Load custom users from local storage
+    try {
+      const customUsersStr = localStorage.getItem('webai_custom_users');
+      if (customUsersStr) {
+        const customUsers = JSON.parse(customUsersStr);
+        // Map custom users to Profile type for display
+        const customProfiles = customUsers.map((cu: any) => ({
+          id: cu.id,
+          role: cu.role,
+          full_name: cu.full_name || cu.username,
+          email: cu.username, // Using username as email column
+          created_at: new Date().toISOString()
+        }));
+        setUsersList(prev => [...prev, ...customProfiles]);
+      }
+    } catch(e) {}
+  }, []);
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername || !newPassword) return;
+
+    const newUser = {
+      id: 'custom-' + Date.now(),
+      username: newUsername,
+      password: newPassword,
+      full_name: newFullName,
+      role: newRole
+    };
+
+    try {
+      // Save to localStorage
+      const existingStr = localStorage.getItem('webai_custom_users');
+      const existing = existingStr ? JSON.parse(existingStr) : [];
+      const updated = [...existing, newUser];
+      localStorage.setItem('webai_custom_users', JSON.stringify(updated));
+
+      // Update UI
+      setUsersList(prev => [...prev, {
+        id: newUser.id,
+        role: newUser.role,
+        full_name: newUser.full_name || newUser.username,
+        email: newUser.username,
+        created_at: new Date().toISOString()
+      }]);
+
+      // Reset form
+      setNewUsername('');
+      setNewPassword('');
+      setNewFullName('');
+      setShowAddForm(false);
+      setIsSavedToast(true);
+      setTimeout(() => setIsSavedToast(false), 2500);
+      
+      auditLog('create_custom_user', 'users', { username: newUser.username, role: newUser.role });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleChangeRole = (userId: string, newRole: UserRole) => {
     setUsersList((prev) =>
@@ -72,18 +141,73 @@ export default function AdminUsersPage() {
             </p>
           </div>
 
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="ค้นหาชื่อหรืออีเมล..."
-              className="pl-9 pr-4 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/40 w-full sm:w-64 backdrop-blur-md"
-            />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="ค้นหาชื่อหรืออีเมล..."
+                className="pl-9 pr-4 py-2.5 rounded-2xl bg-white/70 dark:bg-slate-800/70 border border-white/60 dark:border-white/10 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/40 w-full backdrop-blur-md"
+              />
+            </div>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition-all shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">เพิ่มผู้สอน</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {isSavedToast && (
+        <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>สร้างบัญชีผู้ใช้งานใหม่เรียบร้อยแล้ว</span>
+        </div>
+      )}
+
+      {/* Add User Form */}
+      {showAddForm && (
+        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4 animate-in slide-in-from-top-4 fade-in duration-300">
+          <h2 className="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2 mb-4">
+            <UserCheck className="w-4 h-4 text-purple-500" />
+            สร้างบัญชีผู้ใช้งานสำหรับครู/ผู้ดูแล
+          </h2>
+          <form onSubmit={handleCreateUser} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Username (ชื่อผู้ใช้)</label>
+              <input type="text" required value={newUsername} onChange={e => setNewUsername(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50" placeholder="เช่น teacher_jane" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400">Password (รหัสผ่าน)</label>
+              <input type="text" required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50" placeholder="รหัสผ่านเข้าสู่ระบบ" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400">ชื่อ - นามสกุล (แสดงผล)</label>
+              <input type="text" required value={newFullName} onChange={e => setNewFullName(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50" placeholder="ชื่อ นามสกุล" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400">สิทธิ์การใช้งาน (Role)</label>
+              <select value={newRole} onChange={e => setNewRole(e.target.value as UserRole)} className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50">
+                <option value="teacher">ครูผู้สอน (Teacher)</option>
+                <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
+              <button type="button" onClick={() => setShowAddForm(false)} className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                ยกเลิก
+              </button>
+              <button type="submit" className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md transition-all">
+                บันทึกบัญชีผู้ใช้งาน
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Users Table */}
       <div className="liquid-glass rounded-3xl p-6 space-y-4">
