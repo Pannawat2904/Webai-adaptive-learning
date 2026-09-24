@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
         {activeTab === 'heatmap' && (
           <div className="space-y-6 animate-in fade-in">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Heatmap ความเข้าใจรายบุคคล (3.1 - 3.5)</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Heatmap ความเข้าใจรายบุคคล</h3>
               <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                 <span>ระดับ:</span>
                 <span className="px-2 py-1 rounded bg-[#16a34a]/10 dark:bg-[#00ff9d]/20 text-[#16a34a] dark:text-[#00ff9d]">ดีเยี่ยม (&ge;80)</span>

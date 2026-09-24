@@ -237,11 +237,11 @@ export default function TeacherOverviewPage() {
                 <div key={key}>
                   <div className="flex justify-between text-xs font-bold mb-1.5">
                     <span className="text-muted">
-                      {key === 'H1' ? '3.1 โครงสร้างพื้นฐาน HTML' : 
-                       key === 'H2' ? '3.2 ข้อความและลิงก์' :
-                       key === 'H3' ? '3.3 รูปภาพและตาราง' :
-                       key === 'H4' ? '3.4 Semantic HTML' :
-                       key === 'H5' ? '3.5 ฟอร์มรับข้อมูล' : key} ({key})
+                      {key === 'H1' ? 'โครงสร้างพื้นฐาน HTML' : 
+                       key === 'H2' ? 'ข้อความและลิงก์' :
+                       key === 'H3' ? 'รูปภาพและตาราง' :
+                       key === 'H4' ? 'Semantic HTML' :
+                       key === 'H5' ? 'ฟอร์มรับข้อมูล' : key} ({key})
                     </span>
                     <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${getStatusColor(val)}`}>{val}%</span>
                   </div>

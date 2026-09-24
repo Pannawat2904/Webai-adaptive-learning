@@ -53,7 +53,7 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h1',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H1',
-    title: '3.1 โครงสร้างพื้นฐานของภาษา HTML',
+    title: 'โครงสร้างพื้นฐานของภาษา HTML',
     description: 'โครงสร้างเอกสาร HTML5, ความหมายของ Tag ใน HTML, Tag เปิดและ Tag ปิด, Comment ใน HTML และส่วนประกอบของหน้าเว็บ (<head>, <body>, <title>)',
     order_no: 1,
   },
@@ -61,7 +61,7 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h2',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H2',
-    title: '3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ',
+    title: 'การแทรกข้อความและลิงก์ในหน้าเว็บ',
     description: 'Heading Tags, Paragraph Tag, การจัดรูปแบบข้อความ, การขึ้นบรรทัดและเส้นคั่น, Lists (Ordered/Unordered List) และการสร้างลิงก์ภายในและภายนอกเว็บไซต์',
     order_no: 2,
   },
@@ -69,7 +69,7 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h3',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H3',
-    title: '3.3 การแทรกรูปภาพและตารางในหน้าเว็บ',
+    title: 'การแทรกรูปภาพและตารางในหน้าเว็บ',
     description: 'การแทรกรูปภาพด้วย <img>, การกำหนดขนาดรูปภาพ, Relative Path และ Absolute Path, การสร้างตารางด้วย <table>, แถวและคอลัมน์ของตาราง, หัวตารางและข้อมูลในตาราง',
     order_no: 3,
   },
@@ -77,7 +77,7 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h4',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H4',
-    title: '3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+    title: 'การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
     description: 'Semantic HTML (Header, Navigation, Main, Section, Article, Aside, Footer), เปรียบเทียบกับ Div และ Span, Block Element และ Inline Element',
     order_no: 4,
   },
@@ -85,7 +85,7 @@ export const MOCK_UNITS: Unit[] = [
     id: 'u-h5',
     course_id: MOCK_COURSE.id,
     sub_domain_code: 'H5',
-    title: '3.5 การสร้างฟอร์มรับข้อมูล',
+    title: 'การสร้างฟอร์มรับข้อมูล',
     description: 'Form Tag, Label และ Input ชนิดต่างๆ (Text, Email, Password, Number, Date), Textarea, Select, Radio Button, Checkbox และ Button',
     order_no: 5,
   },
@@ -95,9 +95,9 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h1': {
     id: 'l-h1',
     unit_id: 'u-h1',
-    title: '3.1 โครงสร้างพื้นฐานของภาษา HTML',
+    title: 'โครงสร้างพื้นฐานของภาษา HTML',
     content: `
-# 3.1 โครงสร้างพื้นฐานของภาษา HTML
+# โครงสร้างพื้นฐานของภาษา HTML
 
 ---
 
@@ -150,7 +150,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h1-s1',
         lesson_id: 'l-h1',
         media_type: 'slide',
-        title: 'ชุดสไลด์: 3.1 โครงสร้างพื้นฐานของภาษา HTML',
+        title: 'ชุดสไลด์: โครงสร้างพื้นฐานของภาษา HTML',
         external_url: 'https://docs.google.com/presentation/d/e/2PACX-1vT-demo/embed',
         meta: {
           pages: 6,
@@ -169,7 +169,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h1-v1',
         lesson_id: 'l-h1',
         media_type: 'video',
-        title: 'วิดีโอสอน: 3.1 โครงสร้างพื้นฐานของภาษา HTML',
+        title: 'วิดีโอสอน: โครงสร้างพื้นฐานของภาษา HTML',
         external_url: 'https://www.youtube.com/embed/kUMe1FH4CHE',
         meta: { duration: 480 },
         order_no: 2,
@@ -179,9 +179,9 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h2': {
     id: 'l-h2',
     unit_id: 'u-h2',
-    title: '3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ',
+    title: 'การแทรกข้อความและลิงก์ในหน้าเว็บ',
     content: `
-# 3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ
+# การแทรกข้อความและลิงก์ในหน้าเว็บ
 
 ---
 
@@ -225,7 +225,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h2-s1',
         lesson_id: 'l-h2',
         media_type: 'slide',
-        title: 'ชุดสไลด์: 3.2 การแทรกข้อความและลิงก์ในหน้าเว็บ',
+        title: 'ชุดสไลด์: การแทรกข้อความและลิงก์ในหน้าเว็บ',
         meta: {
           pages: 5,
           slides: [
@@ -243,9 +243,9 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h3': {
     id: 'l-h3',
     unit_id: 'u-h3',
-    title: '3.3 การแทรกรูปภาพและตารางในหน้าเว็บ',
+    title: 'การแทรกรูปภาพและตารางในหน้าเว็บ',
     content: `
-# 3.3 การแทรกรูปภาพและตารางในหน้าเว็บ
+# การแทรกรูปภาพและตารางในหน้าเว็บ
 
 ---
 
@@ -301,7 +301,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h3-s1',
         lesson_id: 'l-h3',
         media_type: 'slide',
-        title: 'ชุดสไลด์: 3.3 การแทรกรูปภาพและตารางในหน้าเว็บ',
+        title: 'ชุดสไลด์: การแทรกรูปภาพและตารางในหน้าเว็บ',
         meta: {
           pages: 5,
           slides: [
@@ -319,9 +319,9 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h4': {
     id: 'l-h4',
     unit_id: 'u-h4',
-    title: '3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+    title: 'การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
     content: `
-# 3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML
+# การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML
 
 ---
 
@@ -360,7 +360,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h4-s1',
         lesson_id: 'l-h4',
         media_type: 'slide',
-        title: 'ชุดสไลด์: 3.4 การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
+        title: 'ชุดสไลด์: การจัดโครงสร้างหน้าเว็บด้วย Semantic HTML',
         meta: {
           pages: 5,
           slides: [
@@ -378,9 +378,9 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
   'u-h5': {
     id: 'l-h5',
     unit_id: 'u-h5',
-    title: '3.5 การสร้างฟอร์มรับข้อมูล',
+    title: 'การสร้างฟอร์มรับข้อมูล',
     content: `
-# 3.5 การสร้างฟอร์มรับข้อมูล
+# การสร้างฟอร์มรับข้อมูล
 
 ---
 
@@ -426,7 +426,7 @@ export const MOCK_LESSONS: Record<string, Lesson> = {
         id: 'm-h5-s1',
         lesson_id: 'l-h5',
         media_type: 'slide',
-        title: 'ชุดสไลด์: 3.5 การสร้างฟอร์มรับข้อมูล',
+        title: 'ชุดสไลด์: การสร้างฟอร์มรับข้อมูล',
         meta: {
           pages: 6,
           slides: [
@@ -1347,7 +1347,7 @@ export const MOCK_RECOMMENDATIONS: Recommendation[] = [
     student_id: 's001-student-uuid-1111',
     sub_domain_code: 'H5',
     resource_type: 're_test',
-    reason: 'ทดสอบซ้ำ (Re-test) เฉพาะหัวข้อ 3.5: การสร้างฟอร์มรับข้อมูล เพื่อประเมินความก้าวหน้า',
+    reason: 'ทดสอบซ้ำ (Re-test) เฉพาะหัวข้อการสร้างฟอร์มรับข้อมูล เพื่อประเมินความก้าวหน้า',
     action_url: '/student/assessment?type=re_test&subdomain=H5',
     status: 'pending',
     created_at: new Date().toISOString(),
