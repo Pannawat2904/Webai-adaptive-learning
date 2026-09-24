@@ -90,7 +90,7 @@ export default function StudentJourneyPage() {
                 {/* Node Card */}
                 <div className="w-full md:w-1/2 flex px-4 md:px-12 pl-16 md:pl-12">
                   <Link 
-                    href={node.status !== 'locked' ? `/student/codelab?subdomain=${node.id}` : '#'}
+                    href={node.status !== 'locked' ? `/student/lessons/u-${node.id.toLowerCase()}` : '#'}
                     className={`w-full card p-5 relative border-2 ${
                       node.status === 'locked' ? 'opacity-60 cursor-not-allowed' : 'card-hover cursor-pointer'
                     } ${node.status === 'progress' ? 'border-primary shadow-[0_0_20px_var(--primary-dim)]' : 'border-line'}`}
