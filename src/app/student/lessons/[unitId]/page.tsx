@@ -44,6 +44,35 @@ export default function LessonDetailPage({
   const videoMedia = lesson.media?.find((m) => m.media_type === 'video');
   const docMedia = lesson.media?.find((m) => m.media_type === 'document');
 
+  // Real-time Content State
+  const [canvaUrl, setCanvaUrl] = useState('');
+  const [lessonContent, setLessonContent] = useState(lesson.content || `แท็ก <a class="mono font-bold text-primary bg-primary-dim px-2 py-0.5 rounded-md border border-primary-dim">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)`);
+
+  React.useEffect(() => {
+    const loadLessonData = () => {
+      // The unit.id is 'u-h1', 'u-h2' etc. which matches what we save in the teacher portal
+      const saved = localStorage.getItem(`webai_lesson_data_${unit.id}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.canvaUrl !== undefined) setCanvaUrl(parsed.canvaUrl);
+          if (parsed.content !== undefined && parsed.content.trim() !== '') setLessonContent(parsed.content);
+        } catch {
+          // keep defaults
+        }
+      }
+    };
+
+    loadLessonData();
+    window.addEventListener('storage', loadLessonData);
+    const intervalId = setInterval(loadLessonData, 2000); // Polling fallback
+
+    return () => {
+      window.removeEventListener('storage', loadLessonData);
+      clearInterval(intervalId);
+    };
+  }, [unit.id]);
+
   // Hardcode H3 slides for the prototype showcase
   const slides = [
     {t:"โครงสร้างพื้นฐานของแท็ก a", d:"การใช้ href เพื่อระบุปลายทางของลิงก์"},
@@ -126,33 +155,29 @@ export default function LessonDetailPage({
               
               {/* Canva Presentation Preview */}
               <div className="mb-8 rounded-2xl overflow-hidden border border-line bg-surface shadow-sm relative aspect-video group">
-                {/* Simulated Canva Embed - Uses a placeholder for demo purposes */}
-                <div className="absolute inset-0 bg-surface flex flex-col items-center justify-center" style={{ background: 'linear-gradient(160deg,#F8FAFC,#E2E8F0)' }}>
-                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform cursor-pointer">
-                     <Presentation className="w-8 h-8 text-primary" />
-                   </div>
-                   <h3 className="text-xl font-bold text-ink mb-2 text-center px-4">สไลด์ประกอบบทเรียน: {lesson.title}</h3>
-                   <div className="flex items-center gap-2 text-muted text-sm font-medium">
-                     <span className="w-2 h-2 rounded-full bg-accent"></span> Canva Presentation Preview
-                   </div>
-                   
-                   {/* Mock Canva Player Controls */}
-                   <div className="absolute bottom-0 inset-x-0 h-12 bg-white/80 backdrop-blur-md border-t border-line flex items-center justify-between px-4">
-                      <div className="flex items-center gap-3">
-                        <button className="text-ink hover:text-primary"><Play className="w-4 h-4 fill-current" /></button>
-                        <span className="text-xs font-bold text-muted">01 / {totalSlides}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button className="text-muted hover:text-ink"><ChevronLeft className="w-4 h-4" /></button>
-                        <button className="text-muted hover:text-ink"><ChevronRight className="w-4 h-4" /></button>
-                        <div className="w-px h-4 bg-line mx-1"></div>
-                        <button className="text-muted hover:text-ink"><Maximize2 className="w-4 h-4" /></button>
-                      </div>
-                   </div>
-                </div>
+                {canvaUrl ? (
+                  <iframe
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full border-0 z-10 bg-white"
+                    src={canvaUrl}
+                    allowFullScreen
+                    allow="fullscreen"
+                    title={`Canva Presentation for ${lesson.title}`}
+                  ></iframe>
+                ) : (
+                  <div className="absolute inset-0 bg-surface flex flex-col items-center justify-center" style={{ background: 'linear-gradient(160deg,#F8FAFC,#E2E8F0)' }}>
+                     <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform cursor-pointer">
+                       <Presentation className="w-8 h-8 text-primary" />
+                     </div>
+                     <h3 className="text-xl font-bold text-ink mb-2 text-center px-4">สไลด์ประกอบบทเรียน: {lesson.title}</h3>
+                     <div className="flex items-center gap-2 text-muted text-sm font-medium">
+                       <span className="w-2 h-2 rounded-full bg-accent"></span> No Canva Presentation URL provided
+                     </div>
+                  </div>
+                )}
               </div>
 
-              <article className="prose max-w-none text-ink text-[15px] leading-relaxed whitespace-pre-line bg-surface p-6 sm:p-8 rounded-2xl border border-line shadow-sm mb-6" dangerouslySetInnerHTML={{ __html: lesson.content || `แท็ก <a class="mono font-bold text-primary bg-primary-dim px-2 py-0.5 rounded-md border border-primary-dim">&lt;a&gt;</a> คือหัวใจของการเชื่อมโยงหน้าเว็บ (Hyperlink) ใช้แอตทริบิวต์ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">href</code> เพื่อระบุปลายทาง และสามารถกำหนด <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">target="_blank"</code> เพื่อเปิดลิงก์ในแท็บใหม่\n\nข้อควรระวัง: การเปิดลิงก์ในแท็บใหม่ควรใช้คู่กับ <code class="mono font-bold text-ink bg-bg-base px-2 py-0.5 rounded-md border border-line">rel="noopener"</code> เพื่อความปลอดภัย และควรเขียนข้อความลิงก์ให้สื่อความหมาย ไม่ใช้คำว่า "คลิกที่นี่" ลอย ๆ เพื่อการเข้าถึงที่ดี (Accessibility)` }} />
+              <article className="prose max-w-none text-ink text-[15px] leading-relaxed whitespace-pre-line bg-surface p-6 sm:p-8 rounded-2xl border border-line shadow-sm mb-6" dangerouslySetInnerHTML={{ __html: lessonContent }} />
 
               <div className="bg-code-bg rounded-xl p-4 sm:p-[18px_20px] my-4 sm:my-[18px] overflow-x-auto">
                 <pre className="mono m-0 text-xs sm:text-[12.5px] leading-[1.8] text-[#c9d4e8]">

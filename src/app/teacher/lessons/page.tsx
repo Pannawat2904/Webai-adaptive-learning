@@ -26,6 +26,27 @@ export default function TeacherLessonsManagerPage() {
   const [mediaList, setMediaList] = useState<LessonMedia[]>(lesson.media || []);
   const [isSavedToast, setIsSavedToast] = useState(false);
 
+  const [canvaUrl, setCanvaUrl] = useState('');
+  const [lessonContent, setLessonContent] = useState('');
+
+  // Real-time: Load saved data from localStorage
+  React.useEffect(() => {
+    const saved = localStorage.getItem(`webai_lesson_data_${selectedUnitId}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setCanvaUrl(parsed.canvaUrl || '');
+        setLessonContent(parsed.content || lesson.content || '');
+      } catch {
+        setCanvaUrl('');
+        setLessonContent(lesson.content || '');
+      }
+    } else {
+      setCanvaUrl('');
+      setLessonContent(lesson.content || '');
+    }
+  }, [selectedUnitId, lesson.content]);
+
   // New media modal/state
   const [showAddMedia, setShowAddMedia] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -69,7 +90,13 @@ export default function TeacherLessonsManagerPage() {
     setNewUrl('');
   };
 
-  const handleSaveOrder = () => {
+  const handleSaveLessonData = () => {
+    // Save to localStorage for real-time syncing with student view
+    localStorage.setItem(`webai_lesson_data_${selectedUnitId}`, JSON.stringify({
+      canvaUrl,
+      content: lessonContent
+    }));
+    
     setIsSavedToast(true);
     setTimeout(() => setIsSavedToast(false), 2500);
   };
@@ -102,11 +129,11 @@ export default function TeacherLessonsManagerPage() {
           </div>
 
           <button
-            onClick={handleSaveOrder}
+            onClick={handleSaveLessonData}
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>บันทึกลำดับสื่อการสอน</span>
+            <span>บันทึกการเปลี่ยนแปลงทั้งหมด (Real-time)</span>
           </button>
         </div>
       </div>
@@ -114,7 +141,7 @@ export default function TeacherLessonsManagerPage() {
       {isSavedToast && (
         <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>บันทึกลำดับสื่อการสอนเรียบร้อยแล้ว</span>
+          <span>บันทึกข้อมูลเรียบร้อย ข้อมูลอัปเดตไปยังหน้านักเรียนแบบ Real-time แล้ว</span>
         </div>
       )}
 
@@ -220,6 +247,49 @@ export default function TeacherLessonsManagerPage() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Real-time Content Editor in Liquid Glass */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
+          <div>
+            <h2 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
+              <Presentation className="w-4 h-4 text-indigo-500" /> แก้ไขเนื้อหาและ Canva สไลด์
+            </h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              การเปลี่ยนแปลงที่นี่จะแสดงผลไปยังหน้านักเรียนแบบ Real-time
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+              Canva Presentation Embed URL
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              placeholder="https://www.canva.com/design/DAF.../view?embed"
+              value={canvaUrl}
+              onChange={(e) => setCanvaUrl(e.target.value)}
+            />
+            <p className="text-[11px] text-slate-500">
+              ตัวอย่าง: https://www.canva.com/design/DAF_example/view?embed
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+              เนื้อหาบทเรียน (HTML / Markdown)
+            </label>
+            <textarea
+              className="w-full h-48 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 font-mono resize-none leading-relaxed"
+              value={lessonContent}
+              onChange={(e) => setLessonContent(e.target.value)}
+            />
+          </div>
         </div>
       </div>
     </div>
