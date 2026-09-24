@@ -54,22 +54,80 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     if (supabase) {
       setIsLiveSupabase(true);
-      supabase.auth.getUser().then(({ data: { user } }) => {
-        if (user) {
-          supabase
+
+      const syncUser = async (user: any) => {
+        if (!user) return;
+        const meta = user.user_metadata || {};
+        const googleName = meta.full_name || meta.name || user.email?.split('@')[0] || 'นักเรียน';
+        const googleAvatar = meta.avatar_url || meta.picture || '';
+
+        localStorage.setItem('webai_demo_role', 'student');
+
+        try {
+          const { data } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
-            .single()
-            .then(({ data }) => {
-              if (data) {
-                setProfile(data);
-                setRole(data.role || 'student');
-              }
+            .single();
+
+          if (data) {
+            setProfile({
+              ...data,
+              full_name: data.full_name || googleName,
+              avatar_url: data.avatar_url || googleAvatar,
+              email: data.email || user.email,
             });
+            setRole(data.role || 'student');
+          } else {
+            const newProfile: Profile = {
+              id: user.id,
+              role: 'student',
+              full_name: googleName,
+              email: user.email,
+              avatar_url: googleAvatar,
+              created_at: new Date().toISOString(),
+            };
+            setProfile(newProfile);
+            setRole('student');
+
+            await supabase.from('profiles').upsert({
+              id: user.id,
+              role: 'student',
+              full_name: googleName,
+              avatar_url: googleAvatar,
+              email: user.email,
+            });
+          }
+        } catch {
+          setProfile({
+            id: user.id,
+            role: 'student',
+            full_name: googleName,
+            email: user.email,
+            avatar_url: googleAvatar,
+            created_at: new Date().toISOString(),
+          });
+          setRole('student');
         }
-        setIsLoading(false);
+      };
+
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          syncUser(user).finally(() => setIsLoading(false));
+        } else {
+          setIsLoading(false);
+        }
       });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          syncUser(session.user);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
     } else {
       setIsLoading(false);
     }
@@ -193,10 +251,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     if (supabase) {
       try {
+        localStorage.setItem('webai_demo_role', 'student');
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
+            redirectTo: `${window.location.origin}/auth/callback?next=/student/lessons`,
           },
         });
         if (error) {

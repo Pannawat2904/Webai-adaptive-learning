@@ -31,6 +31,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-ink overflow-hidden relative">
+      {/* Visible Grid Background (เส้นตาราง) */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-80" 
+        style={{
+          backgroundImage: 'linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+        aria-hidden="true"
+      />
       
       {/* Top Navigation */}
       <header className="fixed top-0 inset-x-0 z-50 bg-bg-base/80 backdrop-blur-xl border-b border-line">

@@ -39,9 +39,8 @@ export default function LoginPage() {
         <div className="space-y-3 pt-4">
           <button
             onClick={async () => {
+              localStorage.setItem('webai_demo_role', 'student');
               await signInWithGoogle();
-              // Do NOT call router.push('/student') here! 
-              // signInWithGoogle will redirect to Google's OAuth page.
             }}
             className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-full border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold text-sm hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all active:scale-95"
           >
