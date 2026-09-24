@@ -207,9 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
     } else {
-      loginAsStudent();
-      // Navigate manually for fallback mode since we removed router.push from the button
-      window.location.href = '/student';
+      alert("ระบบตรวจไม่พบ API Key ของ Supabase!\n\nสาเหตุที่เป็นไปได้:\n1. คุณยังไม่ได้ตั้งค่า Environment Variables ใน Vercel\n2. Vercel ยัง Build โปรเจกต์ไม่เสร็จ (ต้องรอประมาณ 2 นาที)\n\nระบบจึงไม่สามารถเปิดหน้าต่าง Google Login ได้ครับ");
     }
   };
 
