@@ -114,18 +114,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error parsing custom users', e);
     }
 
-    // 2. Check Super Admin credentials
-    if (
-      cleanUser === 'admin' &&
-      cleanPass === 'BallOOn84524092_*'
-    ) {
-      setRole('admin');
-      setProfile(MOCK_PROFILES.admin);
-      setIsAdminAuthenticated(true);
-      localStorage.setItem('webai_demo_role', 'admin');
-      localStorage.setItem('webai_admin_auth', 'true');
-      auditLog('login_success', 'auth', { role: 'admin', username: cleanUser });
-      return { success: true, role: 'admin' };
+    // 2. Check Super Admin credentials via Secure Server API
+    try {
+      const response = await fetch('/api/auth/superadmin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: cleanUser, password: cleanPass })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.role === 'admin') {
+          setRole('admin');
+          setProfile(MOCK_PROFILES.admin);
+          setIsAdminAuthenticated(true);
+          localStorage.setItem('webai_demo_role', 'admin');
+          localStorage.setItem('webai_admin_auth', 'true');
+          auditLog('login_success', 'auth', { role: 'admin', username: cleanUser, type: 'secure_api' });
+          return { success: true, role: 'admin' };
+        }
+      }
+    } catch (e) {
+      console.error('Secure login check failed', e);
     }
 
     // 3. Fallback to default demo teacher
