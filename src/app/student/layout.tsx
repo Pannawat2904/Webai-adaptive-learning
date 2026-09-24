@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { 
   LayoutDashboard, 
@@ -34,15 +34,22 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { profile, signOut } = useAuth();
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Check if user has explicitly logged in
+    const role = localStorage.getItem('webai_demo_role');
+    if (!role) {
+      router.push('/login');
+      return;
+    }
+    
     setMounted(true);
-    // Removed forced dark theme
-  }, []);
+  }, [router]);
 
   const handleLogout = async () => {
     await signOut();

@@ -87,7 +87,7 @@ export default function Home() {
             เรียนรู้ HTML, CSS และการพัฒนาเว็บไซต์ผ่านภารกิจ (Quest) ที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และเขียนโค้ดได้จริง
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/student" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
+            <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
               <Terminal className="w-5 h-5" /> เริ่มการผจญภัย
             </Link>
             <Link href="/student/lessons" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-surface border border-line text-ink font-bold text-lg flex items-center justify-center gap-3 hover:bg-soft transition-all hover:-translate-y-1">
