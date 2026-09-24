@@ -129,41 +129,25 @@ export default function StudentLayout({
 
           {/* User Account Info at Top-Right (Google Account) */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 pl-3 py-1.5 pr-2 rounded-2xl bg-surface border border-line shadow-sm hover:border-primary/40 transition-all">
-              <div className="flex flex-col text-right hidden sm:flex">
-                <span className="text-xs font-bold text-ink leading-tight truncate max-w-[180px]">
-                  {profile?.full_name || 'นักเรียน'}
-                </span>
-                <span className="text-[10px] text-muted font-mono leading-tight">
-                  {profile?.email || 'STUDENT'}
-                </span>
-              </div>
-              
-              {/* Profile Avatar from Google */}
-              {profile?.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt={profile.full_name || 'Account'} 
-                  referrerPolicy="no-referrer"
-                  className="w-9 h-9 rounded-xl object-cover border-2 border-primary/40 shadow-sm"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center p-[2px] shadow-sm">
-                  <div className="w-full h-full bg-surface rounded-[10px] flex items-center justify-center font-bold text-xs text-primary">
-                    {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-muted" />}
-                  </div>
+            <span className="text-sm font-bold text-ink truncate max-w-[220px]">
+              {profile?.full_name || 'นักเรียน'}
+            </span>
+            
+            {/* Profile Avatar from Google */}
+            {profile?.avatar_url ? (
+              <img 
+                src={profile.avatar_url} 
+                alt={profile.full_name || 'Account'} 
+                referrerPolicy="no-referrer"
+                className="w-9 h-9 rounded-full object-cover border border-primary/30 shadow-sm"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center p-[2px] shadow-sm">
+                <div className="w-full h-full bg-surface rounded-full flex items-center justify-center font-bold text-xs text-primary">
+                  {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-muted" />}
                 </div>
-              )}
-
-              {/* Quick Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="p-1.5 rounded-lg hover:bg-danger-dim text-muted hover:text-danger transition-colors ml-1"
-                title="ออกจากระบบ"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </header>
 
