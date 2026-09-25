@@ -156,11 +156,11 @@ export function Navbar() {
                 </span>
 
                 <Link
-                  href="/admin/login"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold text-xs shadow-2xs transition-all"
+                  href="/teacher/login"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-xs shadow-2xs transition-all"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
-                  <span>เข้าสู่ระบบครู/แอดมิน</span>
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>สำหรับครูผู้สอน</span>
                 </Link>
               </div>
             ) : (
@@ -266,12 +266,12 @@ export function Navbar() {
           {role === 'student' ? (
             <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 mt-2">
               <Link
-                href="/admin/login"
+                href="/teacher/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 transition-all"
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition-all"
               >
-                <ShieldCheck className="w-4 h-4 text-indigo-500" />
-                <span>เข้าสู่ระบบครู/แอดมิน (Admin Portal)</span>
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>สำหรับครูผู้สอน</span>
               </Link>
             </div>
           ) : (

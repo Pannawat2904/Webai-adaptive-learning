@@ -41,8 +41,8 @@ export function TeacherAdminGuard({
 
           <div className="space-y-3 pt-2">
             <Link
-              href="/admin/login"
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all"
+              href="/teacher/login"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-500/25 transition-all"
             >
               <span>เข้าสู่ระบบด้วย Username &amp; Password</span>
               <ArrowRight className="w-4 h-4" />
