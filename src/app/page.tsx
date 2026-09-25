@@ -3,11 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
-  LayoutDashboard, 
   BookOpen, 
   Terminal, 
   Map as MapIcon, 
-  Bot, 
   ShieldCheck, 
   Code2, 
   BrainCircuit,
@@ -47,26 +45,8 @@ export default function Home() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-2 p-1.5 bg-surface border border-line rounded-2xl">
-            <Link href="/student" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <LayoutDashboard className="w-4 h-4 text-accent" /> หน้าแรก
-            </Link>
-            <Link href="/student/lessons" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <MapIcon className="w-4 h-4 text-primary" /> บทเรียน
-            </Link>
-            <Link href="/student/game" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100 transition-colors">
-              <Gamepad2 className="w-4 h-4 text-indigo-500" /> เกมกู้เว็บพัง 🎮
-            </Link>
-            <Link href="/student/codelab" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <Terminal className="w-4 h-4 text-highlight" /> ห้องปฏิบัติการโค้ด
-            </Link>
-            <Link href="/student/tutor" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
-              <Bot className="w-4 h-4 text-secondary" /> ผู้ช่วย AI
-            </Link>
-          </nav>
-
           <div className="flex items-center gap-4">
-            <Link href="/teacher/login" className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line text-muted hover:bg-soft hover:text-ink transition-all text-sm font-bold">
+            <Link href="/teacher/login" className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line text-muted hover:bg-soft hover:text-ink transition-all text-sm font-bold">
               <ShieldCheck className="w-4 h-4" /> สำหรับผู้สอน
             </Link>
           </div>
