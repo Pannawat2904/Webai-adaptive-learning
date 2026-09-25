@@ -3,6 +3,13 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function POST(request: Request) {
   try {
+    if (request.headers.get('x-exam-mode') === 'true') {
+      return NextResponse.json(
+        { error: 'ไม่อนุญาตให้ใช้งาน AI ระหว่างการทำแบบทดสอบ' },
+        { status: 403 }
+      );
+    }
+
     const { question, currentUnit, currentCode } = await request.json();
 
     if (!question || typeof question !== 'string') {

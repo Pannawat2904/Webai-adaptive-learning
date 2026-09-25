@@ -106,6 +106,11 @@ function CodeLabContent() {
   };
 
   const handleSubmitAssignment = async () => {
+    if (typeof window !== 'undefined' && localStorage.getItem('webai_active_exam') === 'true') {
+      alert('ไม่อนุญาตให้ใช้งาน AI ตรวจสอบโค้ดในระหว่างที่กำลังทำแบบทดสอบ');
+      return;
+    }
+
     setIsSubmitting(true);
     setReviewResult(null);
 

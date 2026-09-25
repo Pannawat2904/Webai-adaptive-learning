@@ -59,6 +59,22 @@ function StudentLayoutContent({
   const [mounted, setMounted] = useState(false);
   const [lockedToast, setLockedToast] = useState<string | null>(null);
   const [, setProgressTick] = useState(0);
+  const [isExamActive, setIsExamActive] = useState(false);
+
+  useEffect(() => {
+    const checkExamStatus = () => {
+      if (typeof window !== 'undefined') {
+        setIsExamActive(localStorage.getItem('webai_active_exam') === 'true');
+      }
+    };
+    checkExamStatus();
+    window.addEventListener('storage', checkExamStatus);
+    window.addEventListener('webai_exam_status', checkExamStatus);
+    return () => {
+      window.removeEventListener('storage', checkExamStatus);
+      window.removeEventListener('webai_exam_status', checkExamStatus);
+    };
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -83,6 +99,12 @@ function StudentLayoutContent({
   };
 
   const handleLockedClick = (e: React.MouseEvent, item: NavItem) => {
+    if (item.name === 'AI ผู้ช่วยสอน' && (pathname === '/student/assessment' || isExamActive)) {
+      e.preventDefault();
+      setLockedToast('🔒 ไม่อนุญาตให้ใช้งาน AI ผู้ช่วยสอนระหว่างทำแบบทดสอบ');
+      setTimeout(() => setLockedToast(null), 3500);
+      return;
+    }
     if (item.stepKey && !isCourseStepUnlocked(item.stepKey)) {
       e.preventDefault();
       setLockedToast(`เมนู "${item.name}" ถูกล็อกอยู่ กรุณาทำตามลำดับขั้นตอนก่อนหน้าให้สำเร็จ`);
@@ -91,7 +113,8 @@ function StudentLayoutContent({
   };
 
   const renderNavItem = (item: NavItem) => {
-    const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : false;
+    const isAiLockedByExam = item.name === 'AI ผู้ช่วยสอน' && (pathname === '/student/assessment' || isExamActive);
+    const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : isAiLockedByExam;
 
     // Check active state
     let isActive = false;

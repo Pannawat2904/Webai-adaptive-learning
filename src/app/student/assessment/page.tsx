@@ -125,11 +125,36 @@ function AssessmentContent() {
     return () => clearInterval(interval);
   }, [hasStarted, isTestFinished, currentQuestion]);
 
+  // Exam Anti-Cheat Guard: Track active exam in storage to lock AI
+  useEffect(() => {
+    if (!hasStarted || isTestFinished) {
+      localStorage.removeItem('webai_active_exam');
+      window.dispatchEvent(new Event('webai_exam_status'));
+    }
+  }, [hasStarted, isTestFinished]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasStarted && !isTestFinished) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasStarted, isTestFinished]);
+
   // Gating Check: Post-test is locked until Quest is completed
   const isPosttestGated = selectedTestType === 'post_test' && !isCourseStepUnlocked('posttest');
 
   const startAssessment = () => {
     setHasStarted(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('webai_active_exam', 'true');
+      window.dispatchEvent(new Event('webai_exam_status'));
+    }
     const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
 
     if (selectedTestType === 'pre_test') {
@@ -252,6 +277,10 @@ function AssessmentContent() {
   // Completion: Fixed Pre-test
   const finishPretest = (finalAttempts: Attempt[]) => {
     setIsTestFinished(true);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('webai_active_exam');
+      window.dispatchEvent(new Event('webai_exam_status'));
+    }
     confetti({
       particleCount: 100,
       spread: 75,
@@ -298,6 +327,10 @@ function AssessmentContent() {
   // Completion: Adaptive Post-test / Re-test
   const finishAdaptiveTest = (finalAttempts: Attempt[]) => {
     setIsTestFinished(true);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('webai_active_exam');
+      window.dispatchEvent(new Event('webai_exam_status'));
+    }
     confetti({
       particleCount: 120,
       spread: 80,
@@ -577,6 +610,14 @@ function AssessmentContent() {
                     : 'เมื่อทำเสร็จสิ้น ระบบจะวิเคราะห์ระดับความสามารถ (Theta) รายบุคคล'}
                 </p>
               </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center shrink-0 text-[10px]">
+                  <Lock className="w-3 h-3" />
+                </span>
+                <p className="m-0 text-amber-700 dark:text-amber-400 font-medium">
+                  ล็อกการใช้งาน AI: ระบบจะปิดการใช้งาน AI ผู้ช่วยสอนทั้งหมดตลอดระยะเวลาทำข้อสอบ เพื่อความโปร่งใสและวัดความรู้จริง
+                </p>
+              </div>
             </div>
 
             {/* Post-test engine selector (only shown for post_test/re_test) */}
@@ -634,7 +675,11 @@ function AssessmentContent() {
           <div className="win-title">
             <em>&lt;/&gt;</em> {isPretest ? `pretest-${subDomain.toLowerCase()}.html` : 'assessment.html'}
           </div>
-          <div className="win-actions">
+          <div className="win-actions flex items-center gap-2">
+            <span className="chip chip-line mono text-xs text-amber-500 border-amber-500/30 flex items-center gap-1.5 font-bold">
+              <Lock className="w-3 h-3" />
+              <span>AI Locked</span>
+            </span>
             <span className="chip chip-green mono">
               <Clock className="w-3 h-3" />
               <span>{formatTime(totalTimerSeconds)}</span>
@@ -647,7 +692,7 @@ function AssessmentContent() {
           <aside className="hidden md:block w-[220px] shrink-0 border-r border-line p-5 bg-surface/50 overflow-y-auto">
             <div className="flex items-center gap-2 text-xs font-bold mb-3.5 text-ink">
               <Grid className="w-3.5 h-3.5 text-primary" />
-              <span>{isPretest ? 'ข้อสอบคงที่ (5 ข้อ)' : 'สถานะข้อสอบ CAT'}</span>
+              <span>{isPretest ? 'ข้อสอบคงที่ (20 ข้อ)' : 'สถานะข้อสอบ CAT'}</span>
             </div>
 
             <div className="grid grid-cols-4 gap-1.5">

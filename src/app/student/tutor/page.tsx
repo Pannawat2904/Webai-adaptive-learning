@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import {
@@ -10,7 +11,9 @@ import {
   ShieldAlert,
   Loader2,
   Terminal,
-  Code2
+  Code2,
+  Lock,
+  ArrowLeft
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -101,6 +104,66 @@ function TutorChatContent() {
       setLoading(false);
     }
   };
+
+  const [isExamActive, setIsExamActive] = useState(false);
+
+  useEffect(() => {
+    const checkExam = () => {
+      if (typeof window !== 'undefined') {
+        setIsExamActive(localStorage.getItem('webai_active_exam') === 'true');
+      }
+    };
+    checkExam();
+    window.addEventListener('storage', checkExam);
+    window.addEventListener('webai_exam_status', checkExam);
+    return () => {
+      window.removeEventListener('storage', checkExam);
+      window.removeEventListener('webai_exam_status', checkExam);
+    };
+  }, []);
+
+  if (isExamActive) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4 font-sans">
+        <div className="win p-8 sm:p-10 text-center flex flex-col items-center bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-5 border border-amber-500/20 shadow-inner">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold mb-3">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Exam Security Mode</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mb-2">
+            ไม่อนุญาตให้ใช้งาน AI ระหว่างการสอบ
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6 leading-relaxed">
+            ระบบตรวจพบว่าคุณกำลังอยู่ในระหว่างการทำแบบทดสอบ เพื่อความซื่อสัตย์ในการทดสอบและวัดระดับความรู้ที่แท้จริงของผู้เรียน ระบบจึงล็อกการใช้งาน AI ผู้ช่วยสอนชั่วคราว
+          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <Link
+              href="/student/assessment"
+              className="btn btn-primary w-full sm:w-auto px-6 py-2.5 text-xs font-bold shadow-md flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>กลับไปทำแบบทดสอบต่อ</span>
+            </Link>
+            <button
+              onClick={() => {
+                if (confirm('คุณต้องการยกเลิกการทำแบบทดสอบใช่หรือไม่? การสอบครั้งนี้จะไม่ถูกบันทึก')) {
+                  localStorage.removeItem('webai_active_exam');
+                  window.dispatchEvent(new Event('webai_exam_status'));
+                  setIsExamActive(false);
+                }
+              }}
+              className="btn btn-ghost w-full sm:w-auto px-5 py-2.5 text-xs text-slate-400 hover:text-red-500 font-bold"
+            >
+              ยกเลิกการสอบ (เพื่อปลดล็อก AI)
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto h-[calc(100vh-8rem)] flex flex-col font-sans">
