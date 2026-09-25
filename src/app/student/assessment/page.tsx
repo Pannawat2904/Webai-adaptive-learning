@@ -50,6 +50,7 @@ import {
   Lock,
   Terminal,
   Trophy,
+  Sparkles,
 } from 'lucide-react';
 import { SystemPrinciplesModal } from '@/components/modals/SystemPrinciplesModal';
 
@@ -441,7 +442,7 @@ function AssessmentContent() {
   // --- GATING INTERCEPT SCREEN ---
   if (isPosttestGated && !hasStarted && !isTestFinished) {
     return (
-      <div className="main-inner enter max-w-[850px] mx-auto pt-6">
+      <div className="main-inner enter w-full max-w-4xl mx-auto pt-6">
         <div className="card p-8 sm:p-10 text-center border-amber-500/30 bg-amber-500/5 shadow-lg">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
             <Lock className="w-8 h-8" />
@@ -480,7 +481,7 @@ function AssessmentContent() {
     const se = selectedEngine === 'irt-3pl' ? irtEngineState.standardError.toFixed(2) : 'N/A';
 
     return (
-      <div className="main-inner enter max-w-[850px] mx-auto pt-4">
+      <div className="main-inner enter w-full max-w-5xl mx-auto py-6">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-3 shadow-md shadow-success/20">
             <CheckCircle2 className="w-8 h-8" />
@@ -573,90 +574,175 @@ function AssessmentContent() {
     const isPretest = selectedTestType === 'pre_test';
 
     return (
-      <div className="main-inner enter max-w-[850px] mx-auto pt-4">
-        <section className="win" id="screen-lobby">
-          <div className="win-bar">
-            <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-            <div className="win-title"><em>&lt;/&gt;</em> {isPretest ? 'pretest.html' : 'posttest.html'}</div>
+      <div className="main-inner enter w-full h-[calc(100dvh-100px)] md:h-full max-h-full flex flex-col min-h-0 overflow-hidden">
+        <section className="win w-full flex-1 flex flex-col min-h-0 rounded-[24px] shadow-xl border border-line bg-surface/90 overflow-hidden" id="screen-lobby">
+          <div className="win-bar shrink-0 py-2.5 px-6 flex items-center justify-between border-b border-line bg-surface/80">
+            <div className="win-dots flex items-center gap-2">
+              <i className="r"></i><i className="y"></i><i className="g"></i>
+            </div>
+            <div className="win-title mono text-xs font-semibold">
+              <em>&lt;/&gt;</em> {isPretest ? 'pretest-curriculum.html' : 'adaptive-cat-assessment.html'}
+            </div>
+            <div className="win-actions flex items-center gap-2">
+              <span className="chip chip-line mono text-xs text-amber-500 border-amber-500/30 flex items-center gap-1.5 font-bold">
+                <Lock className="w-3 h-3" />
+                <span>AI Assistance: Locked</span>
+              </span>
+              <span className="chip chip-blue mono text-xs font-bold">
+                <Sparkles className="w-3 h-3 text-primary" />
+                <span>{isPretest ? '20 ข้อ • วัดระดับก่อนเรียน' : 'Adaptive CAT • หลังเรียน'}</span>
+              </span>
+            </div>
           </div>
-          <div className="win-body p-6 sm:p-8">
-            <div className="max-w-xl mx-auto text-center pb-2">
-              <div className="inline-flex p-3.5 rounded-2xl bg-primary/10 text-primary mb-3">
-                {isPretest ? <BookOpen className="w-7 h-7" /> : <Shield className="w-7 h-7" />}
-              </div>
-              <h1 className="text-xl sm:text-2xl font-black text-ink mb-1.5">
-                {isPretest
-                  ? 'แบบทดสอบก่อนเรียน (Pre-test) — เรื่อง โครงสร้างภาษา HTML'
-                  : 'แบบทดสอบหลังเรียน (Post-test: Adaptive CAT) — เรื่อง โครงสร้างภาษา HTML'}
-              </h1>
-              <p className="text-xs sm:text-sm text-muted mb-6">
-                {isPretest
-                  ? 'ชุดคำถามคงที่ 20 ข้อ (ครอบคลุมเนื้อหาภาพรวมทุกหน่วย) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่บทเรียน ไม่ปรับระดับความยาก'
-                  : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT) ครอบคลุมทุกหน่วยการเรียนรู้'}
-              </p>
-            </div>
 
-            {/* Instruction Card */}
-            <div className="card p-5 max-w-xl mx-auto mb-6 border-line bg-surface/70 space-y-3 text-xs leading-relaxed">
-              <div className="font-bold text-ink flex items-center gap-2 text-sm border-b border-line pb-2">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <span>คำชี้แจงในการทำแบบทดสอบ</span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">1</span>
-                <p className="m-0">
-                  {isPretest
-                    ? 'แบบทดสอบชุดนี้มีจำนวน 20 ข้อ (ครอบคลุมภาพรวมเนื้อหาทุกเรื่อง) เป็นชุดคำถามคงที่'
-                    : 'แบบทดสอบเป็นแบบปรับเหมาะ (Adaptive) ความยากจะปรับขึ้น/ลงตามคำตอบ'}
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">2</span>
-                <p className="m-0">เมื่อเลือกคำตอบและกดยืนยันแล้ว จะไม่สามารถย้อนกลับมาแก้ไขได้</p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">3</span>
-                <p className="m-0">
-                  {isPretest
-                    ? 'เมื่อทำเสร็จสิ้น ระบบจะปลดล็อกเนื้อหาบทเรียน HTML ทั้งหมดให้โดยอัตโนมัติ'
-                    : 'เมื่อทำเสร็จสิ้น ระบบจะวิเคราะห์ระดับความสามารถ (Theta) รายบุคคล'}
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center shrink-0 text-[10px]">
-                  <Lock className="w-3 h-3" />
-                </span>
-                <p className="m-0 text-amber-700 dark:text-amber-400 font-medium">
-                  ล็อกการใช้งาน AI: ระบบจะปิดการใช้งาน AI ผู้ช่วยสอนทั้งหมดตลอดระยะเวลาทำข้อสอบ เพื่อความโปร่งใสและวัดความรู้จริง
-                </p>
-              </div>
-            </div>
+          <div className="p-6 lg:p-8 flex-1 overflow-y-auto w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left Column: Hero Title, Guidelines & Start Button */}
+              <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20 mb-3.5">
+                    {isPretest ? <BookOpen className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                    <span>การประเมินผลสัมฤทธิ์ • หน่วยที่ 3 งานสร้างหน้าเว็บด้วย HTML</span>
+                  </div>
 
-            {/* Post-test engine selector (only shown for post_test/re_test) */}
-            {!isPretest && (
-              <div className="max-w-xl mx-auto mb-6 p-4 rounded-xl border border-line bg-bg-base">
-                <label className="block text-xs font-bold text-ink mb-1.5">
-                  โมเดลประมวลผล Adaptive
-                </label>
-                <select
-                  value={selectedEngine}
-                  onChange={(e) => setSelectedEngine(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-line bg-surface text-xs font-semibold"
-                >
-                  <option value="irt-3pl">โมเดล Item Response Theory 3PL (CAT - แนะนำ)</option>
-                  <option value="rule-based">โมเดล Rule-based Stepwise</option>
-                </select>
-              </div>
-            )}
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-ink tracking-tight mb-2.5">
+                    {isPretest
+                      ? 'แบบทดสอบก่อนเรียน (Pre-test)'
+                      : 'แบบทดสอบหลังเรียน (Adaptive Post-test)'}
+                  </h1>
 
-            <div className="text-center pt-2">
-              <button
-                onClick={startAssessment}
-                className="btn btn-primary px-8 py-3 text-sm font-bold shadow-md cursor-pointer"
-              >
-                <Play className="w-4 h-4 mr-1.5" />
-                <span>เริ่มทำแบบทดสอบทันที</span>
-              </button>
+                  <p className="text-xs sm:text-sm text-muted leading-relaxed">
+                    {isPretest
+                      ? 'ชุดคำถามมาตรฐาน 20 ข้อ (ครอบคลุมเนื้อหาภาพรวมทั้ง 5 เรื่องย่อย) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่บทเรียน ระบบจะบันทึกผลเป็นระดับทักษะเริ่มต้น'
+                      : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT ด้วยโมเดล IRT 3PL) เพื่อวัดระดับทักษะจริง'}
+                  </p>
+                </div>
+
+                {/* Instruction Card */}
+                <div className="card p-5 border-line bg-surface/70 space-y-3 text-xs leading-relaxed rounded-2xl shadow-xs">
+                  <div className="font-bold text-ink flex items-center gap-2 text-sm border-b border-line pb-2.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-500" />
+                    <span>คำชี้แจงและข้อกำหนดในการทำแบบทดสอบ</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface border border-line/60">
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">1</span>
+                      <p className="m-0 text-muted">
+                        {isPretest
+                          ? 'ข้อสอบมีจำนวน 20 ข้อ ครอบคลุมเนื้อหาทั้ง 5 หน่วยการเรียนรู้'
+                          : 'ข้อสอบแบบปรับเหมาะ ปรับตามคำตอบของผู้เรียน'}
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface border border-line/60">
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">2</span>
+                      <p className="m-0 text-muted">
+                        เลือกคำตอบ 1 ข้อแล้วกดปุ่ม "ข้อถัดไป ➔" เมื่อยืนยันแล้วแก้ไขไม่ได้
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-surface border border-line/60">
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">3</span>
+                      <p className="m-0 text-muted">
+                        {isPretest
+                          ? 'เมื่อทำเสร็จ ระบบจะปลดล็อกขั้นตอนที่ 2: บทเรียน HTML ให้ทันที'
+                          : 'เมื่อทำเสร็จ ระบบจะประมวลผลระดับความสามารถ (Theta) รายบุคคล'}
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300">
+                      <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="m-0 text-[11px] font-medium leading-snug">
+                        ระบบล็อกการใช้งาน AI ผู้ช่วยสอนทั้งหมดตลอดระยะเวลาทำข้อสอบ
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Post-test engine selector (only shown for post_test/re_test) */}
+                {!isPretest && (
+                  <div className="p-4 rounded-xl border border-line bg-bg-base">
+                    <label className="block text-xs font-bold text-ink mb-1.5">
+                      โมเดลประมวลผล Adaptive
+                    </label>
+                    <select
+                      value={selectedEngine}
+                      onChange={(e) => setSelectedEngine(e.target.value as any)}
+                      className="w-full px-3 py-2 rounded-xl border border-line bg-surface text-xs font-semibold"
+                    >
+                      <option value="irt-3pl">โมเดล Item Response Theory 3PL (CAT - แนะนำ)</option>
+                      <option value="rule-based">โมเดล Rule-based Stepwise</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Start Button CTA */}
+                <div className="pt-2">
+                  <button
+                    onClick={startAssessment}
+                    className="btn btn-primary px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg shadow-primary/25 rounded-xl cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] transition-transform w-full sm:w-auto"
+                  >
+                    <Play className="w-5 h-5 fill-current" />
+                    <span>เริ่มทำแบบทดสอบทันที (Start Test)</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Curriculum Scope & Assessment Structure */}
+              <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+                {/* Curriculum Units Overview */}
+                <div className="card p-5 border-line bg-surface/70 rounded-2xl shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-line pb-2.5">
+                    <div className="font-bold text-xs text-ink flex items-center gap-1.5">
+                      <Grid className="w-3.5 h-3.5 text-primary" />
+                      <span>ขอบเขตหัวข้อที่ทดสอบ (5 หน่วยการเรียนรู้)</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                      20 ข้อ
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {[
+                      { code: 'H1', name: '3.1 โครงสร้างพื้นฐาน HTML5', count: '4 ข้อ' },
+                      { code: 'H2', name: '3.2 ข้อความและลิงก์', count: '4 ข้อ' },
+                      { code: 'H3', name: '3.3 รูปภาพและสื่อมัลติมีเดีย', count: '4 ข้อ' },
+                      { code: 'H4', name: '3.4 ตารางและการจัดข้อมูล', count: '4 ข้อ' },
+                      { code: 'H5', name: '3.5 ฟอร์มและการรับข้อมูล', count: '4 ข้อ' },
+                    ].map((unit) => (
+                      <div
+                        key={unit.code}
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-line text-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary font-bold font-mono text-[10px] flex items-center justify-center">
+                            {unit.code}
+                          </span>
+                          <span className="font-medium text-ink">{unit.name}</span>
+                        </div>
+                        <span className="text-[11px] font-mono font-bold text-muted bg-surface/80 px-2 py-0.5 rounded-md border border-line/60">
+                          {unit.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Metrics / System Status */}
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-surface border border-line flex flex-col justify-between">
+                    <span className="text-[10px] font-bold text-muted uppercase">รูปแบบคำถาม</span>
+                    <span className="text-sm font-black text-ink mt-1">ปรนัย 4 ตัวเลือก</span>
+                    <span className="text-[10px] text-muted mt-0.5">ก, ข, ค, ง (Single Choice)</span>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-surface border border-line flex flex-col justify-between">
+                    <span className="text-[10px] font-bold text-muted uppercase">สถานะระบบ</span>
+                    <span className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      พร้อมใช้งาน
+                    </span>
+                    <span className="text-[10px] text-muted mt-0.5">Online & Calibrated</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
