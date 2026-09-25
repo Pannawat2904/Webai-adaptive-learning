@@ -28,14 +28,19 @@ interface NavItem {
   stepKey?: CourseStepKey;
 }
 
-const navItems: NavItem[] = [
+// 1. ลำดับขั้นตอนการเรียนรู้หลัก (Sequential Gated Flow)
+const mainNavItems: NavItem[] = [
   { name: 'แดชบอร์ด', href: '/student', icon: LayoutDashboard },
   { name: 'แบบทดสอบก่อนเรียน', href: '/student/assessment?type=pre_test', icon: ClipboardList, stepKey: 'pretest' },
   { name: 'บทเรียน HTML', href: '/student/lessons', icon: BookOpen, stepKey: 'lessons' },
   { name: 'เกมกู้เว็บพัง', href: '/student/game', icon: Gamepad2, stepKey: 'game' },
-  { name: 'ฝึกเขียนโค้ด', href: '/student/codelab', icon: Code2 },
   { name: 'ตะลุยด่าน', href: '/student/quests', icon: Sparkles, stepKey: 'quest' },
   { name: 'แบบทดสอบหลังเรียน', href: '/student/assessment?type=post_test', icon: Trophy, stepKey: 'posttest' },
+];
+
+// 2. เครื่องมือเสริมและพื้นที่ฝึกฝนอิสระ (เปิดให้เข้าใช้งานได้ตลอดเวลา)
+const toolNavItems: NavItem[] = [
+  { name: 'ฝึกเขียนโค้ด', href: '/student/codelab', icon: Code2 },
   { name: 'AI ผู้ช่วยสอน', href: '/student/tutor', icon: Bot },
   { name: 'โปรไฟล์', href: '/student/profile', icon: User },
 ];
@@ -85,6 +90,62 @@ function StudentLayoutContent({
     }
   };
 
+  const renderNavItem = (item: NavItem) => {
+    const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : false;
+
+    // Check active state
+    let isActive = false;
+    if (item.href === '/student') {
+      isActive = pathname === '/student';
+    } else if (item.href.includes('type=pre_test')) {
+      isActive = pathname === '/student/assessment' && searchParams.get('type') === 'pre_test';
+    } else if (item.href.includes('type=post_test')) {
+      isActive = pathname === '/student/assessment' && searchParams.get('type') === 'post_test';
+    } else {
+      isActive = pathname.startsWith(item.href);
+    }
+
+    return (
+      <Link
+        key={item.name}
+        href={item.href}
+        onClick={(e) => handleLockedClick(e, item)}
+        className={`flex items-center ${
+          isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'
+        } py-2.5 rounded-xl font-bold text-sm transition-all duration-300 relative group ${
+          isLocked
+            ? 'text-muted/60 hover:text-muted cursor-not-allowed opacity-60'
+            : isActive
+            ? 'text-primary bg-primary-dim border border-primary/20 shadow-sm'
+            : 'text-muted hover:text-primary hover:bg-primary-dim/50 border border-transparent'
+        }`}
+        title={isSidebarCollapsed ? item.name : undefined}
+      >
+        {isActive && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-primary rounded-r-md shadow-sm" />
+        )}
+        <div className="relative flex-shrink-0">
+          <item.icon
+            className={`w-[18px] h-[18px] ${
+              isLocked
+                ? 'opacity-40'
+                : isActive
+                ? 'text-primary'
+                : 'opacity-70 group-hover:text-primary'
+            }`}
+            strokeWidth={2.5}
+          />
+        </div>
+        {!isSidebarCollapsed && (
+          <span className="flex-1 truncate">{item.name}</span>
+        )}
+        {!isSidebarCollapsed && isLocked && (
+          <Lock className="w-3.5 h-3.5 text-muted/60 shrink-0" />
+        )}
+      </Link>
+    );
+  };
+
   if (!mounted) return null;
 
   return (
@@ -125,61 +186,21 @@ function StudentLayoutContent({
         </div>
 
         <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto overflow-x-hidden scrollbar-hide">
-          {navItems.map((item) => {
-            const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : false;
+          {/* Main Course Steps */}
+          {mainNavItems.map(renderNavItem)}
 
-            // Check active state
-            let isActive = false;
-            if (item.href === '/student') {
-              isActive = pathname === '/student';
-            } else if (item.href.includes('type=pre_test')) {
-              isActive = pathname === '/student/assessment' && searchParams.get('type') === 'pre_test';
-            } else if (item.href.includes('type=post_test')) {
-              isActive = pathname === '/student/assessment' && searchParams.get('type') === 'post_test';
-            } else {
-              isActive = pathname.startsWith(item.href);
-            }
+          {/* Section Divider: Tools & Free Practice */}
+          <div className="pt-3 pb-1">
+            <div className="border-t border-line/60 my-1" />
+            {!isSidebarCollapsed && (
+              <div className="px-3 pt-2 pb-1 text-[11px] font-bold text-muted uppercase tracking-wider">
+                เครื่องมือเสริม
+              </div>
+            )}
+          </div>
 
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleLockedClick(e, item)}
-                className={`flex items-center ${
-                  isSidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-4'
-                } py-2.5 rounded-xl font-bold text-sm transition-all duration-300 relative group ${
-                  isLocked
-                    ? 'text-muted/60 hover:text-muted cursor-not-allowed opacity-60'
-                    : isActive
-                    ? 'text-primary bg-primary-dim border border-primary/20 shadow-sm'
-                    : 'text-muted hover:text-primary hover:bg-primary-dim/50 border border-transparent'
-                }`}
-                title={isSidebarCollapsed ? item.name : undefined}
-              >
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-primary rounded-r-md shadow-sm" />
-                )}
-                <div className="relative flex-shrink-0">
-                  <item.icon
-                    className={`w-[18px] h-[18px] ${
-                      isLocked
-                        ? 'opacity-40'
-                        : isActive
-                        ? 'text-primary'
-                        : 'opacity-70 group-hover:text-primary'
-                    }`}
-                    strokeWidth={2.5}
-                  />
-                </div>
-                {!isSidebarCollapsed && (
-                  <span className="flex-1 truncate">{item.name}</span>
-                )}
-                {!isSidebarCollapsed && isLocked && (
-                  <Lock className="w-3.5 h-3.5 text-muted/60 shrink-0" />
-                )}
-              </Link>
-            );
-          })}
+          {/* Free Practice & Tools */}
+          {toolNavItems.map(renderNavItem)}
         </nav>
 
         <div className="mt-auto pt-4 pb-6 border-t border-line px-3 flex flex-col gap-2">
@@ -246,7 +267,7 @@ function StudentLayoutContent({
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 pb-safe">
         <div className="absolute inset-0 bg-surface/90 backdrop-blur-xl border-t border-line" />
         <nav className="relative flex items-center justify-around pt-3 pb-6 px-2">
-          {navItems.slice(0, 5).map((item) => {
+          {mainNavItems.slice(0, 4).concat(toolNavItems.slice(0, 1)).map((item) => {
             const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : false;
             let isActive = false;
             if (item.href === '/student') {
@@ -264,7 +285,7 @@ function StudentLayoutContent({
             if (item.name === 'แบบทดสอบก่อนเรียน') shortName = 'ก่อนเรียน';
             if (item.name === 'บทเรียน HTML') shortName = 'เรียน';
             if (item.name === 'เกมกู้เว็บพัง') shortName = 'เกม';
-            if (item.name === 'แบบทดสอบหลังเรียน') shortName = 'หลังเรียน';
+            if (item.name === 'ฝึกเขียนโค้ด') shortName = 'โค้ด';
 
             return (
               <Link
