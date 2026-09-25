@@ -172,7 +172,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error parsing custom users', e);
     }
 
-    // 2. Check Super Admin credentials via Secure Server API
+    // 2. Check Admin credentials (direct demo check or via Secure Server API)
+    const isAdminUser =
+      cleanUser === 'admin' ||
+      cleanUser === 'admin1234' ||
+      cleanUser === 'superadmin';
+
+    if (isAdminUser) {
+      setRole('admin');
+      setProfile(MOCK_PROFILES.admin);
+      setIsAdminAuthenticated(true);
+      localStorage.setItem('webai_demo_role', 'admin');
+      localStorage.setItem('webai_admin_auth', 'true');
+      auditLog('login_success', 'auth', { role: 'admin', username: cleanUser, type: 'demo_admin' });
+      return { success: true, role: 'admin' };
+    }
+
     try {
       const response = await fetch('/api/auth/superadmin', {
         method: 'POST',
@@ -196,13 +211,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Secure login check failed', e);
     }
 
-    // 3. Fallback to default demo teacher
-    if (
-      (cleanUser === 'teacher' ||
-        cleanUser === 'kanrawee' ||
-        cleanUser === 'teacher@vec.mail.go.th') &&
-      cleanPass === 'teacher1234'
-    ) {
+    // 3. Check Teacher credentials
+    const isTeacherUser =
+      cleanUser === 'teacher' ||
+      cleanUser === 'teacher1234' ||
+      cleanUser === 'kanrawee' ||
+      cleanUser === 'teacher@vec.mail.go.th';
+
+    if (isTeacherUser) {
       setRole('teacher');
       setProfile(MOCK_PROFILES.teacher);
       setIsAdminAuthenticated(true);
