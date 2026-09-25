@@ -13,7 +13,7 @@ import { createClient } from './supabase/client';
 export const DB_KEYS = {
   UNITS: 'webai_db_units_v2',
   LESSONS: 'webai_db_lessons_v2',
-  QUESTIONS: 'webai_db_questions_v2',
+  QUESTIONS: 'webai_db_questions_v3',
   STUDENTS: 'webai_db_students_v2',
   SESSIONS: 'webai_db_sessions_v2',
 } as const;
