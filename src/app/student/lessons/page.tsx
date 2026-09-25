@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getUnits, subscribeToDatabase } from '@/lib/database-service';
 import { Unit } from '@/types/database';
+import { getUnitProgress, subscribeToProgress } from '@/lib/progress-service';
 import {
   Zap,
   Lock,
@@ -14,6 +15,8 @@ import {
   LayoutTemplate,
   FormInput,
   Cpu,
+  BookOpen,
+  ClipboardList,
 } from 'lucide-react';
 
 const SUBDOMAIN_ICONS: Record<string, React.ElementType> = {
@@ -26,6 +29,7 @@ const SUBDOMAIN_ICONS: Record<string, React.ElementType> = {
 
 export default function StudentJourneyPage() {
   const [units, setUnits] = useState<Unit[]>([]);
+  const [, setProgressTick] = useState(0);
 
   const loadData = () => {
     setUnits(getUnits());
@@ -33,12 +37,18 @@ export default function StudentJourneyPage() {
 
   useEffect(() => {
     loadData();
-    const unsubscribe = subscribeToDatabase((event) => {
+    const unsubDb = subscribeToDatabase((event) => {
       if (event.type === 'unit' || event.type === 'reset') {
         loadData();
       }
     });
-    return () => unsubscribe();
+    const unsubProgress = subscribeToProgress(() => {
+      setProgressTick((prev) => prev + 1);
+    });
+    return () => {
+      unsubDb();
+      unsubProgress();
+    };
   }, []);
 
   return (
@@ -70,11 +80,13 @@ export default function StudentJourneyPage() {
           {units.map((unit, index) => {
             const isLeft = index % 2 === 0;
             const Icon = SUBDOMAIN_ICONS[unit.sub_domain_code] || Globe;
+            const progress = getUnitProgress(unit.id);
+            const isPretestDone = progress.pretest_done;
+            const isPosttestDone = progress.posttest_done;
 
-            // Simple progression logic for demo: H1 mastered, H2 in progress, H3-H5 open
-            let status = 'available';
-            if (index === 0) status = 'mastered';
-            else if (index === 1) status = 'progress';
+            let status = 'not_started';
+            if (isPosttestDone) status = 'mastered';
+            else if (isPretestDone) status = 'progress';
 
             let lineGlow = '';
             if (status === 'mastered') {
@@ -83,28 +95,57 @@ export default function StudentJourneyPage() {
               lineGlow = 'drop-shadow-[0_0_15px_var(--primary)]';
             }
 
+            const targetUrl = !isPretestDone
+              ? `/student/assessment?unit=${unit.id}&type=pre_test`
+              : `/student/lessons/${unit.id}`;
+
             return (
               <div key={unit.id} className={`flex flex-col md:flex-row items-center w-full ${isLeft ? 'md:flex-row-reverse' : ''}`}>
                 {/* Node Card */}
                 <div className="w-full md:w-1/2 flex px-4 md:px-12 pl-16 md:pl-12">
                   <Link 
-                    href={`/student/lessons/${unit.id}`}
+                    href={targetUrl}
                     className={`w-full card p-5 relative border-2 card-hover cursor-pointer ${
-                      status === 'progress' ? 'border-primary shadow-[0_0_20px_var(--primary-dim)]' : 'border-line'
+                      status === 'progress'
+                        ? 'border-primary shadow-[0_0_20px_var(--primary-dim)]'
+                        : status === 'mastered'
+                        ? 'border-emerald-500/50'
+                        : 'border-line'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-3">
                       <span className="font-mono text-[10px] font-bold text-muted uppercase tracking-widest">{unit.sub_domain_code}</span>
                       {status === 'mastered' && <CheckCircle2 className="w-5 h-5 text-success" />}
                       {status === 'progress' && <Zap className="w-5 h-5 text-primary animate-pulse" />}
+                      {status === 'not_started' && <Lock className="w-4 h-4 text-amber-500" />}
                     </div>
 
                     <h3 className="font-bold text-ink text-base mb-2 group-hover:text-primary transition-colors">
                       {unit.title}
                     </h3>
-                    <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                    <p className="text-xs text-muted leading-relaxed line-clamp-2 mb-3">
                       {unit.description}
                     </p>
+
+                    <div className="pt-2 border-t border-line/60 flex items-center justify-between text-xs">
+                      {!isPretestDone ? (
+                        <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                          <ClipboardList className="w-3.5 h-3.5" />
+                          ทำ Pre-test ก่อนเรียน
+                        </span>
+                      ) : isPosttestDone ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          ผ่านครบ 6 ขั้นตอนแล้ว
+                        </span>
+                      ) : (
+                        <span className="text-primary font-semibold flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          เข้าสู่บทเรียน
+                        </span>
+                      )}
+                      <span className="font-mono text-[11px] text-muted">ขั้น 1-6 &gt;</span>
+                    </div>
                   </Link>
                 </div>
 

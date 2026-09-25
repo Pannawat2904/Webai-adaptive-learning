@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { Question, SubDomainCode, Attempt, TestSession } from '@/types/database';
+import { Question, SubDomainCode, Attempt, TestSession, SUB_DOMAINS } from '@/types/database';
 import { useAuth } from '@/lib/auth-context';
 import {
   createInitialAdaptiveState,
@@ -16,7 +17,7 @@ import {
   createInitialIRTState,
   getNextIRTQuestion,
   recordIRTAnswerAndUpdateState,
-  IRTEngineState
+  IRTEngineState,
 } from '@/lib/irt/engine-adapter';
 import {
   getQuestions,
@@ -24,6 +25,14 @@ import {
   saveStudentProgress,
   subscribeToDatabase,
 } from '@/lib/database-service';
+import { getFixedPretestQuestions } from '@/lib/pretest';
+import {
+  normalizeUnit,
+  isStepUnlocked,
+  setUnitStepCompleted,
+  getStepUrl,
+} from '@/lib/progress-service';
+import { UnitPathStepper } from '@/components/UnitPathStepper';
 import {
   Clock,
   ArrowRight,
@@ -36,18 +45,32 @@ import {
   BookOpen,
   AlertTriangle,
   BrainCircuit,
-  Check
+  Check,
+  Lock,
+  Terminal,
+  Trophy,
 } from 'lucide-react';
 import { SystemPrinciplesModal } from '@/components/modals/SystemPrinciplesModal';
 
 function AssessmentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const targetSubDomain = searchParams.get('subdomain') as SubDomainCode | null;
-  const isRetest = searchParams.get('type') === 're_test';
+
+  // Route & Unit parameters
+  const rawType = searchParams.get('type');
+  const unitParam = searchParams.get('unit') || searchParams.get('subdomain');
+  const { unitId, subDomain } = normalizeUnit(unitParam);
+  const isRetest = rawType === 're_test';
 
   const { profile, auditLog } = useAuth();
 
+  // Test mode selection
+  const [selectedTestType, setSelectedTestType] = useState<'pre_test' | 'post_test' | 're_test'>(
+    rawType === 'post_test' ? 'post_test' : isRetest ? 're_test' : 'pre_test'
+  );
+  const [selectedEngine, setSelectedEngine] = useState<'rule-based' | 'irt-3pl'>('irt-3pl');
+
+  // Dynamic question bank
   const [questionsPool, setQuestionsPool] = useState<Question[]>([]);
 
   useEffect(() => {
@@ -60,16 +83,29 @@ function AssessmentContent() {
     return () => unsubscribe();
   }, []);
 
-  const [hasStarted, setHasStarted] = useState(false);
-  const [selectedTestType, setSelectedTestType] = useState<'pre_test' | 'post_test' | 're_test'>(isRetest ? 're_test' : 'pre_test');
-  const [selectedEngine, setSelectedEngine] = useState<'rule-based' | 'irt-3pl'>('irt-3pl');
+  useEffect(() => {
+    if (rawType === 'pre_test') {
+      setSelectedTestType('pre_test');
+    } else if (rawType === 'post_test') {
+      setSelectedTestType('post_test');
+    }
+  }, [rawType]);
 
+  // Adaptive Engine States (Used strictly for post_test and re_test)
   const [engineState, setEngineState] = useState<AdaptiveEngineState>(() =>
-    createInitialAdaptiveState(targetSubDomain)
+    createInitialAdaptiveState(subDomain)
   );
-  const [irtEngineState, setIrtEngineState] = useState<IRTEngineState>(() => 
-    createInitialIRTState(targetSubDomain)
+  const [irtEngineState, setIrtEngineState] = useState<IRTEngineState>(() =>
+    createInitialIRTState(subDomain)
   );
+
+  // Fixed Pre-test States (Strictly fixed 5 questions, not adaptive)
+  const [pretestQuestions, setPretestQuestions] = useState<Question[]>([]);
+  const [pretestIndex, setPretestIndex] = useState(0);
+  const [pretestAttempts, setPretestAttempts] = useState<Attempt[]>([]);
+
+  // Runtime Question & UI States
+  const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasSubmittedAnswer, setHasSubmittedAnswer] = useState(false);
@@ -88,22 +124,36 @@ function AssessmentContent() {
     return () => clearInterval(interval);
   }, [hasStarted, isTestFinished, currentQuestion]);
 
+  // Gating Check: Post-test is locked until Quest (Step 5) is completed
+  const isPosttestGated = selectedTestType === 'post_test' && !isStepUnlocked(unitId, 'posttest');
+
   const startAssessment = () => {
     setHasStarted(true);
-    let q: Question | null = null;
     const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
-    
-    if (selectedEngine === 'rule-based') {
-      q = getNextAdaptiveQuestion(engineState, pool);
+
+    if (selectedTestType === 'pre_test') {
+      // 1) FIXED PRE-TEST: 5 fixed questions, no difficulty adjustment
+      const fixedQ = getFixedPretestQuestions(unitId, pool, 5);
+      setPretestQuestions(fixedQ);
+      setPretestIndex(0);
+      setPretestAttempts([]);
+      setCurrentQuestion(fixedQ[0] || null);
     } else {
-      q = getNextIRTQuestion(irtEngineState, pool);
+      // 2) ADAPTIVE POST-TEST / RE-TEST: Adaptive engine
+      let q: Question | null = null;
+      if (selectedEngine === 'rule-based') {
+        q = getNextAdaptiveQuestion(engineState, pool);
+      } else {
+        q = getNextIRTQuestion(irtEngineState, pool);
+      }
+      setCurrentQuestion(q);
     }
-    
-    setCurrentQuestion(q);
+
     auditLog('start_assessment', 'test_session', {
       testType: selectedTestType,
       engine: selectedEngine,
-      targetSubDomain,
+      targetSubDomain: subDomain,
+      unitId,
     });
   };
 
@@ -116,6 +166,42 @@ function AssessmentContent() {
     if (!selectedOption || !currentQuestion) return;
 
     setHasSubmittedAnswer(true);
+    const isCorrect = selectedOption === currentQuestion.correct_option;
+
+    // --- 1) Handle Fixed Pre-test ---
+    if (selectedTestType === 'pre_test') {
+      const attempt: Attempt = {
+        id: `att-pre-${Date.now()}`,
+        session_id: `sess-pre-${unitId}`,
+        question_id: currentQuestion.id,
+        answer: selectedOption,
+        correct: isCorrect,
+        response_time: timerSeconds,
+        sequence: pretestIndex + 1,
+        sub_domain_code: currentQuestion.sub_domain_code,
+        difficulty: currentQuestion.difficulty,
+        created_at: new Date().toISOString(),
+      };
+
+      const updatedAttempts = [...pretestAttempts, attempt];
+      setPretestAttempts(updatedAttempts);
+
+      setTimeout(() => {
+        const nextIdx = pretestIndex + 1;
+        if (nextIdx >= pretestQuestions.length) {
+          finishPretest(updatedAttempts);
+        } else {
+          setPretestIndex(nextIdx);
+          setCurrentQuestion(pretestQuestions[nextIdx]);
+          setSelectedOption(null);
+          setHasSubmittedAnswer(false);
+          setTimerSeconds(0);
+        }
+      }, 1800);
+      return;
+    }
+
+    // --- 2) Handle Adaptive Post-test / Re-test ---
     const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
 
     if (selectedEngine === 'rule-based') {
@@ -130,14 +216,14 @@ function AssessmentContent() {
       setTimeout(() => {
         const nextQ = getNextAdaptiveQuestion(newState, pool);
         if (!nextQ || newState.questionIndex >= (isRetest ? 10 : 20)) {
-          finishTest(newState.attempts);
+          finishAdaptiveTest(newState.attempts);
         } else {
           setCurrentQuestion(nextQ);
           setSelectedOption(null);
           setHasSubmittedAnswer(false);
           setTimerSeconds(0);
         }
-      }, 2500);
+      }, 2000);
     } else {
       // IRT 3PL Engine
       const { newState } = recordIRTAnswerAndUpdateState(
@@ -151,22 +237,68 @@ function AssessmentContent() {
       setTimeout(() => {
         const nextQ = getNextIRTQuestion(newState, pool);
         if (!nextQ) {
-          finishTest(newState.attempts);
+          finishAdaptiveTest(newState.attempts);
         } else {
           setCurrentQuestion(nextQ);
           setSelectedOption(null);
           setHasSubmittedAnswer(false);
           setTimerSeconds(0);
         }
-      }, 2500);
+      }, 2000);
     }
   };
 
-  const finishTest = (finalAttempts: Attempt[]) => {
+  // Completion: Fixed Pre-test
+  const finishPretest = (finalAttempts: Attempt[]) => {
     setIsTestFinished(true);
     confetti({
       particleCount: 100,
       spread: 75,
+      origin: { y: 0.6 },
+    });
+
+    const correctCount = finalAttempts.filter((a) => a.correct).length;
+    const totalCount = finalAttempts.length;
+    const scorePct = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    const completedSession: TestSession = {
+      id: `sess-pre-${Date.now()}`,
+      student_id: profile?.id || 'std-1',
+      student_name: profile?.full_name || 'สมชาย รักการเรียน (นักเรียน ปวช.1)',
+      test_type: 'pre_test',
+      target_sub_domain: subDomain,
+      status: 'completed',
+      total_questions: totalCount,
+      correct_count: correctCount,
+      score_percentage: scorePct,
+      start_at: new Date(Date.now() - totalCount * 15000).toISOString(),
+      end_at: new Date().toISOString(),
+      stop_reason: 'ทำแบบทดสอบก่อนเรียน (Pre-test) ครบ 5 ข้อชุดคำถามคงที่',
+      attempts: finalAttempts,
+    };
+
+    try {
+      saveTestSession(completedSession);
+      // Unlock Step 2: Lesson
+      setUnitStepCompleted(unitId, 'pretest', scorePct);
+
+      auditLog('complete_assessment', 'test_session', {
+        testType: 'pre_test',
+        totalAttempts: totalCount,
+        correctCount,
+        scorePercentage: scorePct,
+      });
+    } catch (e) {
+      console.error('Error saving pre-test results:', e);
+    }
+  };
+
+  // Completion: Adaptive Post-test / Re-test
+  const finishAdaptiveTest = (finalAttempts: Attempt[]) => {
+    setIsTestFinished(true);
+    confetti({
+      particleCount: 120,
+      spread: 80,
       origin: { y: 0.6 },
     });
 
@@ -176,22 +308,23 @@ function AssessmentContent() {
     const scorePct = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
     const completedSession: TestSession = {
-      id: `sess-${Date.now()}`,
+      id: `sess-post-${Date.now()}`,
       student_id: profile?.id || 'std-1',
       student_name: profile?.full_name || 'สมชาย รักการเรียน (นักเรียน ปวช.1)',
       test_type: selectedTestType,
-      target_sub_domain: targetSubDomain,
+      target_sub_domain: subDomain,
       status: 'completed',
       total_questions: totalCount,
       correct_count: correctCount,
       score_percentage: scorePct,
       start_at: new Date(Date.now() - totalCount * 20000).toISOString(),
       end_at: new Date().toISOString(),
-      stop_reason: selectedEngine === 'irt-3pl' 
-        ? 'ยุติการทดสอบด้วยกฎของโมเดล IRT CAT'
-        : (isRetest
+      stop_reason:
+        selectedEngine === 'irt-3pl'
+          ? 'ยุติการทดสอบด้วยกฎของโมเดล IRT CAT'
+          : isRetest
           ? 'ครบจำนวนข้อประเมินเฉพาะจุดประสงค์ Re-test (10 ข้อ)'
-          : 'ครบเกณฑ์จำนวนข้อสอบสูงสุดตามแบบแผนความยาวคงที่'),
+          : 'ครบเกณฑ์จำนวนข้อสอบสูงสุดตามแบบแผนความยาวคงที่',
       attempts: finalAttempts,
     };
 
@@ -218,20 +351,23 @@ function AssessmentContent() {
 
     try {
       localStorage.setItem('webai_student_skills', JSON.stringify(newSkills));
-      
-      // Save test session in database-service (Real-time sync to Teacher)
       saveTestSession(completedSession);
 
-      // Save student progress in database-service (Real-time sync to Teacher Overview & Students table)
+      // Save student progress in teacher database
       saveStudentProgress({
         studentId: profile?.id || 'std-1',
         name: profile?.full_name || 'สมชาย รักการเรียน',
         scores: finalDomainScores,
         avgScore: scorePct,
-        completion: Math.min(100, Math.round((totalCount / 20) * 100)),
-        theta: selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta : (scorePct * 0.06 - 3),
+        completion: 100,
+        theta: selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta : scorePct * 0.06 - 3,
         se: selectedEngine === 'irt-3pl' ? irtEngineState.standardError : 0.28,
       });
+
+      if (selectedTestType === 'post_test') {
+        // Unlock Step 6 completion
+        setUnitStepCompleted(unitId, 'posttest', scorePct);
+      }
 
       if (selectedEngine === 'irt-3pl') {
         localStorage.setItem('webai_irt_theta', irtEngineState.currentTheta.toString());
@@ -254,164 +390,223 @@ function AssessmentContent() {
     return `${m}:${s}`;
   };
 
-  // RESULT SCREEN
-  if (isTestFinished) {
-    const activeState = selectedEngine === 'rule-based' ? engineState : irtEngineState;
-    const correctCount = activeState.attempts.filter((a) => a.correct).length;
-    const totalCount = activeState.attempts.length;
-    const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
-    
-    // For IRT engine, we have theta and se
-    const theta = selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta.toFixed(2) : (percentage / 100).toFixed(2);
-    const se = selectedEngine === 'irt-3pl' ? irtEngineState.standardError.toFixed(2) : "N/A";
-
+  // --- GATING INTERCEPT SCREEN ---
+  if (isPosttestGated && !hasStarted && !isTestFinished) {
     return (
-      <div className="main-inner enter max-w-[800px] mx-auto pt-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-4">
-            <CheckCircle2 className="w-8 h-8" />
+      <div className="main-inner enter max-w-[850px] mx-auto pt-6">
+        <UnitPathStepper unitId={unitId} currentStep="posttest" />
+        <div className="card p-8 sm:p-10 text-center border-amber-500/30 bg-amber-500/5 shadow-lg">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+            <Lock className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-black text-ink mb-2">ประเมินผลเสร็จสิ้น<span className="text-primary">.</span></h1>
-          <p className="text-muted">ระบบประมวลผลความเชี่ยวชาญของคุณเสร็จสิ้น นี่คือโปรไฟล์การเรียนรู้ของคุณ</p>
+          <h2 className="text-xl sm:text-2xl font-black text-ink mb-2">
+            ขั้นตอนที่ 6: แบบทดสอบหลังเรียนยังไม่ปลดล็อก
+          </h2>
+          <p className="text-sm text-muted mb-6 max-w-lg mx-auto leading-relaxed">
+            ตามลำดับการเรียนรู้แบบต่อเนื่อง (Sequential Gating) คุณต้องทำภารกิจเขียนโค้ด (Quest: Code Lab) ในขั้นตอนที่ 5 ให้สำเร็จก่อน จึงจะสามารถทำแบบทดสอบหลังเรียนแบบปรับเหมาะ (Adaptive Post-test) ได้
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href={getStepUrl(unitId, 'quest')} className="btn btn-primary">
+              <Terminal className="w-4 h-4 mr-1.5" />
+              <span>ไปทำภารกิจเขียนโค้ด (Step 5: Quest) &rarr;</span>
+            </Link>
+            <Link href={`/student/lessons/${unitId}`} className="btn btn-ghost">
+              <span>กลับไปหน้าบทเรียน</span>
+            </Link>
+          </div>
         </div>
-
-        <section className="win mb-8">
-          <div className="win-bar">
-            <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-            <div className="win-title"><em>&lt;/&gt;</em> learning_profile.json</div>
-          </div>
-          
-          <div className="win-body grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-bg-base">
-            
-            {/* IRT Ability Block */}
-            <div className="card p-5 border-primary">
-              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">ระดับความสามารถ (Adaptive Ability)</h3>
-              <div className="flex justify-between items-end mb-4">
-                <div>
-                  <div className="text-[10px] text-muted font-bold mb-1">ระดับความสามารถรวม (θ)</div>
-                  <div className="text-4xl font-black text-ink">{theta}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-muted font-bold mb-1">ความคลาดเคลื่อนมาตรฐาน (SE)</div>
-                  <div className="text-2xl font-bold text-muted">{se}</div>
-                </div>
-              </div>
-              <div className="text-xs text-muted leading-relaxed">
-                <span className="text-primary font-bold">หมายเหตุ:</span> ค่า Theta (θ) แสดงความสามารถที่แท้จริงของคุณ ยิ่งมีค่าสูงแปลว่าคุณมีความเชี่ยวชาญมาก และ SE คือความคลาดเคลื่อนของการวัด
-              </div>
-            </div>
-
-            {/* Micro Skill Map */}
-            <div className="card p-5 border-line">
-              <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-4 border-b border-line pb-2">การวิเคราะห์ทักษะ (Skill Diagnosis)</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">ทักษะที่ทำได้ดี</span>
-                  <span className="chip chip-success chip-mono py-0 px-2 text-[10px]">H1, H2</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">กำลังพัฒนา</span>
-                  <span className="chip chip-primary chip-mono py-0 px-2 text-[10px]">H3, H4</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-ink">ควรฝึกฝนเพิ่ม</span>
-                  <span className="chip chip-danger chip-mono py-0 px-2 text-[10px]">H7</span>
-                </div>
-              </div>
-            </div>
-            
-          </div>
-        </section>
-
-        <div className="card p-6 border-l-4 border-l-highlight bg-highlight-dim mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <div className="text-[10px] font-mono font-bold text-highlight uppercase tracking-widest mb-1">ขั้นตอนแนะนำถัดไป</div>
-            <h3 className="text-lg font-bold text-ink mb-1">ภารกิจสร้างแบบฟอร์ม (Form Builder)</h3>
-            <p className="text-sm text-muted">ระบบตรวจพบว่าคุณควรฝึกฝนเรื่อง Form เพิ่มเติมเพื่อเพิ่มค่า Ability (θ)</p>
-          </div>
-          <button className="btn btn-primary whitespace-nowrap" onClick={() => router.push('/student')}>
-            ดูภารกิจถัดไป <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
       </div>
     );
   }
 
-  // LOBBY SCREEN
-  if (!hasStarted) {
+  // --- RESULT SCREEN ---
+  if (isTestFinished) {
+    const isPretest = selectedTestType === 'pre_test';
+    const finalAttempts = isPretest
+      ? pretestAttempts
+      : (selectedEngine === 'rule-based' ? engineState : irtEngineState).attempts;
+    const correctCount = finalAttempts.filter((a) => a.correct).length;
+    const totalCount = finalAttempts.length;
+    const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    const theta = selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta.toFixed(2) : (percentage / 100).toFixed(2);
+    const se = selectedEngine === 'irt-3pl' ? irtEngineState.standardError.toFixed(2) : 'N/A';
+
     return (
-      <div className="main-inner enter">
-        <div className="topline">
-          <span className="path-pill"><BrainCircuit className="w-3.5 h-3.5" />~/แบบทดสอบ_Adaptive</span>
+      <div className="main-inner enter max-w-[850px] mx-auto pt-4">
+        {/* Unit Stepper */}
+        <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
+
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-3 shadow-md shadow-success/20">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-ink mb-1">
+            {isPretest ? 'ทำแบบทดสอบก่อนเรียนสำเร็จ!' : 'ประเมินผลเสร็จสิ้น (Post-test)'}
+          </h1>
+          <p className="text-sm text-muted">
+            {isPretest
+              ? 'ระบบได้บันทึกคะแนนก่อนเรียนและปลดล็อกเนื้อหาบทเรียนให้คุณเรียบร้อยแล้ว'
+              : 'ยินดีด้วย! คุณเรียนรู้และผ่านการประเมินหน่วยนี้ครบทั้ง 6 ขั้นตอนแล้ว'}
+          </p>
         </div>
+
+        {/* Score Summary Card */}
+        <div className="card p-6 mb-6 border-line bg-surface">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-mono text-muted uppercase">คะแนนที่ได้</div>
+              <div className="text-3xl font-black text-ink">
+                {correctCount} / {totalCount} ข้อ{' '}
+                <span className="text-sm font-normal text-primary">({percentage}%)</span>
+              </div>
+            </div>
+
+            {isPretest ? (
+              <div className="px-4 py-2 rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-xs font-bold">
+                ✓ ปลดล็อกขั้นตอนที่ 2: บทเรียน (Lesson) แล้ว
+              </div>
+            ) : (
+              <div className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-bold">
+                👑 ผ่านหน่วยการเรียนรู้นี้ครบ 6/6 ขั้นตอนแล้ว
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Post-test specific: IRT Diagnosis */}
+        {!isPretest && (
+          <section className="win mb-6">
+            <div className="win-bar">
+              <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
+              <div className="win-title"><em>&lt;/&gt;</em> learning_profile.json</div>
+            </div>
+            <div className="win-body grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-bg-base">
+              <div className="card p-4 border-primary">
+                <div className="text-[10px] text-muted font-bold uppercase mb-1">ระดับความสามารถรวม (θ)</div>
+                <div className="text-3xl font-black text-ink mb-1">{theta}</div>
+                <div className="text-xs text-muted">SE: {se}</div>
+              </div>
+              <div className="card p-4 border-line">
+                <div className="text-[10px] text-muted font-bold uppercase mb-2">การวิเคราะห์ทักษะ ({subDomain})</div>
+                <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> มีความเข้าใจในระดับดี ({percentage}%)
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Sequential Next Step CTA Banner */}
+        <div className="card p-6 border-l-4 border-l-primary bg-primary/5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest mb-0.5">
+              {isPretest ? 'ขั้นตอนถัดไปในลำดับการเรียนรู้ (Step 2)' : 'เสร็จสิ้นหน่วยนี้'}
+            </div>
+            <h3 className="text-base font-bold text-ink mb-1">
+              {isPretest ? `เข้าสู่บทเรียน: ${SUB_DOMAINS[subDomain]?.name || 'HTML'}` : 'กลับสู่เส้นทางการเรียนรู้'}
+            </h3>
+            <p className="text-xs text-muted">
+              {isPretest
+                ? 'เริ่มศึกษาเนื้อหาสไลด์และวิดีโอประกอบบทเรียนตามลำดับ'
+                : 'คุณสามารถเลือกเรียนหน่วยถัดไปเพื่อพัฒนาทักษะระดับสูงขึ้นได้'}
+            </p>
+          </div>
+
+          <Link
+            href={isPretest ? `/student/lessons/${unitId}` : '/student/lessons'}
+            className="btn btn-primary whitespace-nowrap text-xs font-bold"
+          >
+            <span>{isPretest ? 'เข้าสู่บทเรียน (Step 2) &rarr;' : 'ดูหน่วยเรียนทั้งหมด &rarr;'}</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // --- LOBBY SCREEN ---
+  if (!hasStarted) {
+    const isPretest = selectedTestType === 'pre_test';
+
+    return (
+      <div className="main-inner enter max-w-[850px] mx-auto pt-4">
+        {/* Unit Stepper */}
+        <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
 
         <section className="win" id="screen-lobby">
           <div className="win-bar">
             <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-            <div className="win-title"><em>&lt;/&gt;</em> lobby.html</div>
+            <div className="win-title"><em>&lt;/&gt;</em> {isPretest ? 'pretest.html' : 'posttest.html'}</div>
           </div>
-          <div className="win-body">
-            <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', padding: '10px 0 4px' }}>
-              <div style={{ display: 'inline-flex', padding: '14px', borderRadius: '16px', background: 'var(--blue-dim)', marginBottom: '14px' }}>
-                <Shield style={{ width: '26px', height: '26px', color: 'var(--blue)' }} />
+          <div className="win-body p-6 sm:p-8">
+            <div className="max-w-xl mx-auto text-center pb-2">
+              <div className="inline-flex p-3.5 rounded-2xl bg-primary/10 text-primary mb-3">
+                {isPretest ? <BookOpen className="w-7 h-7" /> : <Shield className="w-7 h-7" />}
               </div>
-              <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px' }}>แบบทดสอบ Adaptive</h1>
-              <p className="muted" style={{ fontSize: '13.5px', margin: '0 0 24px' }}>ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์</p>
+              <h1 className="text-xl sm:text-2xl font-black text-ink mb-1.5">
+                {isPretest
+                  ? `แบบทดสอบก่อนเรียน (Pre-test) — ${SUB_DOMAINS[subDomain]?.name || subDomain}`
+                  : `แบบทดสอบหลังเรียน (Post-test: Adaptive CAT)`}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted mb-6">
+                {isPretest
+                  ? 'ชุดคำถามคงที่ 5 ข้อ (Fixed questions) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่เนื้อหาบทเรียน ไม่ปรับระดับความยาก'
+                  : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT)'}
+              </p>
             </div>
 
-            <div className="card" style={{ maxWidth: '600px', margin: '0 auto 22px', padding: '20px' }}>
-              <h3 className="flex items-center gap-2" style={{ fontSize: '13.5px', margin: '0 0 14px' }}>
-                <AlertTriangle style={{ width: '15px', height: '15px', color: 'var(--amber)' }} />คำชี้แจงก่อนเริ่มทำแบบทดสอบ
-              </h3>
-              <div className="flex gap-3" style={{ marginBottom: '14px' }}>
-                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--blue-dim)', color: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>1</div>
-                <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.7 }}><strong>ระบบปรับระดับอัตโนมัติ:</strong> ข้อสอบจะยากขึ้นเมื่อตอบถูก และง่ายลงเมื่อตอบผิด</p>
+            {/* Instruction Card */}
+            <div className="card p-5 max-w-xl mx-auto mb-6 border-line bg-surface/70 space-y-3 text-xs leading-relaxed">
+              <div className="font-bold text-ink flex items-center gap-2 text-sm border-b border-line pb-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <span>คำชี้แจงในการทำแบบทดสอบ</span>
               </div>
-              <div className="flex gap-3" style={{ marginBottom: '14px' }}>
-                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--blue-dim)', color: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>2</div>
-                <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.7 }}><strong>ห้ามย้อนกลับ:</strong> เมื่อยืนยันคำตอบแล้วจะไม่สามารถแก้ไขข้อก่อนหน้าได้</p>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">1</span>
+                <p className="m-0">
+                  {isPretest
+                    ? 'แบบทดสอบชุดนี้มีจำนวน 5 ข้อ เป็นชุดคำถามคงที่สำหรับหน่วยนี้'
+                    : 'แบบทดสอบเป็นแบบปรับเหมาะ (Adaptive) ความยากจะปรับขึ้น/ลงตามคำตอบ'}
+                </p>
               </div>
-              <div className="flex gap-3">
-                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--blue-dim)', color: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, flexShrink: 0 }}>3</div>
-                <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.7 }}><strong>ความยาวข้อสอบ:</strong> แบบทดสอบทั่วไป 20 ข้อ (แบบสอบซ่อม 10 ข้อ)</p>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">2</span>
+                <p className="m-0">เมื่อเลือกคำตอบและกดยืนยันแล้ว จะไม่สามารถย้อนกลับมาแก้ไขได้</p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">3</span>
+                <p className="m-0">
+                  {isPretest
+                    ? 'เมื่อทำเสร็จสิ้น ระบบจะปลดล็อกเนื้อหาบทเรียนและสไลด์การสอนให้โดยอัตโนมัติ'
+                    : 'เมื่อทำเสร็จสิ้น ระบบจะวิเคราะห์ระดับความสามารถ (Theta) รายบุคคล'}
+                </p>
               </div>
             </div>
 
-            {!isRetest ? (
-              <div style={{ maxWidth: '600px', margin: '0 auto 22px' }}>
-                <h3 style={{ textAlign: 'center', fontSize: '13px', margin: '0 0 12px' }}>โปรดเลือกประเภทแบบทดสอบ</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button 
-                    className="card" 
-                    onClick={() => setSelectedTestType('pre_test')}
-                    style={{ padding: '18px', border: `2px solid ${selectedTestType === 'pre_test' ? 'var(--blue)' : 'var(--line)'}`, background: selectedTestType === 'pre_test' ? 'var(--blue-dim)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}
-                  >
-                    <BookOpen style={{ width: '22px', height: '22px', color: selectedTestType === 'pre_test' ? 'var(--blue)' : 'var(--faint)' }} />
-                    <b style={{ fontSize: '12.5px', color: selectedTestType === 'pre_test' ? 'var(--blue)' : 'inherit' }}>แบบทดสอบก่อนเรียน</b>
-                    <small className="muted" style={{ fontSize: '10.5px' }}>Pre-test</small>
-                  </button>
-                  <button 
-                    className="card" 
-                    onClick={() => setSelectedTestType('post_test')}
-                    style={{ padding: '18px', border: `2px solid ${selectedTestType === 'post_test' ? 'var(--green)' : 'var(--line)'}`, background: selectedTestType === 'post_test' ? 'var(--green-dim)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}
-                  >
-                    <Check style={{ width: '22px', height: '22px', color: selectedTestType === 'post_test' ? 'var(--green)' : 'var(--faint)' }} />
-                    <b style={{ fontSize: '12.5px', color: selectedTestType === 'post_test' ? 'var(--green)' : 'inherit' }}>แบบทดสอบหลังเรียน</b>
-                    <small className="muted" style={{ fontSize: '10.5px' }}>Post-test</small>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="card" style={{ maxWidth: '600px', margin: '0 auto 22px', padding: '20px', background: 'var(--amber-dim)', borderColor: 'var(--amber)', textAlign: 'center' }}>
-                 <h3 style={{ fontSize: '14px', color: 'var(--amber)', margin: '0 0 4px' }}>โหมดสอบแก้ตัว (Re-test)</h3>
-                 <p style={{ margin: 0, fontSize: '12px' }}>หัวข้อ: {targetSubDomain}</p>
+            {/* Post-test engine selector (only shown for post_test/re_test) */}
+            {!isPretest && (
+              <div className="max-w-xl mx-auto mb-6 p-4 rounded-xl border border-line bg-bg-base">
+                <label className="block text-xs font-bold text-ink mb-1.5">
+                  โมเดลประมวลผล Adaptive
+                </label>
+                <select
+                  value={selectedEngine}
+                  onChange={(e) => setSelectedEngine(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl border border-line bg-surface text-xs font-semibold"
+                >
+                  <option value="irt-3pl">โมเดล Item Response Theory 3PL (CAT - แนะนำ)</option>
+                  <option value="rule-based">โมเดล Rule-based Stepwise</option>
+                </select>
               </div>
             )}
 
-            <div className="text-center" style={{ paddingBottom: '6px' }}>
-              <button className="btn btn-navy" onClick={startAssessment}>
-                <Play className="w-4 h-4" /> เริ่มทำแบบทดสอบ
+            <div className="text-center pt-2">
+              <button
+                onClick={startAssessment}
+                className="btn btn-primary px-8 py-3 text-sm font-bold shadow-md cursor-pointer"
+              >
+                <Play className="w-4 h-4 mr-1.5" />
+                <span>เริ่มทำแบบทดสอบทันที</span>
               </button>
             </div>
           </div>
@@ -420,170 +615,198 @@ function AssessmentContent() {
     );
   }
 
-  // QUIZ IN PROGRESS SCREEN
+  // --- QUESTION IN PROGRESS SCREEN ---
   if (!currentQuestion) {
     return (
-      <div className="main-inner enter" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <p className="font-bold muted">กำลังประมวลผลข้อสอบ...</p>
+      <div className="main-inner enter flex items-center justify-center min-h-[60vh]">
+        <p className="font-bold text-muted animate-pulse">กำลังประมวลผลข้อสอบ...</p>
       </div>
     );
   }
 
-  const maxQuestions = isRetest ? 10 : 20;
-  const activeState = selectedEngine === 'rule-based' ? engineState : irtEngineState;
-  const currentIndex = activeState.questionIndex;
+  const isPretest = selectedTestType === 'pre_test';
+  const maxQuestions = isPretest ? 5 : isRetest ? 10 : 20;
+  const currentIndex = isPretest
+    ? pretestIndex
+    : (selectedEngine === 'rule-based' ? engineState : irtEngineState).questionIndex;
 
   return (
     <div className="main-inner enter flex flex-col h-auto md:h-[calc(100vh-40px)] min-h-[600px] mb-20 md:mb-0">
-      <section className="win" id="screen-quiz" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      {/* Unit Stepper */}
+      <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
+
+      <section className="win flex-1 flex flex-col min-h-0" id="screen-quiz">
         <div className="win-bar shrink-0">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-          <div className="win-title"><em>&lt;/&gt;</em> assessment.html</div>
+          <div className="win-title">
+            <em>&lt;/&gt;</em> {isPretest ? `pretest-${subDomain.toLowerCase()}.html` : 'assessment.html'}
+          </div>
           <div className="win-actions">
-            <span className="chip chip-green mono"><Clock className="w-3 h-3" /><span id="timerLabel">{formatTime(totalTimerSeconds)}</span></span>
+            <span className="chip chip-green mono">
+              <Clock className="w-3 h-3" />
+              <span>{formatTime(totalTimerSeconds)}</span>
+            </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        <div className="flex flex-1 min-h-0">
           {/* Sidebar Grid */}
-          <aside className="hidden md:block w-[220px] shrink-0 border-r border-line p-5 bg-soft overflow-y-auto">
-            <div className="flex items-center gap-2 text-[12.5px] font-bold mb-3.5">
-              <Grid className="w-3.5 h-3.5 text-theme-blue" />สถานะข้อสอบ
+          <aside className="hidden md:block w-[220px] shrink-0 border-r border-line p-5 bg-surface/50 overflow-y-auto">
+            <div className="flex items-center gap-2 text-xs font-bold mb-3.5 text-ink">
+              <Grid className="w-3.5 h-3.5 text-primary" />
+              <span>{isPretest ? 'ข้อสอบคงที่ (5 ข้อ)' : 'สถานะข้อสอบ CAT'}</span>
             </div>
+
             <div className="grid grid-cols-4 gap-1.5">
               {Array.from({ length: maxQuestions }).map((_, idx) => {
                 const isCur = idx === currentIndex;
                 const isDone = idx < currentIndex;
-                const bg = isCur ? 'var(--blue)' : isDone ? 'var(--line)' : 'var(--white)';
-                const color = isCur ? '#fff' : isDone ? 'var(--muted)' : 'var(--faint)';
+                const bg = isCur ? 'var(--blue)' : isDone ? 'var(--line)' : 'transparent';
+                const color = isCur ? '#fff' : isDone ? 'var(--muted)' : 'var(--muted)';
                 const border = !isCur && !isDone ? '1px solid var(--line)' : 'none';
-                
+
                 return (
-                  <div key={idx} style={{ aspectRatio: '1', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, background: bg, color: color, border: border }}>
+                  <div
+                    key={idx}
+                    style={{
+                      aspectRatio: '1',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      background: bg,
+                      color,
+                      border,
+                    }}
+                  >
                     {idx + 1}
                   </div>
                 );
               })}
             </div>
-            <div className="flex-col gap-2" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--line)', fontSize: '10.5px' }}>
-              <div className="flex items-center gap-2"><span style={{ width: '11px', height: '11px', borderRadius: '3px', background: 'var(--blue)', display: 'inline-block' }}></span>ข้อปัจจุบัน</div>
-              <div className="flex items-center gap-2"><span style={{ width: '11px', height: '11px', borderRadius: '3px', background: 'var(--line)', display: 'inline-block' }}></span>ตอบแล้ว</div>
-              <div className="flex items-center gap-2"><span style={{ width: '11px', height: '11px', borderRadius: '3px', border: '1px solid var(--line)', display: 'inline-block' }}></span>ยังไม่ถึง</div>
+
+            <div className="mt-4 pt-4 border-t border-line text-[11px] space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-sm bg-primary inline-block"></span>
+                <span>ข้อปัจจุบัน</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-sm bg-line inline-block"></span>
+                <span>ตอบแล้ว</span>
+              </div>
             </div>
-            <div style={{ marginTop: '18px', padding: '12px', background: 'var(--blue-dim)', borderRadius: '12px' }}>
-              <b style={{ fontSize: '11px', color: 'var(--blue)', display: 'block', marginBottom: '4px' }}>ระบบปรับเหมาะกำลังทำงาน</b>
-              <p style={{ margin: 0, fontSize: '10px', color: 'var(--blue)', lineHeight: 1.6, opacity: .85 }}>ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณโดยอัตโนมัติ</p>
+
+            <div className="mt-6 p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs">
+              <b className="text-primary block mb-1">
+                {isPretest ? 'แบบทดสอบก่อนเรียน' : 'ระบบปรับเหมาะกำลังทำงาน'}
+              </b>
+              <p className="text-[10px] text-muted m-0 leading-relaxed">
+                {isPretest
+                  ? 'ชุดข้อสอบคงที่ 5 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
+                  : 'ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณโดยอัตโนมัติ'}
+              </p>
             </div>
           </aside>
 
           {/* Question Area */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <div className="flex items-center justify-between" style={{ padding: '16px 26px', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-              <h2 style={{ margin: 0, fontSize: '14px', fontWeight: 700 }}>ข้อที่ {currentIndex + 1}</h2>
-              <span className="chip chip-line mono">รหัส: {currentQuestion.id}</span>
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-muted uppercase">ข้อที่</span>
+                <span className="text-base font-black text-ink">{currentIndex + 1} / {maxQuestions}</span>
+              </div>
+              <span className="chip chip-line mono text-xs">{currentQuestion.sub_domain_code}</span>
             </div>
 
-            <div style={{ padding: '26px', flex: 1, overflowY: 'auto' }}>
-              <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-                <h3 style={{ fontSize: '15.5px', fontWeight: 500, lineHeight: 1.7, margin: '0 0 18px' }}>
+            <div className="p-6 flex-1 overflow-y-auto">
+              <div className="max-w-2xl mx-auto space-y-5">
+                <h3 className="text-base sm:text-lg font-semibold text-ink leading-relaxed">
                   {currentQuestion.question_text}
                 </h3>
 
                 {currentQuestion.code_snippet && (
-                  <div style={{ background: 'var(--code-bg)', borderRadius: '12px', padding: '16px 18px', marginBottom: '20px' }}>
-                    <pre className="mono" style={{ margin: 0, fontSize: '12px', color: '#c9d4e8', lineHeight: 1.7 }}>
+                  <div className="p-4 rounded-xl bg-slate-950 border border-line overflow-x-auto">
+                    <pre className="font-mono text-xs text-indigo-300 leading-relaxed m-0">
                       {currentQuestion.code_snippet}
                     </pre>
                   </div>
                 )}
 
-                <div className="flex-col gap-3" style={{ display: 'flex' }}>
+                {/* Choices */}
+                <div className="space-y-3 pt-2">
                   {(['A', 'B', 'C', 'D'] as const).map((key) => {
                     const choiceText = currentQuestion.choices[key];
                     if (!choiceText) return null;
 
                     const isSelected = selectedOption === key;
                     const isCorrect = key === currentQuestion.correct_option;
-                    
-                    let bg = 'transparent';
-                    let borderColor = 'var(--line)';
-                    let radioBg = 'transparent';
-                    
+
+                    let borderClass = 'border-line hover:border-primary/50';
+                    let bgClass = 'bg-surface';
+                    let radioClass = 'border-line text-transparent';
+
                     if (hasSubmittedAnswer) {
                       if (isCorrect) {
-                        bg = 'var(--green-dim)';
-                        borderColor = 'var(--green)';
-                        radioBg = 'var(--green)';
+                        borderClass = 'border-emerald-500 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200';
+                        radioClass = 'border-emerald-500 bg-emerald-500 text-white';
                       } else if (isSelected) {
-                        bg = 'var(--red-dim)';
-                        borderColor = 'var(--red)';
-                        radioBg = 'var(--red)';
+                        borderClass = 'border-rose-500 bg-rose-500/10 text-rose-800 dark:text-rose-200';
+                        radioClass = 'border-rose-500 bg-rose-500 text-white';
                       }
                     } else if (isSelected) {
-                      bg = 'var(--blue-dim)';
-                      borderColor = 'var(--blue)';
+                      borderClass = 'border-primary bg-primary/10';
+                      radioClass = 'border-primary bg-primary text-white';
                     }
 
                     return (
-                      <div 
-                        key={key} 
+                      <div
+                        key={key}
                         onClick={() => handleSelectOption(key)}
-                        style={{ 
-                          display: 'flex', gap: '14px', padding: '15px 16px', borderRadius: '14px', 
-                          border: `2px solid ${borderColor}`, background: bg, cursor: hasSubmittedAnswer ? 'default' : 'pointer',
-                          opacity: (hasSubmittedAnswer && !isCorrect && !isSelected) ? 0.5 : 1
-                        }}
+                        className={`flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all cursor-pointer ${borderClass} ${bgClass}`}
                       >
-                        <span style={{ 
-                          width: '18px', height: '18px', borderRadius: '50%', border: `2px solid ${borderColor}`, 
-                          background: radioBg, flexShrink: 0, marginTop: '1px' 
-                        }}></span>
-                        <span style={{ fontSize: '13px', fontWeight: (hasSubmittedAnswer && isCorrect) ? 700 : 400, color: (hasSubmittedAnswer && isCorrect) ? 'var(--green)' : 'inherit' }}>
-                          {choiceText}
+                        <span
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-bold font-mono text-xs shrink-0 ${radioClass}`}
+                        >
+                          {key}
                         </span>
+                        <span className="text-sm font-medium leading-relaxed">{choiceText}</span>
                       </div>
                     );
                   })}
                 </div>
 
+                {/* Feedback Explanation after answer */}
                 {hasSubmittedAnswer && currentQuestion.explanation && (
-                  <div style={{ marginTop: '20px', padding: '16px 18px', background: 'var(--blue-dim)', borderRadius: '14px' }}>
-                    <div className="flex gap-3">
-                      <Info style={{ width: '18px', height: '18px', color: 'var(--blue)', flexShrink: 0, marginTop: '1px' }} />
-                      <div>
-                        <b style={{ fontSize: '12.5px', display: 'block', marginBottom: '4px' }}>คำอธิบาย</b>
-                        <p style={{ margin: 0, fontSize: '12px', lineHeight: 1.7 }}>
-                          {currentQuestion.explanation}
-                        </p>
-                      </div>
+                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-xs space-y-1 animate-in fade-in">
+                    <div className="font-bold text-primary flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5" />
+                      <span>คำอธิบายเฉลย</span>
                     </div>
+                    <p className="m-0 text-muted leading-relaxed">{currentQuestion.explanation}</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-[16px_26px] border-t border-line shrink-0 gap-3 sm:gap-0">
-              <span className="muted text-[11.5px]">
-                {hasSubmittedAnswer ? 'บันทึกคำตอบแล้ว — กำลังเตรียมข้อถัดไป...' : 'เลือกคำตอบที่ถูกต้องที่สุด'}
+            {/* Bottom Actions Bar */}
+            <div className="px-6 py-4 border-t border-line flex items-center justify-between shrink-0 bg-surface/50">
+              <span className="text-xs text-muted">
+                {selectedOption ? 'เลือกคำตอบแล้ว กดยืนยันคำตอบ' : 'โปรดเลือกคำตอบหนึ่งตัวเลือก'}
               </span>
-              <button 
-                className="btn btn-navy w-full sm:w-auto justify-center" 
-                onClick={handleSubmitQuestion} 
+
+              <button
+                onClick={handleSubmitQuestion}
                 disabled={!selectedOption || hasSubmittedAnswer}
+                className="btn btn-primary px-6 py-2.5 text-xs font-bold shadow-xs disabled:opacity-40 cursor-pointer"
               >
-                {!hasSubmittedAnswer && (
-                  <>ยืนยันคำตอบ <ArrowRight style={{ width: '14px', height: '14px' }} /></>
-                )}
+                <span>{hasSubmittedAnswer ? 'กำลังตรวจคำตอบ...' : 'ยืนยันคำตอบ &rarr;'}</span>
               </button>
             </div>
           </div>
         </div>
       </section>
-
-      <SystemPrinciplesModal
-        isOpen={principlesModalOpen}
-        onClose={() => setPrinciplesModalOpen(false)}
-      />
     </div>
   );
 }
@@ -592,8 +815,8 @@ export default function AssessmentPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="font-bold muted">Loading...</p>
+        <div className="flex items-center justify-center min-h-[60vh] text-muted">
+          กำลังโหลดแบบทดสอบ...
         </div>
       }
     >

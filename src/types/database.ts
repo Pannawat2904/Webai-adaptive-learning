@@ -144,7 +144,7 @@ export interface TestSession {
   id: string;
   student_id: string;
   student_name?: string;
-  test_type: 'adaptive' | 'pre_test' | 'post_test' | 're_test';
+  test_type: 'adaptive' | 'pre_test' | 'post_test' | 're_test' | 'unit_quiz';
   target_sub_domain?: SubDomainCode | null;
   status: 'in_progress' | 'completed' | 'abandoned';
   total_questions: number;

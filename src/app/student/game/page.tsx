@@ -9,6 +9,9 @@ import { TagBotGuide } from '@/components/game/TagBotGuide';
 import { CertificateModal } from '@/components/game/CertificateModal';
 import { PlayerNameModal } from '@/components/game/PlayerNameModal';
 import { AchievementToast } from '@/components/game/AchievementToast';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import {
   GAME_STAGES,
   ACHIEVEMENTS,
@@ -18,10 +21,46 @@ import {
 } from '@/lib/game/game-data';
 import { soundManager } from '@/lib/game/sound-effects';
 import { useAuth } from '@/lib/auth-context';
-import { Award, Sparkles, CheckCircle2, ChevronDown, ChevronUp, Zap, Swords, ShieldCheck, Flame } from 'lucide-react';
+import {
+  normalizeUnit,
+  isStepUnlocked,
+  setUnitStepCompleted,
+  getStepUrl,
+} from '@/lib/progress-service';
+import { UnitPathStepper } from '@/components/UnitPathStepper';
+import {
+  Award,
+  Sparkles,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Zap,
+  Swords,
+  ShieldCheck,
+  Flame,
+  Lock,
+  Terminal,
+} from 'lucide-react';
 
-export default function HTML5CodeRescuePage() {
+function HTML5CodeRescueContent() {
   const { profile } = useAuth();
+  const searchParams = useSearchParams();
+  const unitParam = searchParams.get('unit');
+  const stageParam = searchParams.get('stage');
+
+  // Determine initial stage from query params
+  const getInitialStage = (): number => {
+    if (stageParam) {
+      const p = parseInt(stageParam, 10);
+      if (p >= 1 && p <= 5) return p;
+    }
+    if (unitParam) {
+      const norm = normalizeUnit(unitParam);
+      const m = norm.unitId.match(/u-h([1-5])/);
+      if (m) return parseInt(m[1], 10);
+    }
+    return 1;
+  };
 
   // Player State
   const [playerName, setPlayerName] = useState<string>('');
@@ -29,12 +68,20 @@ export default function HTML5CodeRescuePage() {
   const [score, setScore] = useState<number>(0);
   const [lives, setLives] = useState<number>(3);
   const [combo, setCombo] = useState<number>(1);
-  const [currentStageId, setCurrentStageId] = useState<number>(1);
+  const [currentStageId, setCurrentStageId] = useState<number>(getInitialStage);
   const [unlockedStageId, setUnlockedStageId] = useState<number>(1);
   const [completedStages, setCompletedStages] = useState<number[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
   const [isBgmOn, setIsBgmOn] = useState<boolean>(false);
+
+  // Unit gating
+  const currentUnitId = `u-h${currentStageId}`;
+  const [isCurrentStageUnlocked, setIsCurrentStageUnlocked] = useState<boolean>(true);
+
+  useEffect(() => {
+    setIsCurrentStageUnlocked(isStepUnlocked(currentUnitId, 'game'));
+  }, [currentUnitId]);
 
   // Stage Runtime State
   const currentStage = GAME_STAGES.find((s) => s.id === currentStageId) || GAME_STAGES[0];
@@ -270,6 +317,9 @@ export default function HTML5CodeRescuePage() {
         localStorage.setItem('webai_code_rescue_completed', JSON.stringify(nextCompleted));
       }
 
+      // Mark step completed in progress service
+      setUnitStepCompleted(`u-h${currentStage.id}`, 'game');
+
       // Check Boss Defeated
       if (isBoss) {
         soundManager.playBossDefeated();
@@ -367,9 +417,71 @@ export default function HTML5CodeRescuePage() {
 
       {/* Main Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-5">
-        
-        {/* Collapsible Cyberpunk Hero Banner Artwork */}
-        {showBanner && (
+        {/* Unit Step Indicator */}
+        <div className="w-full">
+          <UnitPathStepper unitId={currentUnitId} currentStep="game" />
+        </div>
+
+        {!isCurrentStageUnlocked ? (
+          <div className="flex-1 w-full flex flex-col items-center justify-center py-12 px-4">
+            <div className="w-full max-w-lg bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-700/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center flex flex-col items-center">
+              <div className="w-20 h-20 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center border-2 border-amber-400 mb-6 text-amber-600 dark:text-amber-400 animate-pulse">
+                <Lock className="w-10 h-10" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-mono font-bold mb-3">
+                ขั้นตอนที่ 4: เกม (Gated)
+              </span>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                ด่านนี้ถูกล็อกอยู่ (STAGE {currentStage.id} LOCKED)
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                คุณต้องทำ <strong>แบบฝึกหัดท้ายหน่วย (Unit Quiz)</strong> ของหน่วย {currentUnitId.toUpperCase()} ให้ผ่านก่อน จึงจะสามารถปลดล็อกเข้าเล่นเกมกู้โค้ดในด่านนี้ได้
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+                <Link
+                  href={`/student/lessons/${currentUnitId}?tab=quiz`}
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all text-center"
+                >
+                  ไปทำแบบฝึกหัดท้ายหน่วย
+                </Link>
+                <Link
+                  href="/student/lessons"
+                  className="px-6 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm transition-all text-center"
+                >
+                  กลับหน้าบทเรียน
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Banner if stage already completed */}
+            {completedStages.includes(currentStage.id) && (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-teal-500/10 to-transparent border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-slate-900 dark:text-white">
+                      ผ่านด่าน {currentStage.id} แล้ว! ปลดล็อกขั้นตอนถัดไปเรียบร้อย
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      ขั้นตอนที่ 5: ภารกิจเขียนโค้ด (Quest Lab)
+                    </div>
+                  </div>
+                </div>
+                <Link
+                  href={`/student/quests/asg-${currentStage.id}?unit=${currentUnitId}`}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-600/20 shrink-0 transition-transform active:scale-95"
+                >
+                  <span>ไปทำภารกิจเขียนโค้ด (Quest)</span>
+                  <ChevronDown className="w-4 h-4 -rotate-90" />
+                </Link>
+              </div>
+            )}
+            {/* Collapsible Cyberpunk Hero Banner Artwork */}
+            {showBanner && (
           <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-indigo-500/40 bg-slate-950 text-white animate-in fade-in duration-500">
             {/* Background Graphic Illustration */}
             <div className="absolute inset-0">
@@ -582,6 +694,8 @@ export default function HTML5CodeRescuePage() {
             )}
           </div>
         </div>
+        </>
+        )}
       </main>
 
       {/* Player Name Modal */}
@@ -611,5 +725,13 @@ export default function HTML5CodeRescuePage() {
         }}
       />
     </div>
+  );
+}
+
+export default function HTML5CodeRescuePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">กำลังโหลด...</div>}>
+      <HTML5CodeRescueContent />
+    </Suspense>
   );
 }

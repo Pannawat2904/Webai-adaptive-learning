@@ -15,9 +15,12 @@ import {
   Code2,
   Terminal,
   Map,
-  ChevronLeft
+  ChevronLeft,
+  Lock,
 } from 'lucide-react';
 import Link from 'next/link';
+import { normalizeUnit, isStepUnlocked, setUnitStepCompleted } from '@/lib/progress-service';
+import { UnitPathStepper } from '@/components/UnitPathStepper';
 
 export default function ActiveQuestPage() {
   const params = useParams();
@@ -38,6 +41,9 @@ export default function ActiveQuestPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [levelCleared, setLevelCleared] = useState(false);
 
+  const unitId = currentQuest ? normalizeUnit(currentQuest.sub_domain_code).unitId : 'u-h1';
+  const [isQuestUnlocked, setIsQuestUnlocked] = useState(true);
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -46,8 +52,9 @@ export default function ActiveQuestPage() {
       setPreviewCode(currentQuest.starter_code);
       setLevelCleared(false);
       setChecklistStatus({});
+      setIsQuestUnlocked(isStepUnlocked(unitId, 'quest'));
     }
-  }, [currentQuest]);
+  }, [currentQuest, unitId]);
 
   if (!currentQuest) {
     return (
@@ -56,6 +63,44 @@ export default function ActiveQuestPage() {
         <Link href="/student/quests" className="mt-4 text-blue-600 hover:underline">
           กลับไปหน้าแผนที่
         </Link>
+      </div>
+    );
+  }
+
+  if (!isQuestUnlocked) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="w-full mb-6">
+          <UnitPathStepper unitId={unitId} currentStep="quest" />
+        </div>
+        <div className="w-full max-w-lg bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-700/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center flex flex-col items-center">
+          <div className="w-20 h-20 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center border-2 border-amber-400 mb-6 text-amber-600 dark:text-amber-400 animate-pulse">
+            <Lock className="w-10 h-10" />
+          </div>
+          <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-mono font-bold mb-3">
+            ขั้นตอนที่ 5: ภารกิจเขียนโค้ด (Gated)
+          </span>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+            ภารกิจนี้ถูกล็อกอยู่ (QUEST LOCKED)
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+            คุณต้องเล่นเกม <strong>HTML5 Code Rescue</strong> ด่านของหน่วย {currentQuest.sub_domain_code} ให้ผ่านก่อน จึงจะปลดล็อกเข้ามาเขียนโค้ดภารกิจนี้ได้
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+            <Link
+              href={`/student/game?unit=${unitId}&stage=${currentQuest.sub_domain_code.replace('H', '')}`}
+              className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all text-center"
+            >
+              ไปเล่นเกมด่าน {currentQuest.sub_domain_code}
+            </Link>
+            <Link
+              href="/student/quests"
+              className="px-6 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm transition-all text-center"
+            >
+              กลับหน้าแผนที่ด่าน
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -96,6 +141,7 @@ export default function ActiveQuestPage() {
 
       if (allPassed) {
         setLevelCleared(true);
+        setUnitStepCompleted(unitId, 'quest');
         triggerConfetti();
       }
     }, 500);
@@ -132,7 +178,11 @@ export default function ActiveQuestPage() {
 
   return (
     <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col font-sans relative">
-      
+      {/* Unit Stepper */}
+      <div className="mb-3 px-2 shrink-0">
+        <UnitPathStepper unitId={unitId} currentStep="quest" />
+      </div>
+
       {/* Top Navigation */}
       <div className="flex items-center justify-between mb-4 px-2 shrink-0">
         <Link href="/student/quests" className="flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors font-bold text-sm bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -300,27 +350,32 @@ export default function ActiveQuestPage() {
             </div>
 
             <div className="pt-4 flex flex-col gap-3">
+              {/* Step 6 Post-test Primary CTA */}
+              <Link
+                href={`/student/assessment?unit=${unitId}&type=post_test`}
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold transition-all shadow-lg shadow-purple-600/25 hover:-translate-y-0.5 text-sm"
+              >
+                <span>ขั้นตอนถัดไป: ทำแบบทดสอบหลังเรียน (Post-test)</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+
               {nextQuest ? (
                 <Link
-                  href={`/student/quests/\${nextQuest.id}`}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  href={`/student/quests/${nextQuest.id}`}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold transition-all text-xs"
                 >
                   <span>ด่านต่อไป</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               ) : (
-                <Link
-                  href="/student/quests"
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-                >
-                  <Trophy className="w-5 h-5" />
-                  <span>ยินดีด้วย! คุณเคลียร์ด่านทั้งหมดแล้ว</span>
-                </Link>
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                  ยินดีด้วย! คุณเคลียร์ด่านทั้งหมดแล้ว
+                </div>
               )}
               
               <Link
                 href="/student/quests"
-                className="flex items-center justify-center w-full py-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold transition-colors"
+                className="flex items-center justify-center w-full py-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-medium text-xs transition-colors"
               >
                 กลับไปหน้าแผนที่
               </Link>
