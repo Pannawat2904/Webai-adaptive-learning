@@ -18,11 +18,31 @@ import {
   Shield,
   Activity,
   Gamepad2,
+  Lock,
+  BookOpen,
+  ClipboardList,
+  CheckSquare,
 } from 'lucide-react';
+import { UnitPathStepper } from '@/components/UnitPathStepper';
+import {
+  getCurrentStep,
+  getStepUrl,
+  getUnitProgress,
+  isStepUnlocked,
+  UNIT_STEPS_CONFIG,
+  subscribeToProgress,
+} from '@/lib/progress-service';
 
 export default function StudentDashboardPage() {
   const { profile } = useAuth();
   const [skills, setSkills] = useState<Record<string, SkillProfile>>(MOCK_STUDENT_SKILLS);
+  const [, setProgressTick] = useState(0);
+
+  const currentUnit = 'u-h1';
+  const progress = getUnitProgress(currentUnit);
+  const currentStepKey = getCurrentStep(currentUnit);
+  const currentStepUrl = getStepUrl(currentUnit, currentStepKey);
+  const currentStepConfig = UNIT_STEPS_CONFIG.find((s) => s.key === currentStepKey) || UNIT_STEPS_CONFIG[0];
 
   useEffect(() => {
     try {
@@ -31,6 +51,11 @@ export default function StudentDashboardPage() {
     } catch {
       // ignore
     }
+
+    const unsub = subscribeToProgress(() => {
+      setProgressTick((prev) => prev + 1);
+    });
+    return () => unsub();
   }, []);
 
   const skillValues = Object.values(skills);
@@ -153,43 +178,32 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Link href="/student/game" className="card card-hover flex items-center gap-4 p-4 border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/30 dark:bg-indigo-950/20">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-            <Gamepad2 className="w-6 h-6" />
-          </div>
+      {/* 6 Sequential Steps Progress Card for Active Unit */}
+      <div className="mb-8 p-6 rounded-3xl bg-surface border-2 border-line shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <b className="text-[14px] block text-ink">เกมกู้เว็บพัง 🎮</b>
-            <small className="text-muted text-[12px]">ซ่อมโค้ดจริง 5 ด่าน</small>
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-primary mb-1">
+              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              <span>ลำดับขั้นตอนการเรียนรู้ (SEQUENTIAL FLOW)</span>
+            </div>
+            <h2 className="text-xl font-black text-ink">
+              หน่วยที่ 1: โครงสร้างพื้นฐานของภาษา HTML (H1)
+            </h2>
+            <p className="text-xs text-muted mt-0.5">
+              ระบบบังคับเรียนและทำแบบทดสอบตามลำดับ 6 ขั้นตอนเพื่อสร้างความเข้าใจที่มั่นคง
+            </p>
           </div>
-        </Link>
-        <Link href="/student/lessons" className="card card-hover flex items-center gap-4 p-4 border-line">
-          <div className="w-12 h-12 rounded-xl bg-primary-dim text-primary flex items-center justify-center shrink-0">
-            <MapIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <b className="text-[14px] block text-ink">บทเรียน HTML</b>
-            <small className="text-muted text-[12px]">ดูเนื้อหาและสไลด์</small>
-          </div>
-        </Link>
-        <Link href="/student/assessment" className="card card-hover flex items-center gap-4 p-4 border-line">
-          <div className="w-12 h-12 rounded-xl bg-accent-dim text-accent flex items-center justify-center shrink-0">
-            <Activity className="w-6 h-6" />
-          </div>
-          <div>
-            <b className="text-[14px] block text-ink">ประเมินทักษะ (CAT)</b>
-            <small className="text-muted text-[12px]">ทดสอบวัดระดับ θ ของคุณ</small>
-          </div>
-        </Link>
-        <Link href="/student/codelab" className="card card-hover flex items-center gap-4 p-4 border-line">
-          <div className="w-12 h-12 rounded-xl bg-secondary-dim text-secondary flex items-center justify-center shrink-0">
-            <Terminal className="w-6 h-6" />
-          </div>
-          <div>
-            <b className="text-[14px] block text-ink">ห้องฝึกปฏิบัติ (Lab)</b>
-            <small className="text-muted text-[12px]">เขียนโค้ดแก้โจทย์จริง</small>
-          </div>
-        </Link>
+
+          <Link
+            href={currentStepUrl}
+            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-primary/20 shrink-0 transition-transform active:scale-95"
+          >
+            <span>ทำต่อที่ขั้น {currentStepConfig.stepNumber}: {currentStepConfig.title}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <UnitPathStepper unitId={currentUnit} currentStep={currentStepKey} />
       </div>
 
       {/* Skill Map & Recent Activity */}

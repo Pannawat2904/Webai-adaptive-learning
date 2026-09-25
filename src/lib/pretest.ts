@@ -15,9 +15,14 @@ export function getFixedPretestQuestions(
   const { subDomain } = normalizeUnit(unitIdOrSubdomain);
   const questionPool = pool && pool.length > 0 ? pool : getQuestions();
 
-  // กรองข้อสอบเฉพาะ Sub-domain ของหน่วยนี้ และมีสถานะ active
+  // กรองข้อสอบเฉพาะ Sub-domain ของหน่วยนี้ มีสถานะ active และผ่านการตรวจสอบแล้ว (validated !== false)
   const domainQuestions = questionPool.filter(
-    (q) => q.sub_domain_code === subDomain && q.active !== false
+    (q) =>
+      q.sub_domain_code === subDomain &&
+      q.active !== false &&
+      q.validated !== false &&
+      q.id !== 'q-draft-unvalidated' &&
+      !q.question_text.includes('[ข้อสอบร่าง')
   );
 
   // เรียงลำดับตาม ID หรือลำดับที่กำหนดแน่นอน เพื่อให้ทุกคนได้ลำดับเดียวกันเสมอ
@@ -26,10 +31,16 @@ export function getFixedPretestQuestions(
   // เลือกจำนวนข้อตามที่กำหนด (ค่าเริ่มต้น 5 ข้อ)
   const selected = domainQuestions.slice(0, count);
 
-  // หากข้อสอบในโดเมนไม่พอ ดึงข้อสอบ active อื่นๆ มาเสริม
+  // หากข้อสอบในโดเมนไม่พอ ดึงข้อสอบ active อื่นๆ ที่ผ่านการตรวจสอบมาเสริม
   if (selected.length < count) {
     const others = questionPool.filter(
-      (q) => q.sub_domain_code !== subDomain && q.active !== false && !selected.some((s) => s.id === q.id)
+      (q) =>
+        q.sub_domain_code !== subDomain &&
+        q.active !== false &&
+        q.validated !== false &&
+        q.id !== 'q-draft-unvalidated' &&
+        !q.question_text.includes('[ข้อสอบร่าง') &&
+        !selected.some((s) => s.id === q.id)
     );
     others.sort((a, b) => a.id.localeCompare(b.id));
     selected.push(...others.slice(0, count - selected.length));
@@ -51,7 +62,12 @@ export function getFixedUnitQuizQuestions(
   const questionPool = pool && pool.length > 0 ? pool : getQuestions();
 
   const domainQuestions = questionPool.filter(
-    (q) => q.sub_domain_code === subDomain && q.active !== false
+    (q) =>
+      q.sub_domain_code === subDomain &&
+      q.active !== false &&
+      q.validated !== false &&
+      q.id !== 'q-draft-unvalidated' &&
+      !q.question_text.includes('[ข้อสอบร่าง')
   );
 
   // เรียงตาม ID
