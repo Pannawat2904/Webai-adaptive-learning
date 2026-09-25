@@ -54,6 +54,7 @@ function StudentLayoutContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { profile, isLoading, signOut } = useAuth();
+  const isAssessment = pathname === '/student/assessment';
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -244,10 +245,16 @@ function StudentLayoutContent({
       <div
         className={`${
           isSidebarCollapsed ? 'md:ml-28' : 'md:ml-72'
-        } flex flex-col min-h-screen transition-all duration-300 mr-4`}
+        } flex flex-col ${
+          isAssessment ? 'md:h-screen md:max-h-screen md:overflow-hidden min-h-screen' : 'min-h-screen'
+        } transition-all duration-300 mr-4`}
       >
         {/* Top Header Bar with User Account at Top-Right */}
-        <header className="h-16 flex items-center justify-between px-6 mt-4 rounded-[20px] bg-surface/80 backdrop-blur-xl border border-line shadow-sm shrink-0">
+        <header
+          className={`${
+            isAssessment ? 'h-13 mt-2 px-5' : 'h-16 mt-4 px-6'
+          } flex items-center justify-between rounded-[20px] bg-surface/80 backdrop-blur-xl border border-line shadow-sm shrink-0 transition-all`}
+        >
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-primary bg-primary-dim px-3 py-1.5 rounded-full border border-primary/20 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> ระบบการเรียนรู้ WebAI
@@ -281,7 +288,11 @@ function StudentLayoutContent({
           </div>
         </header>
 
-        <main className="flex-1 pb-32 md:pb-8 pt-6 relative z-10 w-full">
+        <main
+          className={`flex-1 relative z-10 w-full min-h-0 flex flex-col ${
+            isAssessment ? 'pt-2 pb-20 md:pb-2 overflow-y-auto md:overflow-hidden' : 'pb-32 md:pb-8 pt-6'
+          }`}
+        >
           {children}
         </main>
       </div>

@@ -274,6 +274,18 @@ function AssessmentContent() {
     }
   };
 
+  // Keyboard shortcut: Press Enter to submit / advance to next question
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && selectedOption && !hasSubmittedAnswer) {
+        e.preventDefault();
+        handleSubmitQuestion();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedOption, hasSubmittedAnswer, handleSubmitQuestion]);
+
   // Completion: Fixed Pre-test
   const finishPretest = (finalAttempts: Attempt[]) => {
     setIsTestFinished(true);
@@ -668,9 +680,9 @@ function AssessmentContent() {
     : (selectedEngine === 'rule-based' ? engineState : irtEngineState).questionIndex;
 
   return (
-    <div className="main-inner enter flex flex-col h-auto md:h-[calc(100vh-40px)] min-h-[600px] mb-20 md:mb-0">
-      <section className="win flex-1 flex flex-col min-h-0" id="screen-quiz">
-        <div className="win-bar shrink-0">
+    <div className="main-inner enter flex flex-col h-[calc(100dvh-100px)] md:h-full max-h-full min-h-0 mb-0 overflow-hidden">
+      <section className="win flex-1 flex flex-col min-h-0 overflow-hidden" id="screen-quiz">
+        <div className="win-bar shrink-0 py-2 px-4">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
           <div className="win-title">
             <em>&lt;/&gt;</em> {isPretest ? `pretest-${subDomain.toLowerCase()}.html` : 'assessment.html'}
@@ -687,15 +699,15 @@ function AssessmentContent() {
           </div>
         </div>
 
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Grid */}
-          <aside className="hidden md:block w-[220px] shrink-0 border-r border-line p-5 bg-surface/50 overflow-y-auto">
-            <div className="flex items-center gap-2 text-xs font-bold mb-3.5 text-ink">
+          <aside className="hidden md:flex flex-col w-[180px] shrink-0 border-r border-line p-3.5 bg-surface/50 overflow-y-auto">
+            <div className="flex items-center gap-2 text-xs font-bold mb-2.5 text-ink shrink-0">
               <Grid className="w-3.5 h-3.5 text-primary" />
               <span>{isPretest ? 'ข้อสอบคงที่ (20 ข้อ)' : 'สถานะข้อสอบ CAT'}</span>
             </div>
 
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-4 gap-1 shrink-0">
               {Array.from({ length: maxQuestions }).map((_, idx) => {
                 const isCur = idx === currentIndex;
                 const isDone = idx < currentIndex;
@@ -725,47 +737,49 @@ function AssessmentContent() {
               })}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-line text-[11px] space-y-2">
+            <div className="mt-3 pt-3 border-t border-line text-[11px] space-y-1.5 shrink-0">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-sm bg-primary inline-block"></span>
+                <span className="w-2 h-2 rounded-sm bg-primary inline-block"></span>
                 <span>ข้อปัจจุบัน</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-sm bg-line inline-block"></span>
+                <span className="w-2 h-2 rounded-sm bg-line inline-block"></span>
                 <span>ตอบแล้ว</span>
               </div>
             </div>
 
-            <div className="mt-6 p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs">
-              <b className="text-primary block mb-1">
-                {isPretest ? 'แบบทดสอบก่อนเรียน' : 'ระบบปรับเหมาะกำลังทำงาน'}
-              </b>
-              <p className="text-[10px] text-muted m-0 leading-relaxed">
-                {isPretest
-                  ? 'ชุดข้อสอบคงที่ 20 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
-                  : 'ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณโดยอัตโนมัติ'}
-              </p>
+            <div className="mt-auto pt-3 shrink-0">
+              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
+                <b className="text-primary block mb-1 text-[11px]">
+                  {isPretest ? 'แบบทดสอบก่อนเรียน' : 'ระบบปรับเหมาะกำลังทำงาน'}
+                </b>
+                <p className="text-[10px] text-muted m-0 leading-relaxed">
+                  {isPretest
+                    ? 'ชุดข้อสอบคงที่ 20 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
+                    : 'ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณ'}
+                </p>
+              </div>
             </div>
           </aside>
 
           {/* Question Area */}
-          <div className="flex-1 flex flex-col min-w-0">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-line shrink-0 bg-surface/30">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-muted uppercase">ข้อที่</span>
-                <span className="text-base font-black text-ink">{currentIndex + 1} / {maxQuestions}</span>
+                <span className="text-sm sm:text-base font-black text-ink">{currentIndex + 1} / {maxQuestions}</span>
               </div>
               <span className="chip chip-line mono text-xs">{currentQuestion.sub_domain_code}</span>
             </div>
 
-            <div className="p-6 flex-1 overflow-y-auto">
-              <div className="max-w-2xl mx-auto space-y-5">
-                <h3 className="text-base sm:text-lg font-semibold text-ink leading-relaxed">
+            <div className="p-4 sm:p-5 flex-1 overflow-y-auto">
+              <div className="max-w-2xl mx-auto space-y-4">
+                <h3 className="text-base sm:text-lg font-bold text-ink leading-snug">
                   {currentQuestion.question_text}
                 </h3>
 
                 {currentQuestion.code_snippet && (
-                  <div className="p-4 rounded-xl bg-slate-950 border border-line overflow-x-auto">
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-line overflow-x-auto">
                     <pre className="font-mono text-xs text-indigo-300 leading-relaxed m-0">
                       {currentQuestion.code_snippet}
                     </pre>
@@ -773,7 +787,7 @@ function AssessmentContent() {
                 )}
 
                 {/* Choices */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-2.5 pt-1">
                   {(['A', 'B', 'C', 'D'] as const).map((key) => {
                     const choiceText = currentQuestion.choices[key];
                     if (!choiceText) return null;
@@ -783,7 +797,7 @@ function AssessmentContent() {
                     const thaiLabel = key === 'A' ? 'ก' : key === 'B' ? 'ข' : key === 'C' ? 'ค' : 'ง';
 
                     let borderClass = 'border-line hover:border-primary/50';
-                    let bgClass = 'bg-surface';
+                    let bgClass = 'bg-surface hover:bg-surface/80';
                     let radioClass = 'border-line text-muted';
 
                     if (hasSubmittedAnswer) {
@@ -795,7 +809,7 @@ function AssessmentContent() {
                         radioClass = 'border-rose-500 bg-rose-500 text-white';
                       }
                     } else if (isSelected) {
-                      borderClass = 'border-primary bg-primary/10';
+                      borderClass = 'border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30';
                       radioClass = 'border-primary bg-primary text-white';
                     }
 
@@ -803,10 +817,10 @@ function AssessmentContent() {
                       <div
                         key={key}
                         onClick={() => handleSelectOption(key)}
-                        className={`flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all cursor-pointer ${borderClass} ${bgClass}`}
+                        className={`flex items-center gap-3 p-3 sm:py-3.5 sm:px-4 rounded-xl border-2 transition-all cursor-pointer select-none ${borderClass} ${bgClass}`}
                       >
                         <span
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-bold text-xs shrink-0 ${radioClass}`}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${radioClass}`}
                         >
                           {thaiLabel}
                         </span>
@@ -818,7 +832,7 @@ function AssessmentContent() {
 
                 {/* Feedback Explanation after answer */}
                 {hasSubmittedAnswer && currentQuestion.explanation && (
-                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-xs space-y-1 animate-in fade-in">
+                  <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs space-y-1 animate-in fade-in">
                     <div className="font-bold text-primary flex items-center gap-1.5">
                       <Info className="w-3.5 h-3.5" />
                       <span>คำอธิบายเฉลย</span>
@@ -829,18 +843,42 @@ function AssessmentContent() {
               </div>
             </div>
 
-            {/* Bottom Actions Bar */}
-            <div className="px-6 py-4 border-t border-line flex items-center justify-between shrink-0 bg-surface/50">
-              <span className="text-xs text-muted">
-                {selectedOption ? 'เลือกคำตอบแล้ว กดยืนยันคำตอบ' : 'โปรดเลือกคำตอบหนึ่งตัวเลือก'}
-              </span>
+            {/* Bottom Actions Bar - Always visible in viewport */}
+            <div className="px-5 py-3 border-t border-line flex items-center justify-between shrink-0 bg-surface/90 backdrop-blur-md">
+              <div className="flex items-center gap-2">
+                {selectedOption ? (
+                  <span className="text-xs text-primary font-bold flex items-center gap-1.5 animate-in fade-in">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>
+                      เลือกข้อ {selectedOption === 'A' ? 'ก' : selectedOption === 'B' ? 'ข' : selectedOption === 'C' ? 'ค' : 'ง'} แล้ว กดปุ่มข้อถัดไปได้เลย
+                    </span>
+                    <span className="hidden sm:inline-block text-[11px] text-muted font-normal ml-1">
+                      (หรือกด Enter บนคีย์บอร์ด)
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted flex items-center gap-1.5">
+                    <span>โปรดคลิกเลือกคำตอบ 1 ตัวเลือก</span>
+                  </span>
+                )}
+              </div>
 
               <button
                 onClick={handleSubmitQuestion}
                 disabled={!selectedOption || hasSubmittedAnswer}
-                className="btn btn-primary px-6 py-2.5 text-xs font-bold shadow-xs disabled:opacity-40 cursor-pointer"
+                className={`btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer transition-all ${
+                  selectedOption && !hasSubmittedAnswer
+                    ? 'ring-2 ring-primary/40 scale-[1.02] shadow-primary/25'
+                    : 'opacity-40'
+                }`}
               >
-                <span>{hasSubmittedAnswer ? 'กำลังตรวจคำตอบ...' : 'ยืนยันคำตอบ &rarr;'}</span>
+                <span>
+                  {hasSubmittedAnswer
+                    ? 'กำลังบันทึกคำตอบ...'
+                    : currentIndex + 1 >= maxQuestions
+                    ? 'ส่งคำตอบข้อสอบ ➔'
+                    : 'ข้อถัดไป ➔'}
+                </span>
               </button>
             </div>
           </div>
