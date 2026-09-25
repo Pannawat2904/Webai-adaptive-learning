@@ -24,6 +24,7 @@ import { useAuth } from '@/lib/auth-context';
 import {
   normalizeUnit,
   isStepUnlocked,
+  isCourseStepUnlocked,
   setUnitStepCompleted,
   getStepUrl,
 } from '@/lib/progress-service';
@@ -80,7 +81,7 @@ function HTML5CodeRescueContent() {
   const [isCurrentStageUnlocked, setIsCurrentStageUnlocked] = useState<boolean>(true);
 
   useEffect(() => {
-    setIsCurrentStageUnlocked(isStepUnlocked(currentUnitId, 'game'));
+    setIsCurrentStageUnlocked(isCourseStepUnlocked('game') || isStepUnlocked(currentUnitId, 'game'));
   }, [currentUnitId]);
 
   // Stage Runtime State
@@ -429,7 +430,7 @@ function HTML5CodeRescueContent() {
                 <Lock className="w-10 h-10" />
               </div>
               <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-mono font-bold mb-3">
-                ขั้นตอนที่ 4: เกม (Gated)
+                ขั้นตอนที่ 3: เกมกู้เว็บพัง (Step 3: Game)
               </span>
               <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                 ด่านนี้ถูกล็อกอยู่ (STAGE {currentStage.id} LOCKED)

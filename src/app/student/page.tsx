@@ -25,11 +25,8 @@ import {
 } from 'lucide-react';
 import { UnitPathStepper } from '@/components/UnitPathStepper';
 import {
-  getCurrentStep,
-  getStepUrl,
-  getUnitProgress,
-  isStepUnlocked,
-  UNIT_STEPS_CONFIG,
+  getCurrentCourseStep,
+  COURSE_STEPS_CONFIG,
   subscribeToProgress,
 } from '@/lib/progress-service';
 
@@ -38,11 +35,9 @@ export default function StudentDashboardPage() {
   const [skills, setSkills] = useState<Record<string, SkillProfile>>(MOCK_STUDENT_SKILLS);
   const [, setProgressTick] = useState(0);
 
-  const currentUnit = 'u-h1';
-  const progress = getUnitProgress(currentUnit);
-  const currentStepKey = getCurrentStep(currentUnit);
-  const currentStepUrl = getStepUrl(currentUnit, currentStepKey);
-  const currentStepConfig = UNIT_STEPS_CONFIG.find((s) => s.key === currentStepKey) || UNIT_STEPS_CONFIG[0];
+  const currentCourseStep = getCurrentCourseStep();
+  const currentStepConfig = COURSE_STEPS_CONFIG.find((s) => s.key === currentCourseStep) || COURSE_STEPS_CONFIG[0];
+  const currentStepUrl = currentStepConfig.href;
 
   useEffect(() => {
     try {
@@ -178,7 +173,7 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* 6 Sequential Steps Progress Card for Active Unit */}
+      {/* 5 Sequential Steps Progress Card */}
       <div className="mb-8 p-6 rounded-3xl bg-surface border-2 border-line shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -187,10 +182,10 @@ export default function StudentDashboardPage() {
               <span>ลำดับขั้นตอนการเรียนรู้ (SEQUENTIAL FLOW)</span>
             </div>
             <h2 className="text-xl font-black text-ink">
-              หน่วยที่ 1: โครงสร้างพื้นฐานของภาษา HTML (H1)
+              เรื่อง โครงสร้างภาษา HTML
             </h2>
             <p className="text-xs text-muted mt-0.5">
-              ระบบบังคับเรียนและทำแบบทดสอบตามลำดับ 6 ขั้นตอนเพื่อสร้างความเข้าใจที่มั่นคง
+              ระบบบังคับเรียนและทำแบบทดสอบตามลำดับ 5 ขั้นตอนเพื่อสร้างความเข้าใจที่มั่นคง
             </p>
           </div>
 
@@ -203,7 +198,7 @@ export default function StudentDashboardPage() {
           </Link>
         </div>
 
-        <UnitPathStepper unitId={currentUnit} currentStep={currentStepKey} />
+        <UnitPathStepper currentStep={currentCourseStep} />
       </div>
 
       {/* Skill Map & Recent Activity */}

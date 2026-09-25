@@ -17,6 +17,7 @@ import { getFixedUnitQuizQuestions } from '@/lib/pretest';
 import {
   getUnitProgress,
   isStepUnlocked,
+  isCourseStepUnlocked,
   setUnitStepCompleted,
   getStepUrl,
   subscribeToProgress,
@@ -136,10 +137,10 @@ export default function LessonDetailPage({
   }
 
   // --- GATING CHECK: Must pass Step 1 (Pre-test) before viewing lesson ---
-  if (!progress.pretest_done) {
+  if (!isCourseStepUnlocked('lessons')) {
     return (
       <div className="main-inner enter max-w-[850px] mx-auto pt-6">
-        <UnitPathStepper unitId={unit.id} currentStep="lesson" />
+        <UnitPathStepper unitId={unit.id} currentStep="lessons" />
 
         <div className="card p-8 sm:p-10 text-center border-amber-500/30 bg-amber-500/5 shadow-lg">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
@@ -149,11 +150,11 @@ export default function LessonDetailPage({
             ขั้นตอนที่ 2: บทเรียนยังไม่ปลดล็อก
           </h2>
           <p className="text-sm text-muted mb-6 max-w-lg mx-auto leading-relaxed">
-            ตามลำดับขั้นตอนการเรียนรู้ของระบบ คุณต้องทำแบบทดสอบก่อนเรียน (Step 1: Pre-test) ของหน่วยนี้ก่อน เพื่อวัดความรู้พื้นฐาน จึงจะสามารถเข้าสู่เนื้อหาบทเรียนได้
+            ตามลำดับขั้นตอนการเรียนรู้ของระบบ คุณต้องทำแบบทดสอบก่อนเรียน (Step 1: Pre-test) ภาพรวมของหลักสูตรภาษา HTML ก่อน เพื่อวัดความรู้พื้นฐาน จึงจะสามารถเข้าสู่เนื้อหาบทเรียนได้
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
-              href={`/student/assessment?unit=${unit.id}&type=pre_test`}
+              href="/student/assessment?type=pre_test"
               className="btn btn-primary px-6 py-3 font-bold text-sm shadow-md"
             >
               <Play className="w-4 h-4 mr-1.5" />
@@ -607,7 +608,7 @@ export default function LessonDetailPage({
                     <div>
                       <div className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 mb-1">
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>ผ่านแบบฝึกหัดท้ายหน่วยเรียบร้อย! ปลดล็อกขั้นตอนที่ 4 แล้ว</span>
+                        <span>ผ่านแบบฝึกหัดท้ายหน่วยเรียบร้อย! ปลดล็อกขั้นตอนถัดไปแล้ว</span>
                       </div>
                       <p className="text-xs text-muted m-0">
                         ขั้นตอนถัดไปในลำดับคือการทดสอบทักษะผ่านมินิเกมกู้โค้ดประจำหน่วย
@@ -619,7 +620,7 @@ export default function LessonDetailPage({
                       className="btn btn-primary px-6 py-2.5 text-xs font-bold shadow-md shrink-0 flex items-center gap-2"
                     >
                       <Gamepad2 className="w-4 h-4" />
-                      <span>ไปเล่นมินิเกมกู้โค้ด (Step 4: Game) &rarr;</span>
+                      <span>ไปเล่นเกมกู้เว็บพัง (Step 3: Game) &rarr;</span>
                     </Link>
                   </div>
                 )}

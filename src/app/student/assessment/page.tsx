@@ -31,6 +31,8 @@ import {
   isStepUnlocked,
   setUnitStepCompleted,
   getStepUrl,
+  isCourseStepUnlocked,
+  setCourseStepCompleted,
 } from '@/lib/progress-service';
 import { UnitPathStepper } from '@/components/UnitPathStepper';
 import {
@@ -124,16 +126,16 @@ function AssessmentContent() {
     return () => clearInterval(interval);
   }, [hasStarted, isTestFinished, currentQuestion]);
 
-  // Gating Check: Post-test is locked until Quest (Step 5) is completed
-  const isPosttestGated = selectedTestType === 'post_test' && !isStepUnlocked(unitId, 'posttest');
+  // Gating Check: Post-test is locked until Quest is completed
+  const isPosttestGated = selectedTestType === 'post_test' && !isCourseStepUnlocked('posttest');
 
   const startAssessment = () => {
     setHasStarted(true);
     const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
 
     if (selectedTestType === 'pre_test') {
-      // 1) FIXED PRE-TEST: 5 fixed questions, no difficulty adjustment
-      const fixedQ = getFixedPretestQuestions(unitId, pool, 5);
+      // 1) FIXED PRE-TEST: 20 fixed questions from official curriculum covering all topics
+      const fixedQ = getFixedPretestQuestions(null, pool);
       setPretestQuestions(fixedQ);
       setPretestIndex(0);
       setPretestAttempts([]);
@@ -273,14 +275,15 @@ function AssessmentContent() {
       score_percentage: scorePct,
       start_at: new Date(Date.now() - totalCount * 15000).toISOString(),
       end_at: new Date().toISOString(),
-      stop_reason: 'ทำแบบทดสอบก่อนเรียน (Pre-test) ครบ 5 ข้อชุดคำถามคงที่',
+      stop_reason: `ทำแบบทดสอบก่อนเรียน (Pre-test) ครบ ${totalCount} ข้อชุดคำถามคงที่`,
       attempts: finalAttempts,
     };
 
     try {
       saveTestSession(completedSession);
-      // Unlock Step 2: Lesson
-      setUnitStepCompleted(unitId, 'pretest', scorePct);
+      // Unlock Step 2: Lessons
+      setCourseStepCompleted('pretest', scorePct);
+      setUnitStepCompleted('u-h1', 'pretest', scorePct);
 
       auditLog('complete_assessment', 'test_session', {
         testType: 'pre_test',
@@ -365,8 +368,9 @@ function AssessmentContent() {
       });
 
       if (selectedTestType === 'post_test') {
-        // Unlock Step 6 completion
-        setUnitStepCompleted(unitId, 'posttest', scorePct);
+        // Unlock Step 5 Post-test completion
+        setCourseStepCompleted('posttest', scorePct);
+        setUnitStepCompleted('u-h1', 'posttest', scorePct);
       }
 
       if (selectedEngine === 'irt-3pl') {
@@ -400,17 +404,17 @@ function AssessmentContent() {
             <Lock className="w-8 h-8" />
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-ink mb-2">
-            ขั้นตอนที่ 6: แบบทดสอบหลังเรียนยังไม่ปลดล็อก
+            ขั้นตอนที่ 5: แบบทดสอบหลังเรียนยังไม่ปลดล็อก
           </h2>
           <p className="text-sm text-muted mb-6 max-w-lg mx-auto leading-relaxed">
-            ตามลำดับการเรียนรู้แบบต่อเนื่อง (Sequential Gating) คุณต้องทำภารกิจเขียนโค้ด (Quest: Code Lab) ในขั้นตอนที่ 5 ให้สำเร็จก่อน จึงจะสามารถทำแบบทดสอบหลังเรียนแบบปรับเหมาะ (Adaptive Post-test) ได้
+            ตามลำดับการเรียนรู้แบบต่อเนื่อง (Sequential Gating) คุณต้องทำภารกิจเขียนโค้ด (Code Lab) ในขั้นตอนที่ 4 ให้สำเร็จก่อน จึงจะสามารถทำแบบทดสอบหลังเรียนแบบปรับเหมาะ (Adaptive Post-test) ได้
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link href={getStepUrl(unitId, 'quest')} className="btn btn-primary">
+            <Link href="/student/quests" className="btn btn-primary">
               <Terminal className="w-4 h-4 mr-1.5" />
-              <span>ไปทำภารกิจเขียนโค้ด (Step 5: Quest) &rarr;</span>
+              <span>ไปทำภารกิจเขียนโค้ด (Step 4: Quests) &rarr;</span>
             </Link>
-            <Link href={`/student/lessons/${unitId}`} className="btn btn-ghost">
+            <Link href="/student/lessons" className="btn btn-ghost">
               <span>กลับไปหน้าบทเรียน</span>
             </Link>
           </div>
@@ -501,23 +505,23 @@ function AssessmentContent() {
         <div className="card p-6 border-l-4 border-l-primary bg-primary/5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest mb-0.5">
-              {isPretest ? 'ขั้นตอนถัดไปในลำดับการเรียนรู้ (Step 2)' : 'เสร็จสิ้นหน่วยนี้'}
+              {isPretest ? 'ขั้นตอนถัดไปในลำดับการเรียนรู้ (Step 2)' : 'เสร็จสิ้นการประเมิน'}
             </div>
             <h3 className="text-base font-bold text-ink mb-1">
-              {isPretest ? `เข้าสู่บทเรียน: ${SUB_DOMAINS[subDomain]?.name || 'HTML'}` : 'กลับสู่เส้นทางการเรียนรู้'}
+              {isPretest ? 'เข้าสู่บทเรียน HTML' : 'กลับสู่เส้นทางการเรียนรู้'}
             </h3>
             <p className="text-xs text-muted">
               {isPretest
-                ? 'เริ่มศึกษาเนื้อหาสไลด์และวิดีโอประกอบบทเรียนตามลำดับ'
-                : 'คุณสามารถเลือกเรียนหน่วยถัดไปเพื่อพัฒนาทักษะระดับสูงขึ้นได้'}
+                ? 'เริ่มศึกษาเนื้อหาบทเรียน 5 เรื่องย่อยพร้อมทำแบบฝึกหัดท้ายหน่วยตามลำดับ'
+                : 'ยินดีด้วย! คุณผ่านการประเมินทักษะของหลักสูตรโครงสร้างภาษา HTML เรียบร้อยแล้ว'}
             </p>
           </div>
 
           <Link
-            href={isPretest ? `/student/lessons/${unitId}` : '/student/lessons'}
+            href={isPretest ? '/student/lessons' : '/student'}
             className="btn btn-primary whitespace-nowrap text-xs font-bold"
           >
-            <span>{isPretest ? 'เข้าสู่บทเรียน (Step 2) &rarr;' : 'ดูหน่วยเรียนทั้งหมด &rarr;'}</span>
+            <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2) &rarr;' : 'กลับหน้าแดชบอร์ด &rarr;'}</span>
           </Link>
         </div>
       </div>
@@ -545,13 +549,13 @@ function AssessmentContent() {
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-ink mb-1.5">
                 {isPretest
-                  ? `แบบทดสอบก่อนเรียน (Pre-test) — ${SUB_DOMAINS[subDomain]?.name || subDomain}`
-                  : `แบบทดสอบหลังเรียน (Post-test: Adaptive CAT)`}
+                  ? 'แบบทดสอบก่อนเรียน (Pre-test) — เรื่อง โครงสร้างภาษา HTML'
+                  : 'แบบทดสอบหลังเรียน (Post-test: Adaptive CAT) — เรื่อง โครงสร้างภาษา HTML'}
               </h1>
               <p className="text-xs sm:text-sm text-muted mb-6">
                 {isPretest
-                  ? 'ชุดคำถามคงที่ 5 ข้อ (Fixed questions) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่เนื้อหาบทเรียน ไม่ปรับระดับความยาก'
-                  : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT)'}
+                  ? 'ชุดคำถามคงที่ 20 ข้อ (ครอบคลุมเนื้อหาภาพรวมทุกหน่วย) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่บทเรียน ไม่ปรับระดับความยาก'
+                  : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT) ครอบคลุมทุกหน่วยการเรียนรู้'}
               </p>
             </div>
 
@@ -565,7 +569,7 @@ function AssessmentContent() {
                 <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">1</span>
                 <p className="m-0">
                   {isPretest
-                    ? 'แบบทดสอบชุดนี้มีจำนวน 5 ข้อ เป็นชุดคำถามคงที่สำหรับหน่วยนี้'
+                    ? 'แบบทดสอบชุดนี้มีจำนวน 20 ข้อ (ครอบคลุมภาพรวมเนื้อหาทุกเรื่อง) เป็นชุดคำถามคงที่'
                     : 'แบบทดสอบเป็นแบบปรับเหมาะ (Adaptive) ความยากจะปรับขึ้น/ลงตามคำตอบ'}
                 </p>
               </div>
@@ -577,7 +581,7 @@ function AssessmentContent() {
                 <span className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-[10px]">3</span>
                 <p className="m-0">
                   {isPretest
-                    ? 'เมื่อทำเสร็จสิ้น ระบบจะปลดล็อกเนื้อหาบทเรียนและสไลด์การสอนให้โดยอัตโนมัติ'
+                    ? 'เมื่อทำเสร็จสิ้น ระบบจะปลดล็อกเนื้อหาบทเรียน HTML ทั้งหมดให้โดยอัตโนมัติ'
                     : 'เมื่อทำเสร็จสิ้น ระบบจะวิเคราะห์ระดับความสามารถ (Theta) รายบุคคล'}
                 </p>
               </div>

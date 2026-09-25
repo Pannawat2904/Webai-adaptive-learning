@@ -16,27 +16,16 @@ import {
   Gamepad2,
   Sparkles,
   ClipboardList,
-  CheckSquare,
   Trophy,
   Lock,
   CheckCircle2,
-  GraduationCap,
 } from 'lucide-react';
 import {
-  UnitStepKey,
-  getUnitProgress,
-  isStepUnlocked,
+  CourseStepKey,
+  getCourseProgress,
+  isCourseStepUnlocked,
   subscribeToProgress,
-  normalizeUnit,
 } from '@/lib/progress-service';
-
-const UNITS_LIST = [
-  { id: 'u-h1', code: 'H1', stage: 1, title: 'หน่วย 1: โครงสร้าง HTML (H1)', shortTitle: 'H1 โครงสร้าง HTML' },
-  { id: 'u-h2', code: 'H2', stage: 2, title: 'หน่วย 2: ข้อความและลิงก์ (H2)', shortTitle: 'H2 ข้อความและลิงก์' },
-  { id: 'u-h3', code: 'H3', stage: 3, title: 'หน่วย 3: รูปภาพและตาราง (H3)', shortTitle: 'H3 รูปภาพและตาราง' },
-  { id: 'u-h4', code: 'H4', stage: 4, title: 'หน่วย 4: Semantic HTML (H4)', shortTitle: 'H4 Semantic HTML' },
-  { id: 'u-h5', code: 'H5', stage: 5, title: 'หน่วย 5: แบบฟอร์ม HTML (H5)', shortTitle: 'H5 แบบฟอร์ม HTML' },
-];
 
 function StudentLayoutContent({
   children,
@@ -52,49 +41,6 @@ function StudentLayoutContent({
   const [mounted, setMounted] = useState(false);
   const [, setProgressTick] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Active Unit Detection
-  const unitParam = searchParams.get('unit');
-  const getInitialUnit = () => {
-    if (unitParam) return normalizeUnit(unitParam).unitId;
-    if (pathname.includes('/lessons/')) {
-      const match = pathname.match(/\/lessons\/([^/?]+)/);
-      if (match) return normalizeUnit(match[1]).unitId;
-    }
-    if (pathname.includes('/quests/asg-')) {
-      const match = pathname.match(/\/quests\/asg-([1-5])/);
-      if (match) return `u-h${match[1]}`;
-    }
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('webai_current_learning_unit');
-      if (saved) return normalizeUnit(saved).unitId;
-    }
-    return 'u-h1';
-  };
-
-  const [activeUnit, setActiveUnit] = useState<string>(getInitialUnit);
-
-  useEffect(() => {
-    if (unitParam) {
-      const norm = normalizeUnit(unitParam).unitId;
-      setActiveUnit(norm);
-      localStorage.setItem('webai_current_learning_unit', norm);
-    } else if (pathname.includes('/lessons/')) {
-      const match = pathname.match(/\/lessons\/([^/?]+)/);
-      if (match) {
-        const norm = normalizeUnit(match[1]).unitId;
-        setActiveUnit(norm);
-        localStorage.setItem('webai_current_learning_unit', norm);
-      }
-    } else if (pathname.includes('/quests/asg-')) {
-      const match = pathname.match(/\/quests\/asg-([1-5])/);
-      if (match) {
-        const norm = `u-h${match[1]}`;
-        setActiveUnit(norm);
-        localStorage.setItem('webai_current_learning_unit', norm);
-      }
-    }
-  }, [unitParam, pathname]);
 
   // Subscribe to progress changes across steps
   useEffect(() => {
@@ -121,88 +67,75 @@ function StudentLayoutContent({
 
   if (!mounted) return null;
 
-  const currentUnitConfig = UNITS_LIST.find((u) => u.id === activeUnit) || UNITS_LIST[0];
-  const stageNum = currentUnitConfig.stage;
-  const progress = getUnitProgress(activeUnit);
+  const courseProgress = getCourseProgress();
+  const testType = searchParams.get('type');
 
-  // 6 Sequential Steps Configuration
-  const sequentialSteps = [
+  // Main 5 Sequential Learning Steps of HTML Course
+  const courseSteps = [
     {
       step: 1,
-      key: 'pretest' as UnitStepKey,
+      key: 'pretest' as CourseStepKey,
       title: 'แบบทดสอบก่อนเรียน',
-      desc: 'Pre-test (ชุดข้อสอบคงที่)',
+      desc: 'Pre-test (ชุดคงที่เฉลี่ยทุกหน่วย)',
       icon: ClipboardList,
-      href: `/student/assessment?unit=${activeUnit}&type=pre_test`,
+      href: '/student/assessment?type=pre_test',
       isUnlocked: true,
-      isCompleted: progress.pretest_done,
-      isActive: pathname.startsWith('/student/assessment') && searchParams.get('type') === 'pre_test',
+      isCompleted: courseProgress.pretest_done,
+      isActive: pathname.startsWith('/student/assessment') && testType === 'pre_test',
       requiredStepName: '',
     },
     {
       step: 2,
-      key: 'lesson' as UnitStepKey,
-      title: 'เนื้อหาบทเรียน',
-      desc: 'Slide & Video Tutorial',
+      key: 'lessons' as CourseStepKey,
+      title: 'บทเรียน HTML',
+      desc: 'เนื้อหา 5 เรื่องย่อย + แบบฝึกหัด',
       icon: BookOpen,
-      href: `/student/lessons/${activeUnit}`,
-      isUnlocked: isStepUnlocked(activeUnit, 'lesson'),
-      isCompleted: progress.lesson_done,
-      isActive: pathname.startsWith('/student/lessons') && searchParams.get('tab') !== 'quiz',
+      href: '/student/lessons',
+      isUnlocked: isCourseStepUnlocked('lessons'),
+      isCompleted: courseProgress.lessons_done,
+      isActive: pathname.startsWith('/student/lessons'),
       requiredStepName: '1. แบบทดสอบก่อนเรียน (Pre-test)',
     },
     {
       step: 3,
-      key: 'unit_quiz' as UnitStepKey,
-      title: 'แบบฝึกหัดท้ายหน่วย',
-      desc: 'Unit Quiz (ข้อสอบสั้น 4 ข้อ)',
-      icon: CheckSquare,
-      href: `/student/lessons/${activeUnit}?tab=quiz`,
-      isUnlocked: isStepUnlocked(activeUnit, 'unit_quiz'),
-      isCompleted: progress.unit_quiz_done,
-      isActive: pathname.startsWith('/student/lessons') && searchParams.get('tab') === 'quiz',
-      requiredStepName: '2. เนื้อหาบทเรียน (Lesson)',
+      key: 'game' as CourseStepKey,
+      title: 'เกมกู้เว็บพัง',
+      desc: 'HTML5 Code Rescue (5 ด่าน)',
+      icon: Gamepad2,
+      href: '/student/game',
+      isUnlocked: isCourseStepUnlocked('game'),
+      isCompleted: courseProgress.game_done,
+      isActive: pathname.startsWith('/student/game'),
+      requiredStepName: '2. บทเรียน HTML',
     },
     {
       step: 4,
-      key: 'game' as UnitStepKey,
-      title: 'มินิเกมกู้เว็บพัง',
-      desc: `Code Rescue (ด่าน ${stageNum})`,
-      icon: Gamepad2,
-      href: `/student/game?unit=${activeUnit}&stage=${stageNum}`,
-      isUnlocked: isStepUnlocked(activeUnit, 'game'),
-      isCompleted: progress.game_done,
-      isActive: pathname.startsWith('/student/game'),
-      requiredStepName: '3. แบบฝึกหัดท้ายหน่วย (Unit Quiz)',
+      key: 'quest' as CourseStepKey,
+      title: 'ภารกิจเขียนโค้ด',
+      desc: 'Code Lab (ตะลุยด่านปฏิบัติการ)',
+      icon: Code2,
+      href: '/student/quests',
+      isUnlocked: isCourseStepUnlocked('quest'),
+      isCompleted: courseProgress.quest_done,
+      isActive: pathname.startsWith('/student/quests'),
+      requiredStepName: '3. เกมกู้เว็บพัง',
     },
     {
       step: 5,
-      key: 'quest' as UnitStepKey,
-      title: 'ภารกิจเขียนโค้ด',
-      desc: `Quest Lab (ด่าน ${stageNum})`,
-      icon: Code2,
-      href: `/student/quests/asg-${stageNum}?unit=${activeUnit}`,
-      isUnlocked: isStepUnlocked(activeUnit, 'quest'),
-      isCompleted: progress.quest_done,
-      isActive: pathname.startsWith('/student/quests'),
-      requiredStepName: '4. มินิเกมกู้เว็บพัง (Game)',
-    },
-    {
-      step: 6,
-      key: 'posttest' as UnitStepKey,
+      key: 'posttest' as CourseStepKey,
       title: 'แบบทดสอบหลังเรียน',
-      desc: 'Post-test (Adaptive CAT)',
+      desc: 'Post-test (Adaptive CAT ประเมินผล)',
       icon: Trophy,
-      href: `/student/assessment?unit=${activeUnit}&type=post_test`,
-      isUnlocked: isStepUnlocked(activeUnit, 'posttest'),
-      isCompleted: progress.posttest_done,
-      isActive: pathname.startsWith('/student/assessment') && searchParams.get('type') === 'post_test',
-      requiredStepName: '5. ภารกิจเขียนโค้ด (Quest Lab)',
+      href: '/student/assessment?type=post_test',
+      isUnlocked: isCourseStepUnlocked('posttest'),
+      isCompleted: courseProgress.posttest_done,
+      isActive: pathname.startsWith('/student/assessment') && testType === 'post_test',
+      requiredStepName: '4. ภารกิจเขียนโค้ด',
     },
   ];
 
   // Prevent jumping ahead when clicking a locked step
-  const handleStepClick = (e: React.MouseEvent, step: typeof sequentialSteps[0]) => {
+  const handleStepClick = (e: React.MouseEvent, step: typeof courseSteps[0]) => {
     if (!step.isUnlocked) {
       e.preventDefault();
       setToastMessage(
@@ -261,7 +194,7 @@ function StudentLayoutContent({
                   WebAI
                 </span>
                 <span className="text-[10px] text-muted font-mono font-medium">
-                  Adaptive Learning
+                  โครงสร้างภาษา HTML
                 </span>
               </div>
             </div>
@@ -293,39 +226,11 @@ function StudentLayoutContent({
             {!isSidebarCollapsed && <span>แดชบอร์ด</span>}
           </Link>
 
-          {/* Unit Selector Header */}
+          {/* Sequential Course Flow Section Header */}
           {!isSidebarCollapsed ? (
             <div className="pt-2 border-t border-line/60">
-              <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
-                  <GraduationCap className="w-3.5 h-3.5 text-primary" />
-                  หน่วยที่กำลังเรียน
-                </span>
-                <span className="text-[10px] font-mono text-primary font-bold">
-                  {currentUnitConfig.code}
-                </span>
-              </div>
-
-              {/* Unit Dropdown */}
-              <select
-                value={activeUnit}
-                onChange={(e) => {
-                  const newUnit = e.target.value;
-                  setActiveUnit(newUnit);
-                  localStorage.setItem('webai_current_learning_unit', newUnit);
-                  router.push(`/student/lessons/${newUnit}`);
-                }}
-                className="w-full text-xs font-bold py-2 px-2.5 rounded-xl bg-surface border border-line text-ink focus:outline-none focus:border-primary shadow-sm cursor-pointer mb-3"
-              >
-                {UNITS_LIST.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.title}
-                  </option>
-                ))}
-              </select>
-
-              <div className="text-[10px] font-mono uppercase tracking-wider text-muted font-bold px-1 mb-1.5 flex items-center justify-between">
-                <span>ลำดับขั้นตอน (6 ขั้น)</span>
+              <div className="text-[10px] font-mono uppercase tracking-wider text-muted font-bold px-1 mb-2 flex items-center justify-between">
+                <span>ลำดับขั้นตอนการเรียนรู้</span>
                 <span className="text-muted">บังคับตามลำดับ</span>
               </div>
             </div>
@@ -333,9 +238,9 @@ function StudentLayoutContent({
             <div className="border-t border-line my-2" />
           )}
 
-          {/* 6 Sequential Learning Steps */}
+          {/* Sequential Learning Steps */}
           <div className="space-y-1.5">
-            {sequentialSteps.map((step) => {
+            {courseSteps.map((step) => {
               const Icon = step.icon;
               const isLocked = !step.isUnlocked;
               const isDone = step.isCompleted;
@@ -347,7 +252,7 @@ function StudentLayoutContent({
                   href={isLocked ? '#' : step.href}
                   onClick={(e) => handleStepClick(e, step)}
                   className={`flex items-center ${
-                    isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2'
+                    isSidebarCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
                   } rounded-xl text-xs transition-all duration-200 relative group border ${
                     isActive
                       ? 'bg-primary-dim text-primary border-primary/30 shadow-sm font-bold'
@@ -365,10 +270,10 @@ function StudentLayoutContent({
                 >
                   {/* Left Active Glow Indicator */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-md shadow-sm" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-primary rounded-r-md shadow-sm" />
                   )}
 
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div
                       className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border relative ${
                         isActive
@@ -495,8 +400,7 @@ function StudentLayoutContent({
               <Sparkles className="w-3.5 h-3.5" /> ระบบการเรียนรู้ WebAI
             </span>
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold border border-line">
-              <GraduationCap className="w-3.5 h-3.5 text-primary" />
-              {currentUnitConfig.shortTitle}
+              เรื่อง โครงสร้างภาษา HTML
             </span>
           </div>
 
@@ -528,13 +432,13 @@ function StudentLayoutContent({
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation with 6 Steps Flow Quick Access */}
+      {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 pb-safe">
         <div className="absolute inset-0 bg-surface/95 backdrop-blur-xl border-t border-line" />
         <nav className="relative flex items-center justify-around pt-2 pb-5 px-1 overflow-x-auto scrollbar-hide">
           <Link
             href="/student"
-            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all min-w-[52px] ${
+            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all min-w-[56px] ${
               isDashboardActive ? 'text-primary font-bold' : 'text-muted'
             }`}
           >
@@ -542,7 +446,7 @@ function StudentLayoutContent({
             <span className="text-[10px]">หลัก</span>
           </Link>
 
-          {sequentialSteps.slice(0, 4).map((step) => {
+          {courseSteps.map((step) => {
             const Icon = step.icon;
             const isLocked = !step.isUnlocked;
             const isActive = step.isActive;
@@ -551,7 +455,7 @@ function StudentLayoutContent({
                 key={step.key}
                 href={isLocked ? '#' : step.href}
                 onClick={(e) => handleStepClick(e, step)}
-                className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all min-w-[52px] relative ${
+                className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all min-w-[56px] relative ${
                   isActive
                     ? 'text-primary font-bold'
                     : isLocked
@@ -568,32 +472,12 @@ function StudentLayoutContent({
                     <CheckCircle2 className="w-2.5 h-2.5 absolute -top-1 -right-1.5 text-emerald-500" />
                   )}
                 </div>
-                <span className="text-[9px] truncate max-w-[52px]">
+                <span className="text-[9px] truncate max-w-[56px]">
                   ขั้น {step.step}
                 </span>
               </Link>
             );
           })}
-
-          <Link
-            href={`/student/assessment?unit=${activeUnit}&type=post_test`}
-            onClick={(e) => handleStepClick(e, sequentialSteps[5])}
-            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all min-w-[52px] relative ${
-              sequentialSteps[5].isActive
-                ? 'text-primary font-bold'
-                : !sequentialSteps[5].isUnlocked
-                ? 'text-slate-400 opacity-50'
-                : 'text-muted'
-            }`}
-          >
-            <div className="relative">
-              <Trophy className="w-4 h-4" />
-              {!sequentialSteps[5].isUnlocked && (
-                <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1.5 text-slate-500" />
-              )}
-            </div>
-            <span className="text-[9px]">ขั้น 6</span>
-          </Link>
         </nav>
       </div>
     </div>

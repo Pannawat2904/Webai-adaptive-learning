@@ -19,7 +19,12 @@ import {
   Lock,
 } from 'lucide-react';
 import Link from 'next/link';
-import { normalizeUnit, isStepUnlocked, setUnitStepCompleted } from '@/lib/progress-service';
+import {
+  normalizeUnit,
+  isStepUnlocked,
+  isCourseStepUnlocked,
+  setUnitStepCompleted,
+} from '@/lib/progress-service';
 import { UnitPathStepper } from '@/components/UnitPathStepper';
 
 export default function ActiveQuestPage() {
@@ -52,7 +57,7 @@ export default function ActiveQuestPage() {
       setPreviewCode(currentQuest.starter_code);
       setLevelCleared(false);
       setChecklistStatus({});
-      setIsQuestUnlocked(isStepUnlocked(unitId, 'quest'));
+      setIsQuestUnlocked(isCourseStepUnlocked('quest') || isStepUnlocked(unitId, 'quest'));
     }
   }, [currentQuest, unitId]);
 
@@ -350,12 +355,12 @@ export default function ActiveQuestPage() {
             </div>
 
             <div className="pt-4 flex flex-col gap-3">
-              {/* Step 6 Post-test Primary CTA */}
+              {/* Step 5 Post-test Primary CTA */}
               <Link
-                href={`/student/assessment?unit=${unitId}&type=post_test`}
+                href="/student/assessment?type=post_test"
                 className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold transition-all shadow-lg shadow-purple-600/25 hover:-translate-y-0.5 text-sm"
               >
-                <span>ขั้นตอนถัดไป: ทำแบบทดสอบหลังเรียน (Post-test)</span>
+                <span>ขั้นตอนถัดไป: ทำแบบทดสอบหลังเรียน (Step 5: Post-test)</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
 
