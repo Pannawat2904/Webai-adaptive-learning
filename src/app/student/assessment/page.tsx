@@ -697,7 +697,7 @@ function AssessmentContent() {
               </b>
               <p className="text-[10px] text-muted m-0 leading-relaxed">
                 {isPretest
-                  ? 'ชุดข้อสอบคงที่ 5 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
+                  ? 'ชุดข้อสอบคงที่ 20 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
                   : 'ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณโดยอัตโนมัติ'}
               </p>
             </div>
@@ -735,10 +735,11 @@ function AssessmentContent() {
 
                     const isSelected = selectedOption === key;
                     const isCorrect = key === currentQuestion.correct_option;
+                    const thaiLabel = key === 'A' ? 'ก' : key === 'B' ? 'ข' : key === 'C' ? 'ค' : 'ง';
 
                     let borderClass = 'border-line hover:border-primary/50';
                     let bgClass = 'bg-surface';
-                    let radioClass = 'border-line text-transparent';
+                    let radioClass = 'border-line text-muted';
 
                     if (hasSubmittedAnswer) {
                       if (isCorrect) {
@@ -760,9 +761,9 @@ function AssessmentContent() {
                         className={`flex items-center gap-3.5 p-4 rounded-xl border-2 transition-all cursor-pointer ${borderClass} ${bgClass}`}
                       >
                         <span
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-bold font-mono text-xs shrink-0 ${radioClass}`}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-bold text-xs shrink-0 ${radioClass}`}
                         >
-                          {key}
+                          {thaiLabel}
                         </span>
                         <span className="text-sm font-medium leading-relaxed">{choiceText}</span>
                       </div>

@@ -9,6 +9,7 @@ import {
   Recommendation,
   Progress,
 } from '@/types/database';
+import { OFFICIAL_PRETEST_QUESTIONS } from './pretest-data';
 
 export const MOCK_PROFILES: Record<string, Profile> = {
   student: {
@@ -679,8 +680,9 @@ export const MOCK_ASSIGNMENTS: Assignment[] = [
   },
 ];
 
-// 40 Realistic Questions covering H1 to H8
+// 40 Realistic Questions covering H1 to H8 + 20 Official Pre-test Questions
 export const MOCK_QUESTIONS: Question[] = [
+  ...OFFICIAL_PRETEST_QUESTIONS,
   // H1
   {
     id: 'q-h1-1',
