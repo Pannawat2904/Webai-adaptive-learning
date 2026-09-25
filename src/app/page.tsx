@@ -15,7 +15,6 @@ import {
   Globe,
   CheckCircle2,
   Sparkles,
-  Gamepad2,
 } from 'lucide-react';
 
 export default function Home() {
@@ -70,9 +69,6 @@ export default function Home() {
             เรียนรู้งานวิเคราะห์กระบวนการและโครงสร้างการทำงานของเว็บไซต์ ผ่านภารกิจที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และนำไปใช้ได้จริง
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/student/game" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 text-white font-bold text-lg flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-lg shadow-indigo-500/30 hover:-translate-y-1">
-              <Gamepad2 className="w-5 h-5 text-yellow-300" /> เล่นเกมกู้เว็บพัง 🎮
-            </Link>
             <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
               <Terminal className="w-5 h-5" /> เข้าสู่ระบบเรียน
             </Link>
