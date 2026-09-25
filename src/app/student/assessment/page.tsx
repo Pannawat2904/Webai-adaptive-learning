@@ -455,7 +455,7 @@ function AssessmentContent() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/student/quests" className="btn btn-primary">
               <Terminal className="w-4 h-4 mr-1.5" />
-              <span>ไปทำภารกิจเขียนโค้ด (Step 4: Quests) &rarr;</span>
+              <span>ไปทำภารกิจเขียนโค้ด (Step 4: Quests) ➔</span>
             </Link>
             <Link href="/student/lessons" className="btn btn-ghost">
               <span>กลับไปหน้าบทเรียน</span>
@@ -561,7 +561,7 @@ function AssessmentContent() {
             href={isPretest ? '/student/lessons' : '/student'}
             className="btn btn-primary whitespace-nowrap text-xs font-bold"
           >
-            <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2) &rarr;' : 'กลับหน้าแดชบอร์ด &rarr;'}</span>
+            <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2) ➔' : 'กลับหน้าแดชบอร์ด ➔'}</span>
           </Link>
         </div>
       </div>
@@ -701,35 +701,43 @@ function AssessmentContent() {
 
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Grid */}
-          <aside className="hidden md:flex flex-col w-[180px] shrink-0 border-r border-line p-3.5 bg-surface/50 overflow-y-auto">
-            <div className="flex items-center gap-2 text-xs font-bold mb-2.5 text-ink shrink-0">
-              <Grid className="w-3.5 h-3.5 text-primary" />
-              <span>{isPretest ? 'ข้อสอบคงที่ (20 ข้อ)' : 'สถานะข้อสอบ CAT'}</span>
+          <aside className="hidden md:flex flex-col w-[200px] shrink-0 border-r border-line p-3.5 bg-surface/50 overflow-y-auto">
+            {/* Header with Counter */}
+            <div className="flex items-center justify-between mb-2 text-xs font-bold text-ink shrink-0">
+              <div className="flex items-center gap-1.5">
+                <Grid className="w-3.5 h-3.5 text-primary" />
+                <span>รายการข้อสอบ</span>
+              </div>
+              <span className="text-[11px] font-mono text-primary font-black bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                {currentIndex} / {maxQuestions}
+              </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-1 shrink-0">
+            {/* Visual Progress Bar */}
+            <div className="w-full bg-line/60 rounded-full h-1.5 mb-3 overflow-hidden shrink-0">
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${(currentIndex / maxQuestions) * 100}%` }}
+              />
+            </div>
+
+            {/* Question Grid 1 to 20 */}
+            <div className="grid grid-cols-4 gap-1.5 shrink-0">
               {Array.from({ length: maxQuestions }).map((_, idx) => {
                 const isCur = idx === currentIndex;
                 const isDone = idx < currentIndex;
-                const bg = isCur ? 'var(--blue)' : isDone ? 'var(--line)' : 'transparent';
-                const color = isCur ? '#fff' : isDone ? 'var(--muted)' : 'var(--muted)';
-                const border = !isCur && !isDone ? '1px solid var(--line)' : 'none';
+
+                let itemClass = 'bg-surface text-ink/70 border border-line font-semibold hover:border-primary/40';
+                if (isCur) {
+                  itemClass = 'bg-primary text-white font-black ring-2 ring-primary ring-offset-2 ring-offset-surface shadow-md scale-105 z-10';
+                } else if (isDone) {
+                  itemClass = 'bg-emerald-500 text-white font-bold shadow-xs';
+                }
 
                 return (
                   <div
                     key={idx}
-                    style={{
-                      aspectRatio: '1',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      background: bg,
-                      color,
-                      border,
-                    }}
+                    className={`aspect-square rounded-lg flex items-center justify-center text-xs transition-all select-none ${itemClass}`}
                   >
                     {idx + 1}
                   </div>
@@ -737,14 +745,43 @@ function AssessmentContent() {
               })}
             </div>
 
-            <div className="mt-3 pt-3 border-t border-line text-[11px] space-y-1.5 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-sm bg-primary inline-block"></span>
-                <span>ข้อปัจจุบัน</span>
+            {/* Status Legend (ทำแล้ว / ข้อปัจจุบัน / ยังไม่ทำ) */}
+            <div className="mt-3.5 pt-3 border-t border-line text-xs space-y-2 shrink-0">
+              <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
+                สถานะการทำข้อสอบ
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-sm bg-line inline-block"></span>
-                <span>ตอบแล้ว</span>
+
+              {/* ข้อปัจจุบัน */}
+              <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-primary/30 inline-block shrink-0"></span>
+                  <span className="font-semibold text-ink">ข้อปัจจุบัน</span>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                  ข้อ {currentIndex + 1}
+                </span>
+              </div>
+
+              {/* ทำแล้ว */}
+              <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shrink-0"></span>
+                  <span className="font-semibold text-ink">ทำแล้ว</span>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                  {currentIndex} ข้อ
+                </span>
+              </div>
+
+              {/* ยังไม่ทำ */}
+              <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-surface border-2 border-line inline-block shrink-0"></span>
+                  <span className="font-medium text-muted">ยังไม่ทำ</span>
+                </div>
+                <span className="text-[10px] font-mono font-medium text-muted bg-surface border border-line px-1.5 py-0.5 rounded">
+                  {Math.max(0, maxQuestions - currentIndex)} ข้อ
+                </span>
               </div>
             </div>
 

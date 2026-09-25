@@ -181,7 +181,7 @@ export default function TeacherLoginPage() {
             href="/" 
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
-            &larr; กลับสู่หน้าหลัก
+            ← กลับสู่หน้าหลัก
           </Link>
         </div>
       </div>

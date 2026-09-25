@@ -259,7 +259,7 @@ export default function LessonDetailPage({
                   onClick={() => setActiveTab('slide')}
                   className="text-xs text-indigo-400 hover:text-indigo-300 underline font-semibold"
                 >
-                  สลับไปดูสไลด์ &rarr;
+                  สลับไปดูสไลด์ ➔
                 </button>
               </div>
             </div>

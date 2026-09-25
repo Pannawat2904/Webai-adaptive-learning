@@ -72,7 +72,7 @@ export default function LoginPage() {
 
         <div className="pt-4 text-center">
           <Link href="/" className="text-sm font-bold text-slate-400 hover:text-purple-600 transition-colors">
-            &larr; กลับหน้าหลัก
+            ← กลับหน้าหลัก
           </Link>
         </div>
       </div>
