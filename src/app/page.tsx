@@ -65,9 +65,34 @@ export default function Home() {
               การสร้างเว็บไซต์
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-            เรียนรู้งานวิเคราะห์กระบวนการและโครงสร้างการทำงานของเว็บไซต์ ผ่านภารกิจที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และนำไปใช้ได้จริง
-          </p>
+          <div className="max-w-2xl mx-auto mb-10 space-y-4">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-normal text-balance">
+              เรียนรู้โครงสร้างและกระบวนการทำงานของเว็บไซต์อย่างเป็นระบบ
+              <br className="hidden sm:inline" />
+              ผ่านภารกิจการเรียนรู้แบบปรับเหมาะเฉพาะบุคคล{' '}
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-sm sm:text-base align-middle">
+                Adaptive Learning
+              </span>
+              <br className="hidden sm:inline" />
+              สนุก ท้าทาย และนำไปประยุกต์ใช้ได้จริง
+            </p>
+
+            {/* Feature Highlights Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border border-line shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                เรียนรู้ตามระดับความสามารถ
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border border-line shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                ฝึกปฏิบัติและเขียนโค้ดจริง
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border border-line shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                วิเคราะห์ผลแบบปรับเหมาะ
+              </span>
+            </div>
+          </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
               <Terminal className="w-5 h-5" /> เข้าสู่ระบบเรียน
