@@ -19,6 +19,8 @@ interface GameHeaderProps {
   onAskHint: () => void;
   hasHintUsed: boolean;
   scoreAnimation: boolean;
+  isBgmOn?: boolean;
+  onToggleBgm?: () => void;
 }
 
 export function GameHeader({
@@ -35,6 +37,8 @@ export function GameHeader({
   onAskHint,
   hasHintUsed,
   scoreAnimation,
+  isBgmOn = false,
+  onToggleBgm,
 }: GameHeaderProps) {
   const rank = getRankByScore(score);
   const level = getLevelByScore(score);
@@ -141,11 +145,34 @@ export function GameHeader({
               <span className="hidden sm:inline">คำใบ้</span>
             </button>
 
+            {/* Retro 8-bit BGM Toggle */}
+            {onToggleBgm && (
+              <button
+                onClick={onToggleBgm}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isBgmOn
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
+                }`}
+                title={isBgmOn ? 'ปิดเพลงประกอบเกม BGM' : 'เปิดเพลงประกอบเกม 8-bit BGM'}
+              >
+                <span>🎵</span>
+                <span className="hidden sm:inline">BGM</span>
+                {isBgmOn && (
+                  <div className="flex items-end gap-0.5 h-3">
+                    <span className="w-0.5 bg-white rounded-full eq-bar-1" />
+                    <span className="w-0.5 bg-white rounded-full eq-bar-2" />
+                    <span className="w-0.5 bg-white rounded-full eq-bar-3" />
+                  </div>
+                )}
+              </button>
+            )}
+
             {/* Sound Toggle */}
             <button
               onClick={onToggleSound}
               className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              title={isSoundOn ? 'ปิดเสียง' : 'เปิดเสียง'}
+              title={isSoundOn ? 'ปิดเสียงเอฟเฟกต์' : 'เปิดเสียงเอฟเฟกต์'}
             >
               {isSoundOn ? <Volume2 className="w-4 h-4 text-indigo-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
             </button>

@@ -30,12 +30,23 @@ export function TagBotGuide({
       {/* Robot Mascot & Speech Bubble */}
       <div className="flex items-start gap-3">
         {/* Animated Robot Avatar */}
-        <div className="relative shrink-0">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25 animate-bounce">
-            <Bot className="w-6 h-6" />
+        <div 
+          onClick={() => {
+            import('@/lib/game/sound-effects').then(({ soundManager }) => soundManager.playCodePartSelect());
+          }}
+          className="relative shrink-0 cursor-pointer group"
+          title="คลิกคุยกับ TagBot"
+        >
+          <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-cyan-400 dark:border-cyan-500 shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-all duration-300 relative bg-slate-900">
+            <img 
+              src="/images/game/tagbot.jpg" 
+              alt="TagBot Companion" 
+              className="w-full h-full object-cover animate-pulse"
+            />
+            <div className="absolute inset-0 bg-cyan-400/10 pointer-events-none group-hover:opacity-0 transition-opacity" />
           </div>
-          <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[8px] font-bold text-white">
-            ✓
+          <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow-sm">
+            ⚡
           </span>
         </div>
 

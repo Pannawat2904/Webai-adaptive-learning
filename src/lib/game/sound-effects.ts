@@ -249,6 +249,185 @@ class SoundManager {
       });
     } catch {}
   }
+
+  playLaserFix() {
+    if (!this.enabled) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.12);
+
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.12);
+    } catch {}
+  }
+
+  playGlitchStatic() {
+    if (!this.enabled) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      // White noise / static zap
+      const bufferSize = this.ctx.sampleRate * 0.15;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const whiteNoise = this.ctx.createBufferSource();
+      whiteNoise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1200;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+      whiteNoise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      whiteNoise.start();
+      whiteNoise.stop(this.ctx.currentTime + 0.15);
+    } catch {}
+  }
+
+  playBossAlert() {
+    if (!this.enabled) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      // Dramatic retro siren
+      [300, 450, 300, 450].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = this.ctx.currentTime + idx * 0.08;
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.18, start);
+        gain.gain.exponentialRampToValueAtTime(0.02, start + 0.07);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.07);
+      });
+    } catch {}
+  }
+
+  playScoreTick() {
+    if (!this.enabled) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.03);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.03);
+    } catch {}
+  }
+
+  // --- Procedural 8-bit Synthwave Background Music Loop ---
+  private bgmInterval: NodeJS.Timeout | null = null;
+  public isBgmPlaying: boolean = false;
+  private bgmStep: number = 0;
+
+  startBgm() {
+    if (!this.enabled || this.isBgmPlaying) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    this.isBgmPlaying = true;
+    this.bgmStep = 0;
+
+    // Chiptune pentatonic progression: C3, G3, A#3, F3
+    const bassNotes = [130.81, 196.0, 233.08, 174.61];
+    const leadNotes = [523.25, 659.25, 783.99, 1046.5, 880.0, 783.99, 659.25, 587.33];
+
+    this.bgmInterval = setInterval(() => {
+      if (!this.ctx || !this.isBgmPlaying || !this.enabled) return;
+
+      const currentBass = bassNotes[Math.floor(this.bgmStep / 4) % bassNotes.length];
+      const currentLead = leadNotes[this.bgmStep % leadNotes.length];
+
+      try {
+        // Soft bass pluck
+        if (this.bgmStep % 2 === 0) {
+          const bassOsc = this.ctx.createOscillator();
+          const bassGain = this.ctx.createGain();
+          bassOsc.type = 'triangle';
+          bassOsc.frequency.setValueAtTime(currentBass, this.ctx.currentTime);
+          bassGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+          bassOsc.connect(bassGain);
+          bassGain.connect(this.ctx.destination);
+          bassOsc.start();
+          bassOsc.stop(this.ctx.currentTime + 0.18);
+        }
+
+        // Sparkling chiptune lead
+        if (this.bgmStep % 4 === 1 || this.bgmStep % 4 === 3) {
+          const leadOsc = this.ctx.createOscillator();
+          const leadGain = this.ctx.createGain();
+          leadOsc.type = 'sine';
+          leadOsc.frequency.setValueAtTime(currentLead, this.ctx.currentTime);
+          leadGain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+          leadGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+          leadOsc.connect(leadGain);
+          leadGain.connect(this.ctx.destination);
+          leadOsc.start();
+          leadOsc.stop(this.ctx.currentTime + 0.12);
+        }
+
+        this.bgmStep = (this.bgmStep + 1) % 32;
+      } catch {}
+    }, 180); // ~133 BPM
+  }
+
+  stopBgm() {
+    this.isBgmPlaying = false;
+    if (this.bgmInterval) {
+      clearInterval(this.bgmInterval);
+      this.bgmInterval = null;
+    }
+  }
+
+  toggleBgm(): boolean {
+    if (this.isBgmPlaying) {
+      this.stopBgm();
+      return false;
+    } else {
+      this.startBgm();
+      return true;
+    }
+  }
 }
 
 export const soundManager = new SoundManager();

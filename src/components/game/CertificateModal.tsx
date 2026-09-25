@@ -68,9 +68,13 @@ export function CertificateModal({
             <div className="absolute bottom-3 left-3 text-amber-400 text-lg">✦</div>
             <div className="absolute bottom-3 right-3 text-amber-400 text-lg">✦</div>
 
-            {/* Header Badge */}
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
-              <Award className="w-9 h-9" />
+            {/* Grand Golden Trophy Badge */}
+            <div className="w-24 h-24 mx-auto mb-4 rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/30 border-2 border-amber-300 dark:border-amber-400 bg-slate-900 group">
+              <img 
+                src="/images/game/trophy.jpg" 
+                alt="Web Developer Champion Trophy" 
+                className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500" 
+              />
             </div>
 
             <p className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold mb-1">

@@ -10,6 +10,7 @@ interface LivePreviewProps {
   onRefresh: () => void;
   onFormSubmitted?: () => void;
   onLinkClicked?: (href: string) => void;
+  validationFeedback?: { isValid: boolean; feedback: string; errors: string[] } | null;
 }
 
 export function LivePreview({
@@ -18,9 +19,18 @@ export function LivePreview({
   onRefresh,
   onFormSubmitted,
   onLinkClicked,
+  validationFeedback,
 }: LivePreviewProps) {
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
+  const [isLaserScanning, setIsLaserScanning] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Trigger laser scan when renderedHtml updates
+  useEffect(() => {
+    setIsLaserScanning(true);
+    const timer = setTimeout(() => setIsLaserScanning(false), 1200);
+    return () => clearTimeout(timer);
+  }, [renderedHtml]);
 
   // Prepare full HTML document with friendly default styling and interactive hooks
   const generatePreviewDocument = (userCode: string) => {
@@ -297,15 +307,48 @@ export function LivePreview({
         </div>
       </div>
 
+      {/* Website Integrity Alert Banner */}
+      <div className={`px-4 py-1.5 text-xs font-bold flex items-center justify-between transition-colors border-b ${
+        validationFeedback?.isValid 
+          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' 
+          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 animate-pulse'
+      }`}>
+        <div className="flex items-center gap-2">
+          <span>{validationFeedback?.isValid ? '🛡️' : '🚨'}</span>
+          <span>
+            {validationFeedback?.isValid 
+              ? 'สถานะ: เว็บไซต์กู้คืนสมบูรณ์ 100% (HEALTHY)' 
+              : 'สถานะ: พบจุดเสียหาย! โดนบั๊กก่อกวน (INTEGRITY: 30%)'}
+          </span>
+        </div>
+        <div className="flex items-center gap-1 font-mono text-[10px]">
+          {validationFeedback?.isValid ? (
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-white font-black">ONLINE</span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white font-black">GLITCH</span>
+          )}
+        </div>
+      </div>
+
       {/* Preview Viewport Frame */}
-      <div className="flex-1 bg-slate-100/70 dark:bg-slate-950/70 p-3 sm:p-5 overflow-auto flex items-center justify-center">
+      <div className="flex-1 bg-slate-100/70 dark:bg-slate-950/70 p-3 sm:p-5 overflow-auto flex items-center justify-center relative">
         <div
-          className={`h-full transition-all duration-300 ${
+          className={`h-full transition-all duration-300 relative ${
             viewport === 'mobile'
               ? 'w-[320px] max-h-[580px] rounded-3xl border-4 border-slate-700 bg-white shadow-2xl overflow-hidden'
               : 'w-full rounded-2xl bg-white border border-slate-200/80 shadow-md overflow-hidden'
           }`}
         >
+          {/* Laser Repair Beam Sweep */}
+          {isLaserScanning && (
+            <div className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-cyan-400/30 to-emerald-400/50 pointer-events-none z-20 animate-laser-sweep border-b-2 border-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.8)]" />
+          )}
+
+          {/* Glitch Scanline Overlay when broken */}
+          {!validationFeedback?.isValid && (
+            <div className="absolute inset-0 scanline-overlay pointer-events-none z-10 opacity-40" />
+          )}
+
           <iframe
             ref={iframeRef}
             srcDoc={generatePreviewDocument(renderedHtml)}
@@ -318,7 +361,10 @@ export function LivePreview({
 
       {/* Preview Footer Status */}
       <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-        <span>🌐 <strong>LIVE PREVIEW:</strong> หน้าเว็บจะอัปเดตทันทีเมื่อกดปุ่ม ▶ Run</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+          <span><strong>LIVE PREVIEW:</strong> โค้ดที่แก้จะแสดงผลสดตรงนี้ทันที</span>
+        </span>
         <span className="hidden sm:inline font-mono text-[10px] text-slate-400">
           Sandboxed Safe Renderer
         </span>
