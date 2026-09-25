@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { MOCK_UNITS, MOCK_LESSONS, getCanvaEmbedUrl, getCanvaShareUrl } from '@/lib/mock-data';
-import { SUB_DOMAINS, SubDomainCode } from '@/types/database';
+import {
+  getUnits,
+  getLesson,
+  getYoutubeEmbedUrl,
+  subscribeToDatabase,
+} from '@/lib/database-service';
+import { getCanvaEmbedUrl, getCanvaShareUrl } from '@/lib/mock-data';
+import { Unit, Lesson } from '@/types/database';
 import {
   Presentation,
   Tv,
@@ -12,7 +18,6 @@ import {
   ExternalLink,
   CheckCircle2,
   Sparkles,
-  Play,
 } from 'lucide-react';
 
 export default function LessonDetailPage({
@@ -23,56 +28,70 @@ export default function LessonDetailPage({
   const resolvedParams = use(params);
   const { unitId } = resolvedParams;
 
-  const currentUnitIndex = MOCK_UNITS.findIndex((u) => u.id === unitId);
-  const unit = currentUnitIndex !== -1 ? MOCK_UNITS[currentUnitIndex] : MOCK_UNITS[0];
-  const lesson = MOCK_LESSONS[unit.id] || MOCK_LESSONS[MOCK_UNITS[0].id];
-  const domain = SUB_DOMAINS[unit.sub_domain_code as SubDomainCode];
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [unit, setUnit] = useState<Unit | null>(null);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
 
-  const prevUnit = currentUnitIndex > 0 ? MOCK_UNITS[currentUnitIndex - 1] : null;
-  const nextUnit = currentUnitIndex >= 0 && currentUnitIndex < MOCK_UNITS.length - 1 ? MOCK_UNITS[currentUnitIndex + 1] : null;
-
-  // Only two content views: Slides and Video
+  // Tabs: Slides or Video
   const [activeTab, setActiveTab] = useState<'slide' | 'video'>('slide');
 
-  const slideMedia = lesson.media?.find((m) => m.media_type === 'slide');
-  const videoMedia = lesson.media?.find((m) => m.media_type === 'video');
-  const defaultEmbed = getCanvaEmbedUrl(slideMedia?.external_url, unit.id);
-  const canvaShareLink = getCanvaShareUrl((slideMedia?.meta?.share_url as string), unit.id);
-  const videoUrl = videoMedia?.external_url || 'https://www.youtube.com/embed/kUMe1FH4CHE';
+  // Media states
+  const [canvaUrl, setCanvaUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [canvaShareLink, setCanvaShareLink] = useState('');
+  const [slideTopics, setSlideTopics] = useState<string[]>([]);
 
-  // Real-time Content State
-  const [canvaUrl, setCanvaUrl] = useState(defaultEmbed);
+  const loadData = () => {
+    const loadedUnits = getUnits();
+    setUnits(loadedUnits);
 
-  React.useEffect(() => {
-    const loadLessonData = () => {
-      const saved = localStorage.getItem(`webai_lesson_data_${unit.id}`);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.canvaUrl !== undefined && parsed.canvaUrl.trim() !== '') {
-            setCanvaUrl(getCanvaEmbedUrl(parsed.canvaUrl, unit.id));
-          } else {
-            setCanvaUrl(defaultEmbed);
-          }
-        } catch {
-          setCanvaUrl(defaultEmbed);
-        }
-      } else {
-        setCanvaUrl(defaultEmbed);
+    const idx = loadedUnits.findIndex((u) => u.id === unitId);
+    const activeUnit = idx !== -1 ? loadedUnits[idx] : loadedUnits[0];
+    setCurrentUnitIndex(idx !== -1 ? idx : 0);
+    setUnit(activeUnit);
+
+    if (activeUnit) {
+      const activeLesson = getLesson(activeUnit.id);
+      setLesson(activeLesson);
+
+      const slideMedia = activeLesson.media?.find((m) => m.media_type === 'slide');
+      const videoMedia = activeLesson.media?.find((m) => m.media_type === 'video');
+
+      const slideEmbed = getCanvaEmbedUrl(slideMedia?.external_url, activeUnit.id);
+      const shareUrl = getCanvaShareUrl((slideMedia?.meta?.share_url as string), activeUnit.id);
+      const videoEmbed = getYoutubeEmbedUrl(videoMedia?.external_url);
+
+      setCanvaUrl(slideEmbed);
+      setCanvaShareLink(shareUrl);
+      setVideoUrl(videoEmbed);
+      setSlideTopics((slideMedia?.meta?.slides as string[]) || []);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+
+    // Subscribe to real-time updates from teacher edits
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'unit' || event.type === 'lesson' || event.type === 'reset') {
+        loadData();
       }
-    };
+    });
 
-    loadLessonData();
-    window.addEventListener('storage', loadLessonData);
-    const intervalId = setInterval(loadLessonData, 2000);
+    return () => unsubscribe();
+  }, [unitId]);
 
-    return () => {
-      window.removeEventListener('storage', loadLessonData);
-      clearInterval(intervalId);
-    };
-  }, [unit.id, defaultEmbed]);
+  if (!unit || !lesson) {
+    return (
+      <div className="main-inner enter p-12 text-center text-muted">
+        กำลังโหลดข้อมูลบทเรียน...
+      </div>
+    );
+  }
 
-  const slideTopics = (slideMedia?.meta?.slides as string[]) || [];
+  const prevUnit = currentUnitIndex > 0 ? units[currentUnitIndex - 1] : null;
+  const nextUnit = currentUnitIndex < units.length - 1 ? units[currentUnitIndex + 1] : null;
 
   return (
     <div className="main-inner enter">
@@ -82,7 +101,7 @@ export default function LessonDetailPage({
           <ChevronLeft className="w-3.5 h-3.5" />กลับไปยังรายการหน่วยการเรียนรู้
         </Link>
         <div className="bar w-24 sm:w-40">
-          <span style={{ width: `${Math.round(((currentUnitIndex + 1) / MOCK_UNITS.length) * 100)}%` }}></span>
+          <span style={{ width: `${Math.round(((currentUnitIndex + 1) / (units.length || 1)) * 100)}%` }}></span>
         </div>
       </div>
 

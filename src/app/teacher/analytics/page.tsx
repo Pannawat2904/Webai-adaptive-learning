@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MOCK_CLASS_STUDENTS, MOCK_QUESTIONS } from '@/lib/mock-data';
-import { SUB_DOMAINS, SubDomainCode } from '@/types/database';
+import React, { useState, useEffect } from 'react';
+import { getStudents, getQuestions, subscribeToDatabase, StudentRecord } from '@/lib/database-service';
+import { Question, SUB_DOMAINS, SubDomainCode } from '@/types/database';
 import { calculateItemPsychometrics } from '@/lib/psychometrics';
 import { MOCK_ATTEMPTS_SOMCHAI } from '@/lib/mock-sessions';
 import {
@@ -24,18 +24,35 @@ export default function AnalyticsPage() {
   const { isResearchMode } = useTeacherContext();
   const [activeTab, setActiveTab] = useState<'overview' | 'heatmap' | 'items'>('overview');
   
+  const [students, setStudents] = useState<StudentRecord[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  const loadData = () => {
+    setStudents(getStudents());
+    setQuestions(getQuestions());
+  };
+
+  useEffect(() => {
+    loadData();
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'student' || event.type === 'question' || event.type === 'reset') {
+        loadData();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Data for Heatmap
-  const students = MOCK_CLASS_STUDENTS;
   const subDomainCodes: SubDomainCode[] = ['H1', 'H2', 'H3', 'H4', 'H5'];
   const classAverages: Record<SubDomainCode, number> = {} as any;
   subDomainCodes.forEach((code) => {
-    const total = students.reduce((acc, std) => acc + (std.scores[code] || 0), 0);
-    classAverages[code] = Math.round(total / students.length);
+    const total = students.length > 0 ? students.reduce((acc, std) => acc + (std.scores[code] || 0), 0) : 0;
+    classAverages[code] = students.length > 0 ? Math.round(total / students.length) : 75;
   });
   const overallClassAvg = Math.round(Object.values(classAverages).reduce((a, b) => a + b, 0) / subDomainCodes.length);
 
   // Data for Item Analytics
-  const itemAnalytics = MOCK_QUESTIONS.map((q) => {
+  const itemAnalytics = questions.map((q) => {
     const mockScores = [
       { sessionId: 'sess-1', score: 18 },
       { sessionId: 'sess-2', score: 16 },

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MOCK_TEST_SESSIONS } from '@/lib/mock-sessions';
-import { SUB_DOMAINS } from '@/types/database';
+import React, { useState, useEffect } from 'react';
+import { getTestSessions, subscribeToDatabase } from '@/lib/database-service';
+import { TestSession, SUB_DOMAINS } from '@/types/database';
 import {
   Activity,
   User,
@@ -17,8 +17,26 @@ import { useTeacherContext } from '@/components/teacher/TeacherContext';
 
 export default function AdaptiveLogsPage() {
   const { isResearchMode } = useTeacherContext();
-  const [sessions] = useState(MOCK_TEST_SESSIONS);
-  const [selectedSessionId, setSelectedSessionId] = useState(MOCK_TEST_SESSIONS[0].id);
+  const [sessions, setSessions] = useState<TestSession[]>([]);
+  const [selectedSessionId, setSelectedSessionId] = useState<string>('');
+
+  const loadData = () => {
+    const list = getTestSessions();
+    setSessions(list);
+    if (list.length > 0 && (!selectedSessionId || !list.some((s) => s.id === selectedSessionId))) {
+      setSelectedSessionId(list[0].id);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'session' || event.type === 'reset') {
+        loadData();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const activeSession = sessions.find((s) => s.id === selectedSessionId) || sessions[0];
   const attempts = activeSession?.attempts || [];

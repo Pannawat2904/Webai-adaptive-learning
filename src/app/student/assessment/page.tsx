@@ -19,6 +19,12 @@ import {
   IRTEngineState
 } from '@/lib/irt/engine-adapter';
 import {
+  getQuestions,
+  saveTestSession,
+  saveStudentProgress,
+  subscribeToDatabase,
+} from '@/lib/database-service';
+import {
   Clock,
   ArrowRight,
   CheckCircle2,
@@ -41,6 +47,18 @@ function AssessmentContent() {
   const isRetest = searchParams.get('type') === 're_test';
 
   const { profile, auditLog } = useAuth();
+
+  const [questionsPool, setQuestionsPool] = useState<Question[]>([]);
+
+  useEffect(() => {
+    setQuestionsPool(getQuestions());
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'question' || event.type === 'reset') {
+        setQuestionsPool(getQuestions());
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [hasStarted, setHasStarted] = useState(false);
   const [selectedTestType, setSelectedTestType] = useState<'pre_test' | 'post_test' | 're_test'>(isRetest ? 're_test' : 'pre_test');
@@ -73,11 +91,12 @@ function AssessmentContent() {
   const startAssessment = () => {
     setHasStarted(true);
     let q: Question | null = null;
+    const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
     
     if (selectedEngine === 'rule-based') {
-      q = getNextAdaptiveQuestion(engineState);
+      q = getNextAdaptiveQuestion(engineState, pool);
     } else {
-      q = getNextIRTQuestion(irtEngineState);
+      q = getNextIRTQuestion(irtEngineState, pool);
     }
     
     setCurrentQuestion(q);
@@ -97,6 +116,7 @@ function AssessmentContent() {
     if (!selectedOption || !currentQuestion) return;
 
     setHasSubmittedAnswer(true);
+    const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
 
     if (selectedEngine === 'rule-based') {
       const { newState } = recordAnswerAndUpdateState(
@@ -108,7 +128,7 @@ function AssessmentContent() {
       setEngineState(newState);
 
       setTimeout(() => {
-        const nextQ = getNextAdaptiveQuestion(newState);
+        const nextQ = getNextAdaptiveQuestion(newState, pool);
         if (!nextQ || newState.questionIndex >= (isRetest ? 10 : 20)) {
           finishTest(newState.attempts);
         } else {
@@ -129,7 +149,7 @@ function AssessmentContent() {
       setIrtEngineState(newState);
 
       setTimeout(() => {
-        const nextQ = getNextIRTQuestion(newState);
+        const nextQ = getNextIRTQuestion(newState, pool);
         if (!nextQ) {
           finishTest(newState.attempts);
         } else {
@@ -157,8 +177,8 @@ function AssessmentContent() {
 
     const completedSession: TestSession = {
       id: `sess-${Date.now()}`,
-      student_id: profile?.id || 'guest',
-      student_name: profile?.full_name || 'Guest',
+      student_id: profile?.id || 'std-1',
+      student_name: profile?.full_name || 'สมชาย รักการเรียน (นักเรียน ปวช.1)',
       test_type: selectedTestType,
       target_sub_domain: targetSubDomain,
       status: 'completed',
@@ -175,12 +195,44 @@ function AssessmentContent() {
       attempts: finalAttempts,
     };
 
+    // Calculate sub-domain scores
+    const subScores: Record<string, number> = { H1: 0, H2: 0, H3: 0, H4: 0, H5: 0 };
+    const subTotals: Record<string, number> = { H1: 0, H2: 0, H3: 0, H4: 0, H5: 0 };
+
+    finalAttempts.forEach((att) => {
+      const code = att.sub_domain_code || 'H1';
+      subTotals[code] = (subTotals[code] || 0) + 1;
+      if (att.correct) {
+        subScores[code] = (subScores[code] || 0) + 1;
+      }
+    });
+
+    const finalDomainScores: Record<string, number> = {};
+    (['H1', 'H2', 'H3', 'H4', 'H5'] as SubDomainCode[]).forEach((k) => {
+      if (subTotals[k] && subTotals[k] > 0) {
+        finalDomainScores[k] = Math.round((subScores[k] / subTotals[k]) * 100);
+      } else {
+        finalDomainScores[k] = scorePct;
+      }
+    });
+
     try {
       localStorage.setItem('webai_student_skills', JSON.stringify(newSkills));
-      const existingSessions = JSON.parse(localStorage.getItem('webai_test_sessions') || '[]');
-      existingSessions.unshift(completedSession);
-      localStorage.setItem('webai_test_sessions', JSON.stringify(existingSessions));
       
+      // Save test session in database-service (Real-time sync to Teacher)
+      saveTestSession(completedSession);
+
+      // Save student progress in database-service (Real-time sync to Teacher Overview & Students table)
+      saveStudentProgress({
+        studentId: profile?.id || 'std-1',
+        name: profile?.full_name || 'สมชาย รักการเรียน',
+        scores: finalDomainScores,
+        avgScore: scorePct,
+        completion: Math.min(100, Math.round((totalCount / 20) * 100)),
+        theta: selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta : (scorePct * 0.06 - 3),
+        se: selectedEngine === 'irt-3pl' ? irtEngineState.standardError : 0.28,
+      });
+
       if (selectedEngine === 'irt-3pl') {
         localStorage.setItem('webai_irt_theta', irtEngineState.currentTheta.toString());
         localStorage.setItem('webai_irt_se', irtEngineState.standardError.toString());
@@ -191,8 +243,8 @@ function AssessmentContent() {
         correctCount,
         scorePercentage: scorePct,
       });
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('Error saving assessment results:', e);
     }
   };
 

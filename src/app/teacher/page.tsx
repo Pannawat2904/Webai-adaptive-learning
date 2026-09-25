@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MOCK_CLASS_STUDENTS } from '@/lib/mock-data';
+import { getStudents, subscribeToDatabase, StudentRecord } from '@/lib/database-service';
 import { SubDomainCode } from '@/types/database';
 import {
   Users,
@@ -23,20 +23,43 @@ export default function TeacherOverviewPage() {
   const [classFilter, setClassFilter] = useState('all');
   const [termFilter, setTermFilter] = useState('1/2569');
 
-  const students = MOCK_CLASS_STUDENTS;
-  const totalStudents = students.length;
-  const testedStudents = students.filter(s => s.completion > 0).length;
-  // Mock average theta calculation based on average score for demo
-  const avgScore = (students.reduce((acc, s) => acc + s.avgScore, 0) / totalStudents) / 100;
-  const avgTheta = (avgScore * 6 - 3).toFixed(2); // Maps 0-1 to -3 to +3
+  const [students, setStudents] = useState<StudentRecord[]>([]);
+
+  const loadData = () => {
+    setStudents(getStudents());
+  };
+
+  useEffect(() => {
+    loadData();
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'student' || event.type === 'session' || event.type === 'reset') {
+        loadData();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const totalStudents = students.length || 1;
+  const testedStudents = students.filter((s) => s.completion > 0).length;
+  // Calculate live average theta based on student progress
+  const avgScore = students.length > 0
+    ? (students.reduce((acc, s) => acc + s.avgScore, 0) / students.length) / 100
+    : 0.75;
+  const avgTheta = (avgScore * 6 - 3).toFixed(2);
   
   // Find at risk students (score < 60)
-  const atRiskStudents = students.filter(s => s.avgScore < 60);
+  const atRiskStudents = students.filter((s) => s.avgScore < 60);
 
-  // Calculate skill overview (H1-H5 averages)
-  const skillAverages: Record<string, number> = {
-    H1: 82, H2: 76, H3: 61, H4: 52, H5: 78
-  };
+  // Calculate live skill overview (H1-H5 averages from real student data)
+  const skillAverages: Record<string, number> = {};
+  (['H1', 'H2', 'H3', 'H4', 'H5'] as SubDomainCode[]).forEach((code) => {
+    if (students.length > 0) {
+      const sum = students.reduce((acc, s) => acc + (s.scores[code] || 0), 0);
+      skillAverages[code] = Math.round(sum / students.length);
+    } else {
+      skillAverages[code] = 75;
+    }
+  });
 
   const getStatusColor = (val: number) => {
     if (val >= 80) return 'text-success bg-success-dim';

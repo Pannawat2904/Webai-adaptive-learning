@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MOCK_CLASS_STUDENTS } from '@/lib/mock-data';
+import { getStudents, subscribeToDatabase, StudentRecord } from '@/lib/database-service';
 import { SubDomainCode } from '@/types/database';
 import {
   Users,
@@ -17,9 +17,22 @@ import { useTeacherContext } from '@/components/teacher/TeacherContext';
 export default function StudentManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const { isResearchMode } = useTeacherContext();
+  const [students, setStudents] = useState<StudentRecord[]>([]);
 
-  // Sort students by average score descending, then mock theta
-  const students = [...MOCK_CLASS_STUDENTS].sort((a, b) => b.avgScore - a.avgScore);
+  const loadData = () => {
+    const list = getStudents();
+    setStudents([...list].sort((a, b) => b.avgScore - a.avgScore));
+  };
+
+  useEffect(() => {
+    loadData();
+    const unsubscribe = subscribeToDatabase((event) => {
+      if (event.type === 'student' || event.type === 'session' || event.type === 'reset') {
+        loadData();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const filteredStudents = students.filter((s) =>
     s.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -81,10 +94,10 @@ export default function StudentManagementPage() {
                 const weakCodes = (Object.keys(std.scores) as SubDomainCode[]).filter((c) => (std.scores[c] || 0) < 60);
                 const strongCodes = (Object.keys(std.scores) as SubDomainCode[]).filter((c) => (std.scores[c] || 0) >= 80);
                 
-                // Mock theta logic based on score
+                // Live theta and se calculation based on student record
                 const rawScore = std.avgScore / 100;
-                const theta = (rawScore * 6 - 3).toFixed(2);
-                const se = (0.2 + (Math.random() * 0.1)).toFixed(2); // Mock Standard Error
+                const theta = std.theta !== undefined ? std.theta.toFixed(2) : (rawScore * 6 - 3).toFixed(2);
+                const se = std.se !== undefined ? std.se.toFixed(2) : '0.28';
 
                 return (
                   <tr key={std.id} className="hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.02)] transition-colors">
@@ -96,7 +109,7 @@ export default function StudentManagementPage() {
                       ปวช.1/1
                     </td>
                     <td className="px-6 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                      วันนี้ 10:30
+                      {std.lastTested || 'วันนี้ 10:30'}
                     </td>
                     <td className="px-6 py-4 text-center">
                       {isResearchMode ? (
