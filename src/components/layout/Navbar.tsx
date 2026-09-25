@@ -26,6 +26,7 @@ import {
   Activity,
   Award,
   TrendingUp,
+  Gamepad2,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -48,8 +49,9 @@ export function Navbar() {
   const studentLinks = [
     { href: '/student', label: 'ภาพรวม', icon: LayoutDashboard },
     { href: '/student/lessons', label: 'บทเรียน HTML', icon: BookOpen },
-    { href: '/student/assessment', label: 'Adaptive Test', icon: BrainCircuit },
+    { href: '/student/game', label: 'เกมกู้เว็บพัง 🎮', icon: Gamepad2 },
     { href: '/student/codelab', label: 'Code Lab', icon: Terminal },
+    { href: '/student/assessment', label: 'Adaptive Test', icon: BrainCircuit },
     { href: '/student/profile', label: 'Learning Profile', icon: BarChart3 },
     { href: '/student/tutor', label: 'AI Tutor', icon: MessageSquare },
   ];

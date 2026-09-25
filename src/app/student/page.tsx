@@ -16,7 +16,8 @@ import {
   Sparkles, 
   Map as MapIcon,
   Shield,
-  Activity
+  Activity,
+  Gamepad2,
 } from 'lucide-react';
 
 export default function StudentDashboardPage() {
@@ -118,14 +119,57 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      {/* HTML5 Code Rescue Game Featured Banner */}
+      <div className="mb-8 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="relative z-10 max-w-xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold mb-3 border border-white/30">
+            <span>🎮</span>
+            <span>เกมการเรียนรู้เชิงโต้ตอบใหม่ล่าสุด</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">
+            HTML5 Code Rescue — กู้เว็บพัง!
+          </h2>
+          <p className="text-white/90 text-sm leading-relaxed mb-4">
+            สวมบทบาท Web Developer ซ่อมแซมโค้ดเว็บไซต์ที่เสียหาย! เปลี่ยนแท็กจริง กด ▶ Run ดูพรีวิวสด และกู้เว็บผ่านครบ 5 ด่านเพื่อชิงตำแหน่ง 🏆 HTML5 MASTER
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs font-bold text-white/90">
+            <span className="px-2.5 py-1 rounded-lg bg-black/20">🚪 เปิดประตู HTML</span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/20">🏷️ Tag Hunter</span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/20">🔗 Links & Images</span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/20">📝 Form Factory</span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/20">👾 BOSS เว็บพัง</span>
+          </div>
+        </div>
+
+        <div className="relative z-10 shrink-0 w-full md:w-auto flex flex-col items-center gap-2">
+          <Link
+            href="/student/game"
+            className="w-full md:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-indigo-600 font-black text-sm sm:text-base shadow-xl flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all"
+          >
+            <span>🎮 เล่นเกมกู้เว็บพัง</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <span className="text-[11px] text-white/80">ระบบซ่อมโค้ดจริง ไม่ใช่แค่ตอบคำถาม</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Link href="/student/game" className="card card-hover flex items-center gap-4 p-4 border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/30 dark:bg-indigo-950/20">
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <Gamepad2 className="w-6 h-6" />
+          </div>
+          <div>
+            <b className="text-[14px] block text-ink">เกมกู้เว็บพัง 🎮</b>
+            <small className="text-muted text-[12px]">ซ่อมโค้ดจริง 5 ด่าน</small>
+          </div>
+        </Link>
         <Link href="/student/lessons" className="card card-hover flex items-center gap-4 p-4 border-line">
           <div className="w-12 h-12 rounded-xl bg-primary-dim text-primary flex items-center justify-center shrink-0">
             <MapIcon className="w-6 h-6" />
           </div>
           <div>
-            <b className="text-[14px] block text-ink">เส้นทาง (Journey)</b>
-            <small className="text-muted text-[12px]">ดูแผนที่การเรียนรู้ของคุณ</small>
+            <b className="text-[14px] block text-ink">บทเรียน HTML</b>
+            <small className="text-muted text-[12px]">ดูเนื้อหาและสไลด์</small>
           </div>
         </Link>
         <Link href="/student/assessment" className="card card-hover flex items-center gap-4 p-4 border-line">

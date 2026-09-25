@@ -21,8 +21,9 @@ import {
 const navItems = [
   { name: 'แดชบอร์ด', href: '/student', icon: LayoutDashboard },
   { name: 'บทเรียน HTML', href: '/student/lessons', icon: BookOpen },
+  { name: 'เกมกู้เว็บพัง', href: '/student/game', icon: Gamepad2 },
   { name: 'ฝึกเขียนโค้ด', href: '/student/codelab', icon: Code2 },
-  { name: 'ตะลุยด่าน', href: '/student/quests', icon: Gamepad2 },
+  { name: 'ตะลุยด่าน', href: '/student/quests', icon: Sparkles },
   { name: 'แบบทดสอบ', href: '/student/assessment', icon: BrainCircuit },
   { name: 'AI ผู้ช่วยสอน', href: '/student/tutor', icon: Bot },
   { name: 'โปรไฟล์', href: '/student/profile', icon: User },

@@ -16,7 +16,8 @@ import {
   Layers,
   Globe,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Gamepad2,
 } from 'lucide-react';
 
 export default function Home() {
@@ -63,6 +64,9 @@ export default function Home() {
             <Link href="/student/lessons" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
               <MapIcon className="w-4 h-4 text-primary" /> บทเรียน
             </Link>
+            <Link href="/student/game" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100 transition-colors">
+              <Gamepad2 className="w-4 h-4 text-indigo-500" /> เกมกู้เว็บพัง 🎮
+            </Link>
             <Link href="/student/codelab" className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold text-muted hover:text-ink hover:bg-soft transition-colors">
               <Terminal className="w-4 h-4 text-highlight" /> ห้องปฏิบัติการโค้ด
             </Link>
@@ -96,11 +100,14 @@ export default function Home() {
             เรียนรู้งานวิเคราะห์กระบวนการและโครงสร้างการทำงานของเว็บไซต์ ผ่านภารกิจที่ปรับตามความสามารถของคุณ (Adaptive Learning) สนุก ท้าทาย และนำไปใช้ได้จริง
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/student/game" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 text-white font-bold text-lg flex items-center justify-center gap-3 hover:opacity-95 transition-all shadow-lg shadow-indigo-500/30 hover:-translate-y-1">
+              <Gamepad2 className="w-5 h-5 text-yellow-300" /> เล่นเกมกู้เว็บพัง 🎮
+            </Link>
             <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-[0_4px_20px_var(--primary-dim)] hover:-translate-y-1">
-              <Terminal className="w-5 h-5" /> เริ่มการผจญภัย
+              <Terminal className="w-5 h-5" /> เข้าสู่ระบบเรียน
             </Link>
             <Link href="/student/lessons" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-surface border border-line text-ink font-bold text-lg flex items-center justify-center gap-3 hover:bg-soft transition-all hover:-translate-y-1">
-              <MapIcon className="w-5 h-5" /> ดูเส้นทางการเรียนรู้
+              <MapIcon className="w-5 h-5" /> ดูบทเรียน
             </Link>
           </div>
         </section>
