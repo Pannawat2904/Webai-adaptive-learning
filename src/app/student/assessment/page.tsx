@@ -34,7 +34,6 @@ import {
   isCourseStepUnlocked,
   setCourseStepCompleted,
 } from '@/lib/progress-service';
-import { UnitPathStepper } from '@/components/UnitPathStepper';
 import {
   Clock,
   ArrowRight,
@@ -398,7 +397,6 @@ function AssessmentContent() {
   if (isPosttestGated && !hasStarted && !isTestFinished) {
     return (
       <div className="main-inner enter max-w-[850px] mx-auto pt-6">
-        <UnitPathStepper unitId={unitId} currentStep="posttest" />
         <div className="card p-8 sm:p-10 text-center border-amber-500/30 bg-amber-500/5 shadow-lg">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
             <Lock className="w-8 h-8" />
@@ -438,9 +436,6 @@ function AssessmentContent() {
 
     return (
       <div className="main-inner enter max-w-[850px] mx-auto pt-4">
-        {/* Unit Stepper */}
-        <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
-
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-3 shadow-md shadow-success/20">
             <CheckCircle2 className="w-8 h-8" />
@@ -534,9 +529,6 @@ function AssessmentContent() {
 
     return (
       <div className="main-inner enter max-w-[850px] mx-auto pt-4">
-        {/* Unit Stepper */}
-        <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
-
         <section className="win" id="screen-lobby">
           <div className="win-bar">
             <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
@@ -629,16 +621,13 @@ function AssessmentContent() {
   }
 
   const isPretest = selectedTestType === 'pre_test';
-  const maxQuestions = isPretest ? 5 : isRetest ? 10 : 20;
+  const maxQuestions = isPretest ? 20 : isRetest ? 10 : 20;
   const currentIndex = isPretest
     ? pretestIndex
     : (selectedEngine === 'rule-based' ? engineState : irtEngineState).questionIndex;
 
   return (
     <div className="main-inner enter flex flex-col h-auto md:h-[calc(100vh-40px)] min-h-[600px] mb-20 md:mb-0">
-      {/* Unit Stepper */}
-      <UnitPathStepper unitId={unitId} currentStep={isPretest ? 'pretest' : 'posttest'} />
-
       <section className="win flex-1 flex flex-col min-h-0" id="screen-quiz">
         <div className="win-bar shrink-0">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>

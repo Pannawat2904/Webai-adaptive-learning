@@ -13,11 +13,8 @@ import {
   CheckCircle2,
   Star,
   Map,
-  ArrowRight,
-  Terminal,
+  ArrowRight
 } from 'lucide-react';
-import { UnitPathStepper } from '@/components/UnitPathStepper';
-import { isCourseStepUnlocked } from '@/lib/progress-service';
 
 export default function QuestMapPage() {
   const { profile } = useAuth();
@@ -38,52 +35,26 @@ export default function QuestMapPage() {
   const totalQuests = MOCK_ASSIGNMENTS.length;
   // Mock completed quests (for UI demo)
   const completedQuests = 1;
-  const isQuestsUnlocked = isCourseStepUnlocked('quest');
 
   return (
-    <div className="w-full max-w-[1500px] mx-auto pb-12 px-4 sm:px-6 font-sans pt-4">
-      {/* 5-Step Course Stepper */}
-      <UnitPathStepper currentStep="quest" />
-
-      {!isQuestsUnlocked ? (
-        <div className="card p-8 sm:p-10 text-center border-amber-500/30 bg-amber-500/5 shadow-lg my-6">
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
-            <Lock className="w-8 h-8" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black text-ink mb-2">
-            ขั้นตอนที่ 4: ภารกิจเขียนโค้ดยังไม่ปลดล็อก
-          </h2>
-          <p className="text-sm text-muted mb-6 max-w-lg mx-auto leading-relaxed">
-            ตามลำดับขั้นตอนการเรียนรู้แบบต่อเนื่อง (Sequential Gating) คุณต้องเล่นเกมกู้เว็บพัง (Step 3: HTML5 Code Rescue) ให้ผ่านก่อน จึงจะสามารถปลดล็อกทำภารกิจเขียนโค้ดได้
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/student/game"
-              className="btn btn-primary px-6 py-3 font-bold text-sm shadow-md"
-            >
-              <Gamepad2 className="w-4 h-4 mr-1.5" />
-              <span>ไปเล่นเกมกู้เว็บพัง (Step 3: Game) &rarr;</span>
-            </Link>
-          </div>
+    <div className="w-full max-w-[1500px] mx-auto pb-12 px-4 sm:px-6 font-sans">
+      
+      {/* Top Header */}
+      <header className="flex items-center justify-between mb-8">
+        <div className="inline-flex items-center gap-2 bg-[#cdf9e7] dark:bg-[#0ba57d]/20 text-[#06966f] dark:text-[#39d6ad] px-4 py-2.5 rounded-lg font-mono font-bold text-sm">
+          &gt;_ · /ตะลุยด่าน_Quests
         </div>
-      ) : (
-        <>
-          {/* Top Header */}
-          <header className="flex items-center justify-between mb-8">
-            <div className="inline-flex items-center gap-2 bg-[#cdf9e7] dark:bg-[#0ba57d]/20 text-[#06966f] dark:text-[#39d6ad] px-4 py-2.5 rounded-lg font-mono font-bold text-sm">
-              &gt;_ · /ตะลุยด่าน_Quests
-            </div>
-          </header>
+      </header>
 
-          {/* Heading */}
-          <section className="mb-7">
-            <h1 className="text-[clamp(42px,5.5vw,76px)] leading-[0.98] tracking-[-2.8px] font-bold m-0 mb-4 text-ink">
-              โหมดตะลุยด่าน <span className="text-theme-blue">:</span>
-            </h1>
-            <p className="text-lg text-muted m-0 leading-relaxed max-w-2xl">
-              เขียนโค้ดแก้โจทย์ปัญหาในแต่ละ World เพื่อปลดล็อคเนื้อหาใหม่ สะสมดาวและมุ่งสู่การเป็นเซียนโค้ด!
-            </p>
-          </section>
+      {/* Heading */}
+      <section className="mb-7">
+        <h1 className="text-[clamp(42px,5.5vw,76px)] leading-[0.98] tracking-[-2.8px] font-bold m-0 mb-4 text-ink">
+          โหมดตะลุยด่าน <span className="text-theme-blue">:</span>
+        </h1>
+        <p className="text-lg text-muted m-0 leading-relaxed max-w-2xl">
+          เขียนโค้ดแก้โจทย์ปัญหาในแต่ละ World เพื่อปลดล็อคเนื้อหาใหม่ สะสมดาวและมุ่งสู่การเป็นเซียนโค้ด!
+        </p>
+      </section>
 
       {/* Main Window */}
       <section className="mac-window">
@@ -178,11 +149,9 @@ export default function QuestMapPage() {
         </div>
       </section>
       
-        <div className="text-center text-[#8492a7] text-[10px] font-mono py-6">
-          &lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM
-        </div>
-      </>
-    )}
-  </div>
-);
+      <div className="text-center text-[#8492a7] text-[10px] font-mono py-6">
+        &lt;/&gt; WEB LEARNING STUDIO · HTML LEARNING PLATFORM
+      </div>
+    </div>
+  );
 }
