@@ -240,6 +240,15 @@ function AssessmentContent() {
 
   // Submit fixed Pre-test (All answers recorded, now evaluate)
   const executeSubmitPretest = () => {
+    // Strict requirement: Must answer all questions before submission
+    const missing = Array.from({ length: pretestQuestions.length }, (_, i) => i).filter(
+      (i) => !userAnswers[i] || userAnswers[i].trim() === ''
+    );
+    if (missing.length > 0) {
+      setShowConfirmModal(true);
+      return;
+    }
+
     setShowConfirmModal(false);
     const finalAttempts: Attempt[] = pretestQuestions.map((q, idx) => {
       const chosen = userAnswers[idx] || '';
@@ -958,9 +967,11 @@ function AssessmentContent() {
                       3
                     </span>
                     <div>
-                      <b className="text-xs text-ink block mb-0.5">เฉลยและสรุปผลคะแนน</b>
+                      <b className="text-xs text-ink block mb-0.5">ต้องตอบให้ครบทุกข้อก่อนส่ง</b>
                       <p className="m-0 text-xs text-muted leading-relaxed">
-                        เมื่อกดส่งข้อสอบ ระบบจะสรุปคะแนน พร้อมแสดงเฉลยและคำอธิบายละเอียดครบทุกข้อ
+                        {isPretest
+                          ? 'ต้องตอบคำถามครบทั้ง 20 ข้อก่อนจึงจะส่งได้ หากขาดข้อใดต้องกลับไปตอบข้อนั้นก่อน'
+                          : 'เมื่อทำเสร็จ ระบบจะประมวลผลคะแนนและแสดงเฉลยละเอียดทันที'}
                       </p>
                     </div>
                   </div>
@@ -1039,20 +1050,44 @@ function AssessmentContent() {
     ? Object.keys(userAnswers).filter((k) => !!userAnswers[Number(k)]).length
     : currentIndex;
 
+  const unansweredIndices = isPretest
+    ? Array.from({ length: maxQuestions }, (_, i) => i).filter(
+        (i) => !userAnswers[i] || userAnswers[i].trim() === ''
+      )
+    : [];
+  const hasUnanswered = unansweredIndices.length > 0;
+  const firstUnansweredIndex = hasUnanswered ? unansweredIndices[0] : -1;
+
   return (
     <div className="main-inner enter flex flex-col h-[calc(100dvh-100px)] md:h-full max-h-full min-h-0 mb-0 overflow-hidden relative">
-      {/* Confirmation Modal */}
+      {/* Confirmation / Missing Questions Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
           <div className="card max-w-md w-full p-6 bg-surface border border-line rounded-2xl shadow-2xl space-y-5 animate-in zoom-in-95">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-5 h-5" />
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    hasUnanswered
+                      ? 'bg-amber-500/10 text-amber-600'
+                      : 'bg-emerald-500/10 text-emerald-600'
+                  }`}
+                >
+                  {hasUnanswered ? (
+                    <AlertTriangle className="w-5 h-5" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5" />
+                  )}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-ink">ยืนยันการส่งแบบทดสอบ</h3>
-                  <p className="text-xs text-muted">ตรวจสอบความเรียบร้อยก่อนส่งตรวจคำตอบ</p>
+                  <h3 className="text-base font-bold text-ink">
+                    {hasUnanswered ? 'ยังตอบคำถามไม่ครบทุกข้อ' : 'ยืนยันการส่งแบบทดสอบ'}
+                  </h3>
+                  <p className="text-xs text-muted">
+                    {hasUnanswered
+                      ? 'ต้องตอบคำถามให้ครบทุกข้อก่อนจึงจะส่งข้อสอบได้'
+                      : 'ตรวจสอบความเรียบร้อยก่อนส่งตรวจคำตอบ'}
+                  </p>
                 </div>
               </div>
               <button
@@ -1074,22 +1109,56 @@ function AssessmentContent() {
                   {answeredCount} / {maxQuestions}
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-surface border border-line text-center">
-                <span className="text-[10px] font-bold text-muted block mb-0.5">
+              <div
+                className={`p-3 rounded-xl text-center border ${
+                  hasUnanswered
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300'
+                    : 'bg-surface border-line text-muted'
+                }`}
+              >
+                <span className="text-[10px] font-bold block mb-0.5">
                   ยังไม่ได้ทำ
                 </span>
-                <span className="text-xl font-black text-ink">
-                  {maxQuestions - answeredCount} ข้อ
+                <span
+                  className={`text-xl font-black ${
+                    hasUnanswered ? 'text-amber-600 dark:text-amber-400' : 'text-ink'
+                  }`}
+                >
+                  {unansweredIndices.length} ข้อ
                 </span>
               </div>
             </div>
 
-            {maxQuestions - answeredCount > 0 ? (
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
-                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <span>
-                  คุณยังมีข้อสอบที่ยังไม่ได้ตอบอีก <b>{maxQuestions - answeredCount} ข้อ</b> ข้อที่ไม่ได้ตอบจะคิดเป็น 0 คะแนน ยืนยันที่จะส่งข้อสอบและดูผลคะแนนทันทีหรือไม่?
-                </span>
+            {hasUnanswered ? (
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <span>
+                    ระบบกำหนดให้ต้องตอบคำถามให้ครบทั้ง <b>{maxQuestions} ข้อ</b> จึงจะสามารถส่งข้อสอบได้ ปัจจุบันคุณยังไม่ได้ตอบอีก <b>{unansweredIndices.length} ข้อ</b>
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-bold text-muted block mb-1.5">
+                    คลิกเลขข้อเพื่อกลับไปตอบคำถามข้อนั้นทันที:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-1">
+                    {unansweredIndices.map((qIdx) => (
+                      <button
+                        key={qIdx}
+                        type="button"
+                        onClick={() => {
+                          handleJumpToQuestion(qIdx);
+                          setShowConfirmModal(false);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-200 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 hover:scale-105"
+                      >
+                        <span>ข้อ {qIdx + 1}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
@@ -1106,15 +1175,31 @@ function AssessmentContent() {
                 onClick={() => setShowConfirmModal(false)}
                 className="btn btn-ghost px-4 py-2 text-xs font-bold text-muted hover:text-ink cursor-pointer"
               >
-                กลับไปทำต่อ / แก้ไขคำตอบ
+                ปิดหน้าต่าง
               </button>
-              <button
-                type="button"
-                onClick={executeSubmitPretest}
-                className="btn btn-primary px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
-              >
-                ยืนยันส่งข้อสอบ ➔
-              </button>
+
+              {hasUnanswered ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (firstUnansweredIndex !== -1) {
+                      handleJumpToQuestion(firstUnansweredIndex);
+                      setShowConfirmModal(false);
+                    }
+                  }}
+                  className="btn btn-primary px-5 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer shadow-md flex items-center gap-1.5"
+                >
+                  <span>ไปตอบข้อ {firstUnansweredIndex + 1} ➔</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={executeSubmitPretest}
+                  className="btn btn-primary px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md flex items-center gap-1.5"
+                >
+                  <span>ยืนยันส่งข้อสอบ ➔</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1229,17 +1314,33 @@ function AssessmentContent() {
               </div>
             </div>
 
-            {/* Quick Submit CTA in Sidebar */}
+            {/* Quick Submit / Missing Questions CTA in Sidebar */}
             {isPretest && answeredCount > 0 && (
               <div className="mt-3 pt-3 border-t border-line shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmModal(true)}
-                  className="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>ส่งข้อสอบ ({answeredCount}/{maxQuestions})</span>
-                </button>
+                {!hasUnanswered ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmModal(true)}
+                    className="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>ส่งข้อสอบ (ตอบครบ {maxQuestions} ข้อ)</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (firstUnansweredIndex !== -1) {
+                        handleJumpToQuestion(firstUnansweredIndex);
+                      }
+                    }}
+                    className="w-full py-2 px-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    title="คลิกเพื่อไปทำข้อที่ยังไม่ได้ตอบ"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>ขาดอีก {unansweredIndices.length} ข้อ (ไปข้อ {firstUnansweredIndex + 1})</span>
+                  </button>
+                )}
               </div>
             )}
 
@@ -1368,7 +1469,7 @@ function AssessmentContent() {
                       <span>ข้อถัดไป</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
-                  ) : (
+                  ) : !hasUnanswered ? (
                     <button
                       type="button"
                       onClick={() => setShowConfirmModal(true)}
@@ -1376,6 +1477,15 @@ function AssessmentContent() {
                     >
                       <span>ส่งคำตอบ &amp; ดูผลคะแนน</span>
                       <ArrowRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmModal(true)}
+                      className="btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 border-none text-white ring-2 ring-amber-500/40 hover:scale-[1.02] transition-all"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>ยังตอบไม่ครบ (ขาดอีก {unansweredIndices.length} ข้อ)</span>
                     </button>
                   )
                 ) : (
