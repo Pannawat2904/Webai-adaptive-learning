@@ -224,6 +224,21 @@ function AssessmentContent() {
     }
   };
 
+  const handleAttemptSubmit = () => {
+    if (selectedTestType === 'pre_test') {
+      const missing = Array.from({ length: pretestQuestions.length }, (_, i) => i).filter(
+        (i) => !userAnswers[i] || userAnswers[i].trim() === ''
+      );
+      if (missing.length > 0) {
+        setShowConfirmModal(true);
+      } else {
+        executeSubmitPretest();
+      }
+    } else {
+      handleSubmitAdaptiveQuestion();
+    }
+  };
+
   const handleNextQuestion = () => {
     if (selectedTestType === 'pre_test') {
       const nextIdx = pretestIndex + 1;
@@ -231,7 +246,7 @@ function AssessmentContent() {
         setPretestIndex(nextIdx);
         setCurrentQuestion(pretestQuestions[nextIdx]);
       } else {
-        setShowConfirmModal(true);
+        handleAttemptSubmit();
       }
     } else {
       handleSubmitAdaptiveQuestion();
@@ -568,7 +583,7 @@ function AssessmentContent() {
       });
 
     return (
-      <div className="main-inner enter w-full max-w-5xl mx-auto py-6 space-y-6">
+      <div className="main-inner enter w-full max-w-5xl mx-auto py-6 space-y-6 pb-32">
         {/* Header */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-3 shadow-md shadow-success/20">
@@ -1320,11 +1335,11 @@ function AssessmentContent() {
                 {!hasUnanswered ? (
                   <button
                     type="button"
-                    onClick={() => setShowConfirmModal(true)}
-                    className="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    onClick={handleAttemptSubmit}
+                    className="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer hover:scale-[1.02]"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>ส่งข้อสอบ (ตอบครบ {maxQuestions} ข้อ)</span>
+                    <span>ส่งข้อสอบ (ตอบครบ {maxQuestions} ข้อ) ➔</span>
                   </button>
                 ) : (
                   <button
@@ -1472,7 +1487,7 @@ function AssessmentContent() {
                   ) : !hasUnanswered ? (
                     <button
                       type="button"
-                      onClick={() => setShowConfirmModal(true)}
+                      onClick={handleAttemptSubmit}
                       className="btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 border-none text-white ring-2 ring-emerald-500/40 hover:scale-[1.02] transition-all"
                     >
                       <span>ส่งคำตอบ &amp; ดูผลคะแนน</span>
@@ -1481,7 +1496,7 @@ function AssessmentContent() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setShowConfirmModal(true)}
+                      onClick={handleAttemptSubmit}
                       className="btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 border-none text-white ring-2 ring-amber-500/40 hover:scale-[1.02] transition-all"
                     >
                       <AlertTriangle className="w-4 h-4" />

@@ -241,13 +241,11 @@ function StudentLayoutContent({
         </div>
       </aside>
 
-      {/* Main Content Area (Original Layout) */}
+      {/* Main Content Area */}
       <div
         className={`${
           isSidebarCollapsed ? 'md:ml-28' : 'md:ml-72'
-        } flex flex-col ${
-          isAssessment ? 'md:h-screen md:max-h-screen md:overflow-hidden min-h-screen' : 'min-h-screen'
-        } transition-all duration-300 mr-4`}
+        } flex flex-col min-h-screen md:h-screen md:max-h-screen transition-all duration-300 mr-4 min-w-0`}
       >
         {/* Top Header Bar with User Account at Top-Right */}
         <header
@@ -289,8 +287,8 @@ function StudentLayoutContent({
         </header>
 
         <main
-          className={`flex-1 relative z-10 w-full min-h-0 flex flex-col ${
-            isAssessment ? 'pt-2 pb-20 md:pb-2 overflow-y-auto md:overflow-hidden' : 'pb-32 md:pb-8 pt-6'
+          className={`flex-1 relative z-10 w-full min-h-0 flex flex-col overflow-y-auto ${
+            isAssessment ? 'pt-2 pb-20 md:pb-6' : 'pb-32 md:pb-8 pt-6'
           }`}
         >
           {children}
