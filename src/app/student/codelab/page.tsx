@@ -509,6 +509,32 @@ function CodeLabContent() {
   const [reviewResult, setReviewResult] = useState<any | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  // VS Code Editor State & Refs
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const lineNumbersRef = React.useRef<HTMLDivElement>(null);
+  const [cursorInfo, setCursorInfo] = useState({ line: 1, col: 1 });
+
+  const lines = useMemo(() => {
+    return code.split('\n');
+  }, [code]);
+
+  const handleEditorScroll = () => {
+    if (textareaRef.current && lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  };
+
+  const updateCursorInfo = () => {
+    if (textareaRef.current) {
+      const selStart = textareaRef.current.selectionStart;
+      const textBefore = code.substring(0, selStart);
+      const lineArr = textBefore.split('\n');
+      const line = lineArr.length;
+      const col = lineArr[lineArr.length - 1].length + 1;
+      setCursorInfo({ line, col });
+    }
+  };
+
   // Dynamic Validation Engine
   const validationErrors = useMemo(() => {
     return validateHtmlAssignment(code, currentAssignment);
@@ -748,36 +774,46 @@ function CodeLabContent() {
 
       {/* Main IDE Workspace */}
       <section className="win flex flex-col flex-1 min-h-0 shadow-xl border border-line rounded-2xl overflow-hidden bg-bg-base">
-        {/* Window Chrome Header */}
+        {/* Window Chrome Header - The ONLY 3-dot window bar */}
         <div className="win-bar shrink-0 flex items-center justify-between px-4 py-2.5 bg-surface border-b border-line">
           <div className="flex items-center gap-3">
             <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
-            <div className="win-title font-mono text-xs text-muted flex items-center gap-1.5">
-              <span className="text-primary font-bold">&lt;/&gt;</span> lab_environment.html — <span className="text-ink font-semibold">{currentAssignment.title}</span>
+            <div className="win-title font-mono text-xs text-muted flex items-center gap-2">
+              <span className="text-primary font-bold">&lt;/&gt;</span>
+              <span className="text-ink font-semibold">WebAI Code Studio</span>
+              <span className="text-line">|</span>
+              <span className="text-muted truncate max-w-[280px] sm:max-w-none">{currentAssignment.title}</span>
             </div>
           </div>
-          <div className="text-[11px] font-mono text-muted hidden md:block">
-            UTF-8 | HTML5 Strict Validation
+          <div className="text-[11px] font-mono text-muted hidden md:flex items-center gap-3">
+            <span>UTF-8</span>
+            <span className="text-line">|</span>
+            <span>HTML5 Strict Validation</span>
           </div>
         </div>
 
         {/* 2-Column Split: Left Editor, Right Live Diagnostics / Preview */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden bg-bg-base">
           
-          {/* LEFT: Code Editor Pane */}
-          <div className="flex flex-col rounded-xl overflow-hidden border border-line min-h-[460px] lg:min-h-0 relative bg-surface shadow-sm">
-            <div className="bg-bg-base p-2.5 px-3.5 flex items-center justify-between border-b border-line shrink-0">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="chip chip-mono bg-primary/10 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1.5">
-                  <Code2 className="w-3.5 h-3.5" /> index.html
-                </span>
+          {/* LEFT: Code Editor Pane (VS Code Style) */}
+          <div className="flex flex-col rounded-xl overflow-hidden border border-line min-h-[480px] lg:min-h-0 relative bg-[#1e1e1e] shadow-sm">
+            {/* VS Code Style Tab & Action Header */}
+            <div className="bg-[#181818] px-3 py-1.5 flex items-center justify-between border-b border-[#2d2d2d] shrink-0">
+              <div className="flex items-center gap-2">
+                {/* Active Tab */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1e1e1e] text-[#e0e0e0] border-t-2 border-primary text-xs font-mono rounded-t shadow-sm">
+                  <Code2 className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="font-semibold">index.html</span>
+                </div>
+
+                {/* Validation Status Pill */}
                 {validationErrors.length > 0 ? (
-                  <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/25 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> ขาด {validationErrors.length} จุด
+                  <span className="text-[11px] font-bold text-rose-400 bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3 text-rose-400" /> ขาด {validationErrors.length} จุด
                   </span>
                 ) : (
-                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> ครบถ้วน พร้อมรัน
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" /> พร้อมรัน
                   </span>
                 )}
               </div>
@@ -788,7 +824,7 @@ function CodeLabContent() {
                   className={`btn btn-sm px-3 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm ${
                     isCodeValid 
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white animate-pulse' 
-                      : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                      : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
                   }`}
                   title={isCodeValid ? 'กดปุ่มเพื่อรันและแสดงผลลัพธ์หน้าเว็บ' : 'ตรวจพบข้อผิดพลาด กรุณาแก้ไขให้ถูกต้องก่อนรัน'} 
                   onClick={handleRun}
@@ -797,14 +833,14 @@ function CodeLabContent() {
                   <span>รันโค้ด</span>
                 </button>
                 <button 
-                  className="icon-btn border-0 bg-transparent text-muted hover:bg-white/10 hover:text-ink rounded-lg transition-colors p-2" 
+                  className="icon-btn border-0 bg-transparent text-[#9e9e9e] hover:bg-white/10 hover:text-white rounded-lg transition-colors p-2" 
                   title="บันทึกร่างโค้ด" 
                   onClick={handleSaveDraft}
                 >
                   <Save className="w-4 h-4" />
                 </button>
                 <button 
-                  className="icon-btn border-0 bg-transparent text-muted hover:bg-white/10 hover:text-ink rounded-lg transition-colors p-2" 
+                  className="icon-btn border-0 bg-transparent text-[#9e9e9e] hover:bg-white/10 hover:text-white rounded-lg transition-colors p-2" 
                   title="รีเซ็ตโค้ดกลับเป็นค่าเริ่มต้น" 
                   onClick={handleReset}
                 >
@@ -813,42 +849,95 @@ function CodeLabContent() {
               </div>
             </div>
 
-            {/* Code Textarea */}
-            <div className="flex-1 relative flex flex-col bg-[#1e1e1e]">
+            {/* Code Editor Body with VS Code Line Numbers */}
+            <div className="flex-1 relative flex bg-[#1e1e1e] overflow-hidden min-h-0">
+              {/* VS Code Line Numbers Gutter */}
+              <div
+                ref={lineNumbersRef}
+                aria-hidden="true"
+                className="select-none overflow-hidden text-right pr-3 pl-2 py-3.5 bg-[#181818] border-r border-[#2d2d2d] font-mono text-[13px] text-[#6e7681] shrink-0"
+                style={{
+                  minWidth: '44px',
+                  lineHeight: '24px',
+                }}
+              >
+                {lines.map((_, i) => {
+                  const lineNum = i + 1;
+                  const isCurrent = lineNum === cursorInfo.line;
+                  return (
+                    <div
+                      key={i}
+                      className={`h-[24px] leading-[24px] transition-colors ${
+                        isCurrent ? 'text-white font-bold' : 'text-[#6e7681]'
+                      }`}
+                    >
+                      {lineNum}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Textarea */}
               <textarea 
+                ref={textareaRef}
                 spellCheck="false" 
-                className="flex-1 w-full bg-[#1e1e1e] text-[#d4d4d4] border-0 p-4 font-mono text-[13px] leading-[1.8] resize-none focus:outline-none selection:bg-primary/30"
+                wrap="off"
+                className="flex-1 w-full bg-[#1e1e1e] text-[#d4d4d4] border-0 py-3.5 px-3.5 font-mono text-[13px] resize-none focus:outline-none selection:bg-primary/30 overflow-auto"
+                style={{
+                  lineHeight: '24px',
+                  tabSize: 2,
+                }}
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  updateCursorInfo();
+                }}
+                onScroll={handleEditorScroll}
+                onKeyUp={updateCursorInfo}
+                onClick={updateCursorInfo}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const target = e.currentTarget;
+                    const start = target.selectionStart;
+                    const end = target.selectionEnd;
+                    const newCode = code.substring(0, start) + '  ' + code.substring(end);
+                    setCode(newCode);
+                    setTimeout(() => {
+                      target.selectionStart = target.selectionEnd = start + 2;
+                      updateCursorInfo();
+                    }, 0);
+                  }
+                }}
                 placeholder="เขียนโค้ด HTML ที่นี่..."
               />
+            </div>
 
-              {/* Editor bottom status alert bar */}
-              {validationErrors.length > 0 ? (
-                <div className="shrink-0 bg-rose-950/80 border-t border-rose-500/30 p-2.5 px-3.5 text-[12px] flex items-center justify-between text-rose-300">
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-ping"></span>
-                    <span className="font-bold text-rose-400">ข้อผิดพลาด:</span>
-                    <span className="truncate">{validationErrors[0].title}</span>
-                  </div>
-                  <span className="text-[11px] text-rose-400/80 font-sans shrink-0 ml-2">
-                    (ดูวิธีแก้ทั้งหมด {validationErrors.length} จุดทางด้านขวา ➔)
+            {/* VS Code Bottom Status Bar */}
+            <div className="shrink-0 bg-[#007acc] text-white px-3 py-1 text-[11px] font-mono flex items-center justify-between select-none">
+              <div className="flex items-center gap-2 truncate">
+                {validationErrors.length > 0 ? (
+                  <span className="flex items-center gap-1 font-bold text-yellow-200">
+                    <AlertTriangle className="w-3 h-3" /> ขาด {validationErrors.length} รายการ (แก้ไขเพื่อรัน)
                   </span>
-                </div>
-              ) : (
-                <div className="shrink-0 bg-emerald-950/70 border-t border-emerald-500/30 p-2 px-3.5 text-[11.5px] flex items-center justify-between text-emerald-300">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>โครงสร้างโค้ดถูกต้องครบถ้วนตามเกณฑ์แล้ว กดปุ่ม <b>▶ รันโค้ด</b> เพื่อดูผลลัพธ์</span>
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <span className="flex items-center gap-1 font-bold text-white">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-300" /> โค้ดสมบูรณ์ พร้อมแสดงผล
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span>Ln {cursorInfo.line}, Col {cursorInfo.col}</span>
+                <span className="hidden sm:inline">Spaces: 2</span>
+                <span className="hidden sm:inline">UTF-8</span>
+                <span>HTML</span>
+              </div>
             </div>
 
             {/* Toast Notification */}
             {toastNotification && (
               <div 
-                className={`absolute right-4 bottom-14 z-20 text-[12px] font-bold py-2.5 px-4 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 border ${
+                className={`absolute right-4 bottom-10 z-20 text-[12px] font-bold py-2.5 px-4 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 border ${
                   toastNotification.type === 'error'
                     ? 'bg-rose-600 text-white border-rose-400'
                     : toastNotification.type === 'success'
@@ -864,18 +953,13 @@ function CodeLabContent() {
           </div>
 
           {/* RIGHT: Preview Window + Checklist + Error Diagnostic Console */}
-          <div className="flex flex-col gap-3 min-h-[460px] lg:min-h-0">
+          <div className="flex flex-col gap-3 min-h-[480px] lg:min-h-0">
             
             {/* Top Sub-Window: Live Web Preview OR Red Error Diagnostic Screen */}
             <div className="flex-1 flex flex-col rounded-xl overflow-hidden border border-line min-h-[300px] shadow-sm bg-surface">
               
-              {/* Browser Address Bar Header */}
-              <div className="bg-surface p-2.5 px-3.5 flex items-center gap-2.5 border-b border-line shrink-0">
-                <div className="win-dots">
-                  <i className={isLivePreviewing && isCodeValid ? 'g' : 'r'}></i>
-                  <i className="bg-line"></i>
-                  <i className="bg-line"></i>
-                </div>
+              {/* Browser Address Bar Header (Clean - NO duplicate dots) */}
+              <div className="bg-surface p-2 px-3 flex items-center gap-2 border-b border-line shrink-0">
                 <div className="flex-1 bg-bg-base border border-line rounded-lg px-3 py-1 flex items-center justify-between text-[11.5px] text-muted font-mono">
                   <div className="flex items-center gap-2 truncate">
                     <Globe className="w-3.5 h-3.5 text-primary shrink-0" />
