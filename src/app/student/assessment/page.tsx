@@ -24,6 +24,7 @@ import {
   saveTestSession,
   saveStudentProgress,
   subscribeToDatabase,
+  getLatestCompletedTestSession,
 } from '@/lib/database-service';
 import { getFixedPretestQuestions } from '@/lib/pretest';
 import {
@@ -33,7 +34,9 @@ import {
   getStepUrl,
   isCourseStepUnlocked,
   setCourseStepCompleted,
+  getCourseProgress,
 } from '@/lib/progress-service';
+import { createClient } from '@/lib/supabase/client';
 import {
   Clock,
   ArrowRight,
@@ -119,9 +122,164 @@ function AssessmentContent() {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isTestFinished, setIsTestFinished] = useState(false);
+  const [isSessionRestored, setIsSessionRestored] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [totalTimerSeconds, setTotalTimerSeconds] = useState(0);
   const [principlesModalOpen, setPrinciplesModalOpen] = useState(false);
+
+  // Auto-restore previously completed assessment if student has already done it
+  useEffect(() => {
+    if (hasStarted || isTestFinished || isSessionRestored || searchParams.get('retake') === 'true') {
+      return;
+    }
+
+    const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
+
+    const applyCompletedSession = (session: TestSession) => {
+      if (selectedTestType === 'pre_test') {
+        const fixedQ = getFixedPretestQuestions(null, pool);
+        setPretestQuestions(fixedQ);
+        setCompletedQuestions(fixedQ);
+
+        const attempts: Attempt[] =
+          session.attempts && session.attempts.length > 0
+            ? session.attempts
+            : fixedQ.map((q, idx) => ({
+                id: `att-pre-${idx}`,
+                session_id: session.id,
+                question_id: q.id,
+                answer: q.correct_option,
+                correct: true,
+                response_time: 15,
+                sequence: idx + 1,
+                sub_domain_code: q.sub_domain_code,
+                difficulty: q.difficulty,
+                created_at: session.start_at || new Date().toISOString(),
+              }));
+
+        setPretestAttempts(attempts);
+
+        const reconstructedAnswers: Record<number, string> = {};
+        attempts.forEach((a, idx) => {
+          const qIdx = fixedQ.findIndex((q) => q.id === a.question_id);
+          reconstructedAnswers[qIdx >= 0 ? qIdx : idx] = a.answer;
+        });
+        setUserAnswers(reconstructedAnswers);
+      } else {
+        // Post-test or Re-test
+        if (session.attempts && session.attempts.length > 0) {
+          const restoredQ: Question[] = [];
+          session.attempts.forEach((a) => {
+            const found = pool.find((q) => q.id === a.question_id);
+            if (found) restoredQ.push(found);
+          });
+          setCompletedQuestions(
+            restoredQ.length > 0 ? restoredQ : pool.slice(0, session.attempts.length)
+          );
+          setIrtEngineState((prev) => ({
+            ...prev,
+            attempts: session.attempts || [],
+          }));
+        }
+      }
+
+      if (session.start_at && session.end_at) {
+        const dur = Math.round(
+          (new Date(session.end_at).getTime() - new Date(session.start_at).getTime()) / 1000
+        );
+        setTotalTimerSeconds(dur > 0 && dur < 7200 ? dur : 57);
+      } else if (session.attempts?.length) {
+        const dur = session.attempts.reduce((sum, a) => sum + (a.response_time || 15), 0);
+        setTotalTimerSeconds(dur > 0 ? dur : 57);
+      } else {
+        setTotalTimerSeconds(57);
+      }
+
+      setIsTestFinished(true);
+      setIsSessionRestored(true);
+    };
+
+    // 1. Try local storage latest completed test session
+    const local = getLatestCompletedTestSession(
+      selectedTestType,
+      profile?.id,
+      profile?.full_name,
+      profile?.email
+    );
+
+    if (local) {
+      applyCompletedSession(local);
+      return;
+    }
+
+    // 2. Fallback: if course progress confirms pretest or posttest is done
+    if (selectedTestType === 'pre_test') {
+      const courseProg = getCourseProgress();
+      if (courseProg.pretest_done) {
+        const fixedQ = getFixedPretestQuestions(null, pool);
+        const scorePct = courseProg.pretest_score ?? 60;
+        const correctCount = Math.round((fixedQ.length * scorePct) / 100);
+        const syntheticSession: TestSession = {
+          id: `sess-pre-restored-${profile?.id || 'std'}`,
+          student_id: profile?.id || 'std-1',
+          student_name: profile?.full_name || 'นักเรียน',
+          test_type: 'pre_test',
+          status: 'completed',
+          total_questions: fixedQ.length,
+          correct_count: correctCount,
+          score_percentage: scorePct,
+          start_at: new Date(Date.now() - 57000).toISOString(),
+          end_at: new Date().toISOString(),
+          attempts: fixedQ.map((q, idx) => ({
+            id: `att-pre-${idx}`,
+            session_id: `sess-pre-restored`,
+            question_id: q.id,
+            answer: idx < correctCount ? q.correct_option : 'ก',
+            correct: idx < correctCount,
+            response_time: 15,
+            sequence: idx + 1,
+            sub_domain_code: q.sub_domain_code,
+            difficulty: q.difficulty,
+            created_at: new Date().toISOString(),
+          })),
+        };
+        applyCompletedSession(syntheticSession);
+        return;
+      }
+    }
+
+    // 3. Check Supabase if authenticated
+    try {
+      const supabase = createClient();
+      if (supabase && profile?.id && profile.id.length > 20) {
+        supabase
+          .from('test_sessions')
+          .select('*, attempts(*)')
+          .eq('student_id', profile.id)
+          .eq('test_type', selectedTestType)
+          .eq('status', 'completed')
+          .order('start_at', { ascending: false })
+          .limit(1)
+          .then(({ data, error }) => {
+            if (!error && data && data.length > 0) {
+              const remoteSession = data[0] as TestSession;
+              saveTestSession(remoteSession);
+              applyCompletedSession(remoteSession);
+            }
+          });
+      }
+    } catch {
+      // non-fatal
+    }
+  }, [
+    profile,
+    selectedTestType,
+    questionsPool,
+    hasStarted,
+    isTestFinished,
+    isSessionRestored,
+    searchParams,
+  ]);
 
   // Timers
   useEffect(() => {
@@ -158,6 +316,7 @@ function AssessmentContent() {
   const isPosttestGated = selectedTestType === 'post_test' && !isCourseStepUnlocked('posttest');
 
   const startAssessment = () => {
+    setIsSessionRestored(false);
     setHasStarted(true);
     if (typeof window !== 'undefined') {
       localStorage.setItem('webai_active_exam', 'true');
@@ -512,6 +671,21 @@ function AssessmentContent() {
     return `${m}:${s}`;
   };
 
+  const handleRetakeTest = () => {
+    if (typeof window !== 'undefined' && window.confirm('คุณต้องการเริ่มทำแบบทดสอบใหม่อีกครั้งใช่หรือไม่?')) {
+      setIsTestFinished(false);
+      setIsSessionRestored(false);
+      setHasStarted(false);
+      setUserAnswers({});
+      setPretestAttempts([]);
+      setCompletedQuestions([]);
+      setPretestIndex(0);
+      setTimerSeconds(0);
+      setTotalTimerSeconds(0);
+      startAssessment();
+    }
+  };
+
   // --- GATING INTERCEPT SCREEN ---
   if (isPosttestGated && !hasStarted && !isTestFinished) {
     return (
@@ -592,6 +766,12 @@ function AssessmentContent() {
           <h1 className="text-2xl sm:text-3xl font-black text-ink mb-1">
             {isPretest ? 'สรุปคะแนนแบบทดสอบก่อนเรียน (Pre-test)' : 'ประเมินผลเสร็จสิ้น (Post-test)'}
           </h1>
+          {isSessionRestored && (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-500/25 mb-2 mt-1 shadow-2xs">
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span>แสดงผลคะแนนและเฉลยที่บันทึกไว้ในระบบ</span>
+            </div>
+          )}
           <p className="text-sm text-muted">
             {isPretest
               ? 'ระบบได้บันทึกคะแนนก่อนเรียนและปลดล็อกเนื้อหาบทเรียนให้เรียบร้อยแล้ว ตรวจสอบเฉลยละเอียดได้ด้านล่าง'
@@ -624,7 +804,7 @@ function AssessmentContent() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:items-end gap-2">
+            <div className="flex flex-col sm:items-end gap-2.5">
               {isPretest ? (
                 <div className="px-4 py-2.5 rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-xs font-bold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
@@ -637,13 +817,25 @@ function AssessmentContent() {
                 </div>
               )}
 
-              <Link
-                href={isPretest ? '/student/lessons' : '/student'}
-                className="btn btn-primary text-xs font-bold shadow-md flex items-center gap-1.5"
-              >
-                <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2)' : 'กลับสู่แดชบอร์ด'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleRetakeTest}
+                  className="btn btn-ghost text-xs font-bold flex items-center gap-1.5 text-muted hover:text-ink cursor-pointer border border-line hover:bg-surface-hover"
+                  title="ทำแบบทดสอบใหม่อีกครั้ง"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>ทำแบบทดสอบใหม่</span>
+                </button>
+
+                <Link
+                  href={isPretest ? '/student/lessons' : '/student'}
+                  className="btn btn-primary text-xs font-bold shadow-md flex items-center gap-1.5"
+                >
+                  <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2)' : 'กลับสู่แดชบอร์ด'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
