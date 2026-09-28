@@ -37,6 +37,7 @@ import {
 import {
   Clock,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
   BarChart2,
   Info,
@@ -47,10 +48,13 @@ import {
   AlertTriangle,
   BrainCircuit,
   Check,
+  X,
   Lock,
   Terminal,
   Trophy,
   Sparkles,
+  HelpCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { SystemPrinciplesModal } from '@/components/modals/SystemPrinciplesModal';
 
@@ -101,16 +105,19 @@ function AssessmentContent() {
     createInitialIRTState(subDomain)
   );
 
-  // Fixed Pre-test States (Strictly fixed 5 questions, not adaptive)
+  // Fixed Pre-test States (Strictly fixed 20 questions, not adaptive)
   const [pretestQuestions, setPretestQuestions] = useState<Question[]>([]);
   const [pretestIndex, setPretestIndex] = useState(0);
   const [pretestAttempts, setPretestAttempts] = useState<Attempt[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [completedQuestions, setCompletedQuestions] = useState<Question[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'correct' | 'incorrect'>('all');
 
   // Runtime Question & UI States
   const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [hasSubmittedAnswer, setHasSubmittedAnswer] = useState(false);
   const [isTestFinished, setIsTestFinished] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [totalTimerSeconds, setTotalTimerSeconds] = useState(0);
@@ -164,6 +171,8 @@ function AssessmentContent() {
       setPretestQuestions(fixedQ);
       setPretestIndex(0);
       setPretestAttempts([]);
+      setUserAnswers({});
+      setCompletedQuestions([]);
       setCurrentQuestion(fixedQ[0] || null);
     } else {
       // 2) ADAPTIVE POST-TEST / RE-TEST: Adaptive engine
@@ -174,6 +183,7 @@ function AssessmentContent() {
         q = getNextIRTQuestion(irtEngineState, pool);
       }
       setCurrentQuestion(q);
+      setCompletedQuestions(q ? [q] : []);
     }
 
     auditLog('start_assessment', 'test_session', {
@@ -185,50 +195,78 @@ function AssessmentContent() {
   };
 
   const handleSelectOption = (optionKey: string) => {
-    if (hasSubmittedAnswer) return;
-    setSelectedOption(optionKey);
+    if (selectedTestType === 'pre_test') {
+      setUserAnswers((prev) => ({
+        ...prev,
+        [pretestIndex]: optionKey,
+      }));
+    } else {
+      setSelectedOption(optionKey);
+    }
   };
 
-  const handleSubmitQuestion = () => {
-    if (!selectedOption || !currentQuestion) return;
-
-    setHasSubmittedAnswer(true);
-    const isCorrect = selectedOption === currentQuestion.correct_option;
-
-    // --- 1) Handle Fixed Pre-test ---
+  const handleJumpToQuestion = (targetIdx: number) => {
     if (selectedTestType === 'pre_test') {
-      const attempt: Attempt = {
-        id: `att-pre-${Date.now()}`,
+      if (targetIdx >= 0 && targetIdx < pretestQuestions.length) {
+        setPretestIndex(targetIdx);
+        setCurrentQuestion(pretestQuestions[targetIdx]);
+      }
+    }
+  };
+
+  const handlePrevQuestion = () => {
+    if (selectedTestType === 'pre_test') {
+      const prevIdx = pretestIndex - 1;
+      if (prevIdx >= 0) {
+        setPretestIndex(prevIdx);
+        setCurrentQuestion(pretestQuestions[prevIdx]);
+      }
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (selectedTestType === 'pre_test') {
+      const nextIdx = pretestIndex + 1;
+      if (nextIdx < pretestQuestions.length) {
+        setPretestIndex(nextIdx);
+        setCurrentQuestion(pretestQuestions[nextIdx]);
+      } else {
+        setShowConfirmModal(true);
+      }
+    } else {
+      handleSubmitAdaptiveQuestion();
+    }
+  };
+
+  // Submit fixed Pre-test (All answers recorded, now evaluate)
+  const executeSubmitPretest = () => {
+    setShowConfirmModal(false);
+    const finalAttempts: Attempt[] = pretestQuestions.map((q, idx) => {
+      const chosen = userAnswers[idx] || '';
+      const isCorrect = chosen === q.correct_option;
+      return {
+        id: `att-pre-${idx}-${Date.now()}`,
         session_id: `sess-pre-${unitId}`,
-        question_id: currentQuestion.id,
-        answer: selectedOption,
+        question_id: q.id,
+        answer: chosen,
         correct: isCorrect,
-        response_time: timerSeconds,
-        sequence: pretestIndex + 1,
-        sub_domain_code: currentQuestion.sub_domain_code,
-        difficulty: currentQuestion.difficulty,
+        response_time: 15,
+        sequence: idx + 1,
+        sub_domain_code: q.sub_domain_code,
+        difficulty: q.difficulty,
         created_at: new Date().toISOString(),
       };
+    });
 
-      const updatedAttempts = [...pretestAttempts, attempt];
-      setPretestAttempts(updatedAttempts);
+    setPretestAttempts(finalAttempts);
+    setCompletedQuestions(pretestQuestions);
+    finishPretest(finalAttempts);
+  };
 
-      setTimeout(() => {
-        const nextIdx = pretestIndex + 1;
-        if (nextIdx >= pretestQuestions.length) {
-          finishPretest(updatedAttempts);
-        } else {
-          setPretestIndex(nextIdx);
-          setCurrentQuestion(pretestQuestions[nextIdx]);
-          setSelectedOption(null);
-          setHasSubmittedAnswer(false);
-          setTimerSeconds(0);
-        }
-      }, 1800);
-      return;
-    }
+  // Submit Adaptive Post-test / Re-test
+  const handleSubmitAdaptiveQuestion = () => {
+    if (!selectedOption || !currentQuestion) return;
 
-    // --- 2) Handle Adaptive Post-test / Re-test ---
     const pool = questionsPool.length > 0 ? questionsPool : getQuestions();
 
     if (selectedEngine === 'rule-based') {
@@ -240,17 +278,15 @@ function AssessmentContent() {
       );
       setEngineState(newState);
 
-      setTimeout(() => {
-        const nextQ = getNextAdaptiveQuestion(newState, pool);
-        if (!nextQ || newState.questionIndex >= (isRetest ? 10 : 20)) {
-          finishAdaptiveTest(newState.attempts);
-        } else {
-          setCurrentQuestion(nextQ);
-          setSelectedOption(null);
-          setHasSubmittedAnswer(false);
-          setTimerSeconds(0);
-        }
-      }, 2000);
+      const nextQ = getNextAdaptiveQuestion(newState, pool);
+      if (!nextQ || newState.questionIndex >= (isRetest ? 10 : 20)) {
+        finishAdaptiveTest(newState.attempts);
+      } else {
+        setCompletedQuestions((prev) => [...prev, nextQ]);
+        setCurrentQuestion(nextQ);
+        setSelectedOption(null);
+        setTimerSeconds(0);
+      }
     } else {
       // IRT 3PL Engine
       const { newState } = recordIRTAnswerAndUpdateState(
@@ -261,31 +297,44 @@ function AssessmentContent() {
       );
       setIrtEngineState(newState);
 
-      setTimeout(() => {
-        const nextQ = getNextIRTQuestion(newState, pool);
-        if (!nextQ) {
-          finishAdaptiveTest(newState.attempts);
-        } else {
-          setCurrentQuestion(nextQ);
-          setSelectedOption(null);
-          setHasSubmittedAnswer(false);
-          setTimerSeconds(0);
-        }
-      }, 2000);
+      const nextQ = getNextIRTQuestion(newState, pool);
+      if (!nextQ) {
+        finishAdaptiveTest(newState.attempts);
+      } else {
+        setCompletedQuestions((prev) => [...prev, nextQ]);
+        setCurrentQuestion(nextQ);
+        setSelectedOption(null);
+        setTimerSeconds(0);
+      }
     }
   };
 
-  // Keyboard shortcut: Press Enter to submit / advance to next question
+  // Keyboard shortcut: Left/Right arrows or Enter
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && selectedOption && !hasSubmittedAnswer) {
+      if (!hasStarted || isTestFinished || showConfirmModal) return;
+
+      if (e.key === 'ArrowRight') {
+        handleNextQuestion();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevQuestion();
+      } else if (e.key === 'Enter') {
         e.preventDefault();
-        handleSubmitQuestion();
+        handleNextQuestion();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, hasSubmittedAnswer, handleSubmitQuestion]);
+  }, [
+    hasStarted,
+    isTestFinished,
+    showConfirmModal,
+    pretestIndex,
+    pretestQuestions,
+    selectedOption,
+    currentQuestion,
+    selectedTestType,
+  ]);
 
   // Completion: Fixed Pre-test
   const finishPretest = (finalAttempts: Attempt[]) => {
@@ -477,51 +526,107 @@ function AssessmentContent() {
     const totalCount = finalAttempts.length;
     const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
 
-    const theta = selectedEngine === 'irt-3pl' ? irtEngineState.currentTheta.toFixed(2) : (percentage / 100).toFixed(2);
+    const theta =
+      selectedEngine === 'irt-3pl'
+        ? irtEngineState.currentTheta.toFixed(2)
+        : (percentage / 100).toFixed(2);
     const se = selectedEngine === 'irt-3pl' ? irtEngineState.standardError.toFixed(2) : 'N/A';
 
+    const questionsToReview =
+      completedQuestions.length > 0
+        ? completedQuestions
+        : isPretest
+        ? pretestQuestions
+        : [];
+
+    const filteredQuestions = questionsToReview
+      .map((q, idx) => {
+        const attempt = finalAttempts.find((a) => a.question_id === q.id) || finalAttempts[idx];
+        const isCorrect = attempt?.correct ?? false;
+        const isAnswered = !!attempt?.answer && attempt.answer.trim().length > 0;
+        return {
+          question: q,
+          attempt,
+          index: idx,
+          isCorrect,
+          isAnswered,
+        };
+      })
+      .filter((item) => {
+        if (reviewFilter === 'correct') return item.isCorrect;
+        if (reviewFilter === 'incorrect') return !item.isCorrect;
+        return true;
+      });
+
     return (
-      <div className="main-inner enter w-full max-w-5xl mx-auto py-6">
-        <div className="text-center mb-8">
+      <div className="main-inner enter w-full max-w-5xl mx-auto py-6 space-y-6">
+        {/* Header */}
+        <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-success-dim text-success mb-3 shadow-md shadow-success/20">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-ink mb-1">
-            {isPretest ? 'ทำแบบทดสอบก่อนเรียนสำเร็จ!' : 'ประเมินผลเสร็จสิ้น (Post-test)'}
+            {isPretest ? 'สรุปคะแนนแบบทดสอบก่อนเรียน (Pre-test)' : 'ประเมินผลเสร็จสิ้น (Post-test)'}
           </h1>
           <p className="text-sm text-muted">
             {isPretest
-              ? 'ระบบได้บันทึกคะแนนก่อนเรียนและปลดล็อกเนื้อหาบทเรียนให้คุณเรียบร้อยแล้ว'
+              ? 'ระบบได้บันทึกคะแนนก่อนเรียนและปลดล็อกเนื้อหาบทเรียนให้เรียบร้อยแล้ว ตรวจสอบเฉลยละเอียดได้ด้านล่าง'
               : 'ยินดีด้วย! คุณเรียนรู้และผ่านการประเมินหน่วยนี้ครบทั้ง 6 ขั้นตอนแล้ว'}
           </p>
         </div>
 
         {/* Score Summary Card */}
-        <div className="card p-6 mb-6 border-line bg-surface">
+        <div className="card p-6 border-line bg-surface shadow-xs">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <div className="text-xs font-mono text-muted uppercase">คะแนนที่ได้</div>
-              <div className="text-3xl font-black text-ink">
+              <div className="text-xs font-mono text-muted uppercase">สรุปคะแนนที่ได้</div>
+              <div className="text-3xl sm:text-4xl font-black text-ink mt-0.5">
                 {correctCount} / {totalCount} ข้อ{' '}
-                <span className="text-sm font-normal text-primary">({percentage}%)</span>
+                <span className="text-base sm:text-lg font-bold text-primary">({percentage}%)</span>
+              </div>
+              <div className="flex items-center gap-3 mt-2 text-xs text-muted">
+                <span className="flex items-center gap-1 font-mono">
+                  <Clock className="w-3.5 h-3.5 text-muted" />
+                  เวลาที่ใช้: {formatTime(totalTimerSeconds)}
+                </span>
+                <span>•</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                  ตอบถูก {correctCount} ข้อ
+                </span>
+                <span>•</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold">
+                  ตอบผิด {totalCount - correctCount} ข้อ
+                </span>
               </div>
             </div>
 
-            {isPretest ? (
-              <div className="px-4 py-2 rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-xs font-bold">
-                ✓ ปลดล็อกขั้นตอนที่ 2: บทเรียน (Lesson) แล้ว
-              </div>
-            ) : (
-              <div className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-bold">
-                👑 ผ่านหน่วยการเรียนรู้นี้ครบ 6/6 ขั้นตอนแล้ว
-              </div>
-            )}
+            <div className="flex flex-col sm:items-end gap-2">
+              {isPretest ? (
+                <div className="px-4 py-2.5 rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>✓ ปลดล็อกขั้นตอนที่ 2: บทเรียน HTML แล้ว</span>
+                </div>
+              ) : (
+                <div className="px-4 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-bold flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>👑 ผ่านหน่วยการเรียนรู้นี้ครบ 6/6 ขั้นตอนแล้ว</span>
+                </div>
+              )}
+
+              <Link
+                href={isPretest ? '/student/lessons' : '/student'}
+                className="btn btn-primary text-xs font-bold shadow-md flex items-center gap-1.5"
+              >
+                <span>{isPretest ? 'เข้าสู่บทเรียน HTML (Step 2)' : 'กลับสู่แดชบอร์ด'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Post-test specific: IRT Diagnosis */}
         {!isPretest && (
-          <section className="win mb-6">
+          <section className="win">
             <div className="win-bar">
               <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
               <div className="win-title"><em>&lt;/&gt;</em> learning_profile.json</div>
@@ -542,8 +647,203 @@ function AssessmentContent() {
           </section>
         )}
 
+        {/* Detailed Question Review & Explanations Section */}
+        <div className="card p-5 sm:p-6 border-line bg-surface rounded-2xl shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-line">
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <span>เฉลยคำตอบและคำอธิบายละเอียดรายข้อ</span>
+              </h3>
+              <p className="text-xs text-muted mt-0.5">
+                เปรียบเทียบคำตอบที่คุณบันทึกไว้กับคำตอบที่ถูกต้อง พร้อมคำอธิบายเฉลยเชิงวิชาการ
+              </p>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-bg-base border border-line text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setReviewFilter('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  reviewFilter === 'all'
+                    ? 'bg-primary text-white shadow-xs'
+                    : 'text-muted hover:text-ink'
+                }`}
+              >
+                ทั้งหมด ({totalCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setReviewFilter('correct')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                  reviewFilter === 'correct'
+                    ? 'bg-emerald-500 text-white shadow-xs'
+                    : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10'
+                }`}
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>ตอบถูก ({correctCount})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setReviewFilter('incorrect')}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                  reviewFilter === 'incorrect'
+                    ? 'bg-rose-500 text-white shadow-xs'
+                    : 'text-rose-600 dark:text-rose-400 hover:bg-rose-500/10'
+                }`}
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>ตอบผิด ({totalCount - correctCount})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Question List */}
+          <div className="space-y-4">
+            {filteredQuestions.length === 0 ? (
+              <div className="text-center py-10 text-muted">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2 opacity-50" />
+                <p className="font-bold text-sm">ไม่มีข้อสอบในหมวดที่เลือก</p>
+              </div>
+            ) : (
+              filteredQuestions.map(({ question: q, attempt: att, index: idx, isCorrect, isAnswered }) => {
+                const studentAns = att?.answer || '';
+                const subDomainInfo = SUB_DOMAINS[q.sub_domain_code];
+
+                return (
+                  <div
+                    key={q.id || idx}
+                    className={`card p-4 sm:p-5 rounded-2xl border transition-all ${
+                      isCorrect
+                        ? 'border-emerald-500/30 bg-emerald-500/[0.02]'
+                        : !isAnswered
+                        ? 'border-amber-500/30 bg-amber-500/[0.02]'
+                        : 'border-rose-500/30 bg-rose-500/[0.02]'
+                    }`}
+                  >
+                    {/* Item Header */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-surface border border-line text-xs font-black text-ink">
+                          ข้อที่ {idx + 1}
+                        </span>
+                        <span className="chip chip-line mono text-xs">
+                          {q.sub_domain_code}: {subDomainInfo?.title || ''}
+                        </span>
+                      </div>
+
+                      {/* Result Badge */}
+                      {isCorrect ? (
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center gap-1.5">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>ตอบถูกต้อง (+1 คะแนน)</span>
+                        </span>
+                      ) : !isAnswered ? (
+                        <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>ไม่ได้ตอบ (0 คะแนน)</span>
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold flex items-center gap-1.5">
+                          <X className="w-3.5 h-3.5" />
+                          <span>ตอบไม่ถูกต้อง (0 คะแนน)</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Question Text */}
+                    <h4 className="text-sm sm:text-base font-bold text-ink mb-2 leading-relaxed">
+                      {q.question_text}
+                    </h4>
+
+                    {/* Code Snippet */}
+                    {q.code_snippet && (
+                      <div className="p-3 rounded-xl bg-slate-950 border border-line overflow-x-auto mb-3">
+                        <pre className="font-mono text-xs text-indigo-300 leading-relaxed m-0">
+                          {q.code_snippet}
+                        </pre>
+                      </div>
+                    )}
+
+                    {/* Choices Review */}
+                    <div className="space-y-2 mt-3">
+                      {(['A', 'B', 'C', 'D'] as const).map((key) => {
+                        const choiceText = q.choices[key];
+                        if (!choiceText) return null;
+
+                        const isUserChoice = studentAns === key;
+                        const isCorrectOption = q.correct_option === key;
+                        const thaiLabel = key === 'A' ? 'ก' : key === 'B' ? 'ข' : key === 'C' ? 'ค' : 'ง';
+
+                        let choiceBorder = 'border-line/60 bg-surface/60 opacity-80';
+                        let badge = null;
+
+                        if (isUserChoice && isCorrectOption) {
+                          choiceBorder =
+                            'border-emerald-500 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100 font-bold opacity-100 shadow-xs';
+                          badge = (
+                            <span className="chip chip-green text-[10px] font-bold shrink-0">
+                              ✓ คุณเลือกข้อนี้ (ถูกต้อง)
+                            </span>
+                          );
+                        } else if (isUserChoice && !isCorrectOption) {
+                          choiceBorder =
+                            'border-rose-500 bg-rose-500/10 text-rose-900 dark:text-rose-100 font-bold opacity-100 shadow-xs';
+                          badge = (
+                            <span className="chip chip-red text-[10px] font-bold shrink-0">
+                              ✗ คุณเลือกข้อนี้ (ผิด)
+                            </span>
+                          );
+                        } else if (!isUserChoice && isCorrectOption) {
+                          choiceBorder =
+                            'border-emerald-500/80 bg-emerald-500/5 text-emerald-800 dark:text-emerald-200 border-dashed font-semibold opacity-100';
+                          badge = (
+                            <span className="chip chip-green text-[10px] font-bold shrink-0">
+                              ✓ คำตอบที่ถูกต้อง
+                            </span>
+                          );
+                        }
+
+                        return (
+                          <div
+                            key={key}
+                            className={`flex items-center justify-between gap-3 p-3 rounded-xl border text-xs sm:text-sm ${choiceBorder}`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span className="w-5 h-5 rounded-full bg-surface border border-line flex items-center justify-center font-bold text-[11px] shrink-0">
+                                {thaiLabel}
+                              </span>
+                              <span className="truncate sm:whitespace-normal">{choiceText}</span>
+                            </div>
+                            {badge}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Detailed Explanation */}
+                    {q.explanation && (
+                      <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1 mt-3">
+                        <div className="font-bold text-primary flex items-center gap-1.5">
+                          <Info className="w-3.5 h-3.5" />
+                          <span>คำอธิบายเฉลย</span>
+                        </div>
+                        <p className="text-muted leading-relaxed m-0 text-xs sm:text-[13px]">
+                          {q.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
         {/* Sequential Next Step CTA Banner */}
-        <div className="card p-6 border-l-4 border-l-primary bg-primary/5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="card p-6 border-l-4 border-l-primary bg-primary/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <div className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest mb-0.5">
               {isPretest ? 'ขั้นตอนถัดไปในลำดับการเรียนรู้ (Step 2)' : 'เสร็จสิ้นการประเมิน'}
@@ -590,7 +890,7 @@ function AssessmentContent() {
               </span>
               <span className="chip chip-blue mono text-xs font-bold">
                 <Sparkles className="w-3 h-3 text-primary" />
-                <span>{isPretest ? '20 ข้อ • วัดระดับก่อนเรียน' : 'Adaptive CAT • หลังเรียน'}</span>
+                <span>{isPretest ? '20 ข้อ • บันทึกคำตอบและเฉลยหลังส่ง' : 'Adaptive CAT • หลังเรียน'}</span>
               </span>
             </div>
           </div>
@@ -612,7 +912,7 @@ function AssessmentContent() {
 
                 <p className="text-xs sm:text-sm text-muted leading-relaxed max-w-2xl mx-auto">
                   {isPretest
-                    ? 'ชุดคำถามมาตรฐาน 20 ข้อ (ครอบคลุมเนื้อหาภาพรวมทั้ง 5 เรื่องย่อย) เพื่อประเมินความรู้พื้นฐานก่อนเข้าสู่บทเรียน ระบบจะบันทึกผลเป็นระดับทักษะเริ่มต้น'
+                    ? 'ชุดคำถามมาตรฐาน 20 ข้อ ครอบคลุมเนื้อหาภาพรวมทั้ง 5 เรื่องย่อย ระบบจะบันทึกคำตอบไว้ก่อน และเฉลยพร้อมสรุปผลคะแนนละเอียดเมื่อส่งข้อสอบเสร็จสิ้น'
                     : 'ระบบจะปรับระดับความยากของคำถามให้เหมาะสมกับความสามารถของคุณแบบเรียลไทม์ (Adaptive CAT ด้วยโมเดล IRT 3PL) เพื่อวัดระดับทักษะจริง'}
                 </p>
               </div>
@@ -644,9 +944,11 @@ function AssessmentContent() {
                       2
                     </span>
                     <div>
-                      <b className="text-xs text-ink block mb-0.5">การบันทึกคำตอบ</b>
+                      <b className="text-xs text-ink block mb-0.5">ย้อนกลับแก้ไขคำตอบได้</b>
                       <p className="m-0 text-xs text-muted leading-relaxed">
-                        เลือกคำตอบ 1 ข้อแล้วกดปุ่ม "ข้อถัดไป ➔" เมื่อยืนยันแล้วแก้ไขไม่ได้
+                        {isPretest
+                          ? 'ระบบบันทึกคำตอบไว้ สามารถกดย้อนกลับหรือเลือกข้อเพื่อแก้ไขคำตอบได้ตลอดเวลาก่อนส่ง'
+                          : 'ตอบคำถามตามลำดับการปรับเหมาะของระบบ'}
                       </p>
                     </div>
                   </div>
@@ -656,11 +958,9 @@ function AssessmentContent() {
                       3
                     </span>
                     <div>
-                      <b className="text-xs text-ink block mb-0.5">การปลดล็อกบทเรียน</b>
+                      <b className="text-xs text-ink block mb-0.5">เฉลยและสรุปผลคะแนน</b>
                       <p className="m-0 text-xs text-muted leading-relaxed">
-                        {isPretest
-                          ? 'เมื่อทำเสร็จ ระบบจะปลดล็อกขั้นตอนที่ 2: บทเรียน HTML ให้ทันที'
-                          : 'เมื่อทำเสร็จ ระบบจะประมวลผลระดับความสามารถ (Theta) รายบุคคล'}
+                        เมื่อกดส่งข้อสอบ ระบบจะสรุปคะแนน พร้อมแสดงเฉลยและคำอธิบายละเอียดครบทุกข้อ
                       </p>
                     </div>
                   </div>
@@ -731,8 +1031,95 @@ function AssessmentContent() {
     ? pretestIndex
     : (selectedEngine === 'rule-based' ? engineState : irtEngineState).questionIndex;
 
+  const currentSelectedOption = isPretest
+    ? (userAnswers[pretestIndex] || null)
+    : selectedOption;
+
+  const answeredCount = isPretest
+    ? Object.keys(userAnswers).filter((k) => !!userAnswers[Number(k)]).length
+    : currentIndex;
+
   return (
-    <div className="main-inner enter flex flex-col h-[calc(100dvh-100px)] md:h-full max-h-full min-h-0 mb-0 overflow-hidden">
+    <div className="main-inner enter flex flex-col h-[calc(100dvh-100px)] md:h-full max-h-full min-h-0 mb-0 overflow-hidden relative">
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="card max-w-md w-full p-6 bg-surface border border-line rounded-2xl shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-ink">ยืนยันการส่งแบบทดสอบ</h3>
+                  <p className="text-xs text-muted">ตรวจสอบความเรียบร้อยก่อนส่งตรวจคำตอบ</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="text-muted hover:text-ink p-1 rounded-lg hover:bg-surface/80 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Answered / Unanswered stats */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 block mb-0.5">
+                  ตอบแล้ว
+                </span>
+                <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                  {answeredCount} / {maxQuestions}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-surface border border-line text-center">
+                <span className="text-[10px] font-bold text-muted block mb-0.5">
+                  ยังไม่ได้ทำ
+                </span>
+                <span className="text-xl font-black text-ink">
+                  {maxQuestions - answeredCount} ข้อ
+                </span>
+              </div>
+            </div>
+
+            {maxQuestions - answeredCount > 0 ? (
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <span>
+                  คุณยังมีข้อสอบที่ยังไม่ได้ตอบอีก <b>{maxQuestions - answeredCount} ข้อ</b> ข้อที่ไม่ได้ตอบจะคิดเป็น 0 คะแนน ยืนยันที่จะส่งข้อสอบและดูผลคะแนนทันทีหรือไม่?
+                </span>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <span>
+                  คุณตอบคำถามครบทั้ง <b>{maxQuestions} ข้อ</b> เรียบร้อยแล้ว ระบบจะประมวลผลคะแนนและแสดงเฉลยละเอียดทันที
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="btn btn-ghost px-4 py-2 text-xs font-bold text-muted hover:text-ink cursor-pointer"
+              >
+                กลับไปทำต่อ / แก้ไขคำตอบ
+              </button>
+              <button
+                type="button"
+                onClick={executeSubmitPretest}
+                className="btn btn-primary px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
+              >
+                ยืนยันส่งข้อสอบ ➔
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="win flex-1 flex flex-col min-h-0 overflow-hidden" id="screen-quiz">
         <div className="win-bar shrink-0 py-2 px-4">
           <div className="win-dots"><i className="r"></i><i className="y"></i><i className="g"></i></div>
@@ -761,7 +1148,7 @@ function AssessmentContent() {
                 <span>รายการข้อสอบ</span>
               </div>
               <span className="text-[11px] font-mono text-primary font-black bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                {currentIndex} / {maxQuestions}
+                {answeredCount} / {maxQuestions}
               </span>
             </div>
 
@@ -769,7 +1156,7 @@ function AssessmentContent() {
             <div className="w-full bg-line/60 rounded-full h-1.5 mb-3 overflow-hidden shrink-0">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-300"
-                style={{ width: `${(currentIndex / maxQuestions) * 100}%` }}
+                style={{ width: `${(answeredCount / maxQuestions) * 100}%` }}
               />
             </div>
 
@@ -777,27 +1164,32 @@ function AssessmentContent() {
             <div className="grid grid-cols-4 gap-1.5 shrink-0">
               {Array.from({ length: maxQuestions }).map((_, idx) => {
                 const isCur = idx === currentIndex;
-                const isDone = idx < currentIndex;
+                const hasAnswer = isPretest ? !!userAnswers[idx] : idx < currentIndex;
 
-                let itemClass = 'bg-surface text-ink/70 border border-line font-semibold hover:border-primary/40';
+                let itemClass =
+                  'bg-surface text-ink/70 border border-line font-semibold hover:border-primary/40 hover:bg-surface/80';
                 if (isCur) {
-                  itemClass = 'bg-primary text-white font-black ring-2 ring-primary ring-offset-2 ring-offset-surface shadow-md scale-105 z-10';
-                } else if (isDone) {
-                  itemClass = 'bg-emerald-500 text-white font-bold shadow-xs';
+                  itemClass =
+                    'bg-primary text-white font-black ring-2 ring-primary ring-offset-2 ring-offset-surface shadow-md scale-105 z-10';
+                } else if (hasAnswer) {
+                  itemClass = 'bg-emerald-500 text-white font-bold shadow-xs hover:bg-emerald-600';
                 }
 
                 return (
-                  <div
+                  <button
                     key={idx}
-                    className={`aspect-square rounded-lg flex items-center justify-center text-xs transition-all select-none ${itemClass}`}
+                    type="button"
+                    onClick={() => handleJumpToQuestion(idx)}
+                    className={`aspect-square rounded-lg flex items-center justify-center text-xs transition-all select-none cursor-pointer ${itemClass}`}
+                    title={`ข้อที่ ${idx + 1}${hasAnswer ? ' (ทำแล้ว)' : ' (ยังไม่ทำ)'}`}
                   >
                     {idx + 1}
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Status Legend (ทำแล้ว / ข้อปัจจุบัน / ยังไม่ทำ) */}
+            {/* Status Legend (ข้อปัจจุบัน / ตอบแล้ว / ยังไม่ทำ) */}
             <div className="mt-3.5 pt-3 border-t border-line text-xs space-y-2 shrink-0">
               <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
                 สถานะการทำข้อสอบ
@@ -814,14 +1206,14 @@ function AssessmentContent() {
                 </span>
               </div>
 
-              {/* ทำแล้ว */}
+              {/* ตอบแล้ว */}
               <div className="flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shrink-0"></span>
-                  <span className="font-semibold text-ink">ทำแล้ว</span>
+                  <span className="font-semibold text-ink">ตอบแล้ว</span>
                 </div>
                 <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                  {currentIndex} ข้อ
+                  {answeredCount} ข้อ
                 </span>
               </div>
 
@@ -832,19 +1224,33 @@ function AssessmentContent() {
                   <span className="font-medium text-muted">ยังไม่ทำ</span>
                 </div>
                 <span className="text-[10px] font-mono font-medium text-muted bg-surface border border-line px-1.5 py-0.5 rounded">
-                  {Math.max(0, maxQuestions - currentIndex)} ข้อ
+                  {Math.max(0, maxQuestions - answeredCount)} ข้อ
                 </span>
               </div>
             </div>
 
+            {/* Quick Submit CTA in Sidebar */}
+            {isPretest && answeredCount > 0 && (
+              <div className="mt-3 pt-3 border-t border-line shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(true)}
+                  className="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>ส่งข้อสอบ ({answeredCount}/{maxQuestions})</span>
+                </button>
+              </div>
+            )}
+
             <div className="mt-auto pt-3 shrink-0">
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
                 <b className="text-primary block mb-1 text-[11px]">
-                  {isPretest ? 'แบบทดสอบก่อนเรียน' : 'ระบบปรับเหมาะกำลังทำงาน'}
+                  {isPretest ? 'บันทึกคำตอบอัตโนมัติ' : 'ระบบปรับเหมาะกำลังทำงาน'}
                 </b>
                 <p className="text-[10px] text-muted m-0 leading-relaxed">
                   {isPretest
-                    ? 'ชุดข้อสอบคงที่ 20 ข้อ ไม่มีการปรับระดับความยากตามคำตอบ'
+                    ? 'สามารถคลิกเลขข้อเพื่อย้อนกลับมาแก้ไขคำตอบได้ตลอดเวลาก่อนกดส่งข้อสอบ'
                     : 'ระบบปรับระดับความยากของคำถามถัดไปตามความสามารถของคุณ'}
                 </p>
               </div>
@@ -856,7 +1262,9 @@ function AssessmentContent() {
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-line shrink-0 bg-surface/30">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-muted uppercase">ข้อที่</span>
-                <span className="text-sm sm:text-base font-black text-ink">{currentIndex + 1} / {maxQuestions}</span>
+                <span className="text-sm sm:text-base font-black text-ink">
+                  {currentIndex + 1} / {maxQuestions}
+                </span>
               </div>
               <span className="chip chip-line mono text-xs">{currentQuestion.sub_domain_code}</span>
             </div>
@@ -881,23 +1289,14 @@ function AssessmentContent() {
                     const choiceText = currentQuestion.choices[key];
                     if (!choiceText) return null;
 
-                    const isSelected = selectedOption === key;
-                    const isCorrect = key === currentQuestion.correct_option;
+                    const isSelected = currentSelectedOption === key;
                     const thaiLabel = key === 'A' ? 'ก' : key === 'B' ? 'ข' : key === 'C' ? 'ค' : 'ง';
 
                     let borderClass = 'border-line hover:border-primary/50';
                     let bgClass = 'bg-surface hover:bg-surface/80';
                     let radioClass = 'border-line text-muted';
 
-                    if (hasSubmittedAnswer) {
-                      if (isCorrect) {
-                        borderClass = 'border-emerald-500 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200';
-                        radioClass = 'border-emerald-500 bg-emerald-500 text-white';
-                      } else if (isSelected) {
-                        borderClass = 'border-rose-500 bg-rose-500/10 text-rose-800 dark:text-rose-200';
-                        radioClass = 'border-rose-500 bg-rose-500 text-white';
-                      }
-                    } else if (isSelected) {
+                    if (isSelected) {
                       borderClass = 'border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30';
                       radioClass = 'border-primary bg-primary text-white';
                     }
@@ -918,57 +1317,83 @@ function AssessmentContent() {
                     );
                   })}
                 </div>
-
-                {/* Feedback Explanation after answer */}
-                {hasSubmittedAnswer && currentQuestion.explanation && (
-                  <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs space-y-1 animate-in fade-in">
-                    <div className="font-bold text-primary flex items-center gap-1.5">
-                      <Info className="w-3.5 h-3.5" />
-                      <span>คำอธิบายเฉลย</span>
-                    </div>
-                    <p className="m-0 text-muted leading-relaxed">{currentQuestion.explanation}</p>
-                  </div>
-                )}
               </div>
             </div>
 
             {/* Bottom Actions Bar - Always visible in viewport */}
             <div className="px-5 py-3 border-t border-line flex items-center justify-between shrink-0 bg-surface/90 backdrop-blur-md">
+              {/* Left: Previous Question Button */}
               <div className="flex items-center gap-2">
-                {selectedOption ? (
-                  <span className="text-xs text-primary font-bold flex items-center gap-1.5 animate-in fade-in">
+                {isPretest && (
+                  <button
+                    type="button"
+                    onClick={handlePrevQuestion}
+                    disabled={currentIndex === 0}
+                    className={`btn btn-ghost border border-line text-xs font-bold px-3.5 py-2 flex items-center gap-1.5 transition-all ${
+                      currentIndex === 0
+                        ? 'opacity-30 cursor-not-allowed'
+                        : 'hover:bg-surface/80 cursor-pointer text-ink'
+                    }`}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>ย้อนกลับ</span>
+                  </button>
+                )}
+
+                {/* Current selection status */}
+                {currentSelectedOption ? (
+                  <span className="text-xs text-primary font-bold hidden sm:flex items-center gap-1.5 animate-in fade-in">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span>
-                      เลือกข้อ {selectedOption === 'A' ? 'ก' : selectedOption === 'B' ? 'ข' : selectedOption === 'C' ? 'ค' : 'ง'} แล้ว กดปุ่มข้อถัดไปได้เลย
-                    </span>
-                    <span className="hidden sm:inline-block text-[11px] text-muted font-normal ml-1">
-                      (หรือกด Enter บนคีย์บอร์ด)
+                      เลือกข้อ {currentSelectedOption === 'A' ? 'ก' : currentSelectedOption === 'B' ? 'ข' : currentSelectedOption === 'C' ? 'ค' : 'ง'} แล้ว
+                      {isPretest ? ' (คลิกเปลี่ยนคำตอบได้)' : ''}
                     </span>
                   </span>
                 ) : (
-                  <span className="text-xs text-muted flex items-center gap-1.5">
-                    <span>โปรดคลิกเลือกคำตอบ 1 ตัวเลือก</span>
+                  <span className="text-xs text-muted hidden sm:inline">
+                    โปรดคลิกเลือกคำตอบ 1 ตัวเลือก
                   </span>
                 )}
               </div>
 
-              <button
-                onClick={handleSubmitQuestion}
-                disabled={!selectedOption || hasSubmittedAnswer}
-                className={`btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer transition-all ${
-                  selectedOption && !hasSubmittedAnswer
-                    ? 'ring-2 ring-primary/40 scale-[1.02] shadow-primary/25'
-                    : 'opacity-40'
-                }`}
-              >
-                <span>
-                  {hasSubmittedAnswer
-                    ? 'กำลังบันทึกคำตอบ...'
-                    : currentIndex + 1 >= maxQuestions
-                    ? 'ส่งคำตอบข้อสอบ ➔'
-                    : 'ข้อถัดไป ➔'}
-                </span>
-              </button>
+              {/* Right: Next or Submit */}
+              <div className="flex items-center gap-2">
+                {isPretest ? (
+                  currentIndex < maxQuestions - 1 ? (
+                    <button
+                      type="button"
+                      onClick={handleNextQuestion}
+                      className="btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 hover:scale-[1.02] transition-transform"
+                    >
+                      <span>ข้อถัดไป</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmModal(true)}
+                      className="btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 border-none text-white ring-2 ring-emerald-500/40 hover:scale-[1.02] transition-all"
+                    >
+                      <span>ส่งคำตอบ &amp; ดูผลคะแนน</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleNextQuestion}
+                    disabled={!selectedOption}
+                    className={`btn btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5 ${
+                      selectedOption ? 'hover:scale-[1.02] transition-transform' : 'opacity-40 cursor-not-allowed'
+                    }`}
+                  >
+                    <span>
+                      {currentIndex + 1 >= maxQuestions ? 'ส่งคำตอบข้อสอบ' : 'ข้อถัดไป'}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
