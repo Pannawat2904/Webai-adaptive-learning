@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { isCourseStepUnlocked, CourseStepKey, subscribeToProgress } from '@/lib/progress-service';
+import { isCourseStepUnlocked, isCourseStepCompleted, CourseStepKey, subscribeToProgress } from '@/lib/progress-service';
 import {
   LayoutDashboard,
   ClipboardList,
@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Lock,
+  Check,
 } from 'lucide-react';
 
 interface NavItem {
@@ -116,6 +117,7 @@ function StudentLayoutContent({
   const renderNavItem = (item: NavItem) => {
     const isAiLockedByExam = item.name === 'AI ผู้ช่วยสอน' && (pathname === '/student/assessment' || isExamActive);
     const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : isAiLockedByExam;
+    const isCompleted = item.stepKey ? isCourseStepCompleted(item.stepKey) : false;
 
     // Check active state
     let isActive = false;
@@ -141,9 +143,11 @@ function StudentLayoutContent({
             ? 'text-muted/60 hover:text-muted cursor-not-allowed opacity-60'
             : isActive
             ? 'text-primary bg-primary-dim border border-primary/20 shadow-sm'
+            : isCompleted
+            ? 'text-ink hover:text-primary hover:bg-surface border border-transparent'
             : 'text-muted hover:text-primary hover:bg-primary-dim/50 border border-transparent'
         }`}
-        title={isSidebarCollapsed ? item.name : undefined}
+        title={isSidebarCollapsed ? `${item.name}${isCompleted ? ' (ทำเสร็จแล้ว ✓)' : ''}` : undefined}
       >
         {isActive && (
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-primary rounded-r-md shadow-sm" />
@@ -155,15 +159,30 @@ function StudentLayoutContent({
                 ? 'opacity-40'
                 : isActive
                 ? 'text-primary'
+                : isCompleted
+                ? 'text-ink group-hover:text-primary'
                 : 'opacity-70 group-hover:text-primary'
             }`}
             strokeWidth={2.5}
           />
+          {isSidebarCollapsed && isCompleted && (
+            <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+              <Check className="w-2.5 h-2.5 stroke-[3]" />
+            </span>
+          )}
         </div>
         {!isSidebarCollapsed && (
           <span className="flex-1 truncate">{item.name}</span>
         )}
-        {!isSidebarCollapsed && isLocked && (
+        {!isSidebarCollapsed && isCompleted && (
+          <span
+            className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs"
+            title="ทำเสร็จสิ้นแล้ว"
+          >
+            <Check className="w-3.5 h-3.5 stroke-[3]" />
+          </span>
+        )}
+        {!isSidebarCollapsed && isLocked && !isCompleted && (
           <Lock className="w-3.5 h-3.5 text-muted/60 shrink-0" />
         )}
       </Link>
@@ -301,6 +320,7 @@ function StudentLayoutContent({
         <nav className="relative flex items-center justify-around pt-3 pb-6 px-2">
           {mainNavItems.slice(0, 4).concat(toolNavItems.slice(0, 1)).map((item) => {
             const isLocked = item.stepKey ? !isCourseStepUnlocked(item.stepKey) : false;
+            const isCompleted = item.stepKey ? isCourseStepCompleted(item.stepKey) : false;
             let isActive = false;
             if (item.href === '/student') {
               isActive = pathname === '/student';
@@ -340,6 +360,11 @@ function StudentLayoutContent({
                   }`}
                 >
                   <item.icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                  {isCompleted && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )}
                 </div>
                 <span className={`text-[10px] leading-none mt-1 ${isActive ? 'font-bold' : 'font-medium'}`}>
                   {shortName}

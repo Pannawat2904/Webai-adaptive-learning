@@ -269,6 +269,43 @@ export function isCourseStepUnlocked(step: CourseStepKey): boolean {
   }
 }
 
+/**
+ * ตรวจสอบว่าขั้นตอนระดับหลักสูตรทำครบเสร็จสิ้นแล้วหรือไม่ (มีติ๊กเขียว)
+ */
+export function isCourseStepCompleted(step: CourseStepKey): boolean {
+  const p = getCourseProgress();
+  if (step === 'pretest') {
+    if (p.pretest_done) return true;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('webai_latest_session_pre_test');
+        if (raw) {
+          const sess = JSON.parse(raw);
+          if (sess?.status === 'completed') return true;
+        }
+      } catch {}
+    }
+    return false;
+  }
+  if (step === 'lessons') return p.lessons_done;
+  if (step === 'game') return p.game_done;
+  if (step === 'quest') return p.quest_done;
+  if (step === 'posttest') {
+    if (p.posttest_done) return true;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('webai_latest_session_post_test');
+        if (raw) {
+          const sess = JSON.parse(raw);
+          if (sess?.status === 'completed') return true;
+        }
+      } catch {}
+    }
+    return false;
+  }
+  return false;
+}
+
 export function getCurrentCourseStep(): CourseStepKey {
   const p = getCourseProgress();
   if (!p.pretest_done) return 'pretest';
