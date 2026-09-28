@@ -306,6 +306,67 @@ export function isCourseStepCompleted(step: CourseStepKey): boolean {
   return false;
 }
 
+export const ALL_UNIT_IDS = ['u-h1', 'u-h2', 'u-h3', 'u-h4', 'u-h5'];
+
+/**
+ * บันทึกว่านักเรียนได้เรียนรู้สไลด์/เนื้อหาของบทเรียนหน่วยนี้ครบแล้ว
+ */
+export function markLessonCompleted(unitId: string): { updated: CourseProgress; allDone: boolean } {
+  const current = getCourseProgress();
+  const existing = new Set(current.completed_lessons || []);
+  existing.add(unitId);
+  const completed_lessons = Array.from(existing);
+
+  const allDone = ALL_UNIT_IDS.every((id) => completed_lessons.includes(id));
+
+  const updated: CourseProgress = {
+    ...current,
+    completed_lessons,
+    lessons_done: allDone,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Sync unit-level progress as well
+  setUnitStepCompleted(unitId, 'lesson', 100, false);
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(
+        new CustomEvent('webai_progress_sync', {
+          detail: { courseStep: 'lessons', unitId, allDone, updated },
+        })
+      );
+    } catch (e) {
+      console.error('Failed to save lesson completion:', e);
+    }
+  }
+
+  return { updated, allDone };
+}
+
+/**
+ * ตรวจสอบว่าบทเรียนหน่วยนี้เรียนครบแล้วหรือไม่
+ */
+export function isLessonCompleted(unitId: string): boolean {
+  const p = getCourseProgress();
+  return (p.completed_lessons || []).includes(unitId);
+}
+
+/**
+ * ดึงจำนวนบทเรียนที่เรียนสำเร็จแล้ว
+ */
+export function getCompletedLessonsCount(): { completedCount: number; totalCount: number; allDone: boolean } {
+  const p = getCourseProgress();
+  const completed_lessons = p.completed_lessons || [];
+  const completedCount = ALL_UNIT_IDS.filter((id) => completed_lessons.includes(id)).length;
+  return {
+    completedCount,
+    totalCount: ALL_UNIT_IDS.length,
+    allDone: completedCount >= ALL_UNIT_IDS.length,
+  };
+}
+
 export function getCurrentCourseStep(): CourseStepKey {
   const p = getCourseProgress();
   if (!p.pretest_done) return 'pretest';
