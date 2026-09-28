@@ -28,8 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={`${ibmPlexSansThai.variable} ${jetbrainsMono.variable} h-full antialiased font-sans scroll-smooth`} suppressHydrationWarning>
-      <body className="antialiased font-sans transition-colors selection:bg-blue-500/20 selection:text-blue-600">
+    <html
+      lang="th"
+      className={`${ibmPlexSansThai.variable} ${jetbrainsMono.variable} ${ibmPlexSansThai.className} h-full antialiased font-sans scroll-smooth`}
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className={`${ibmPlexSansThai.className} antialiased font-sans transition-colors selection:bg-blue-500/20 selection:text-blue-600`}>
         <AuthProvider>
           {children}
         </AuthProvider>

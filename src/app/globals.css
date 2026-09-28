@@ -1,7 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-ibm-plex-sans-thai), "IBM Plex Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-ibm-plex-sans-thai), "IBM Plex Sans Thai", sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   
   --color-ink: var(--ink);
@@ -97,19 +98,50 @@
     --shadow-window: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   }
 
+  html,
   body {
     margin: 0;
-    font-family: var(--font-sans);
+    font-family: var(--font-ibm-plex-sans-thai), "IBM Plex Sans Thai", sans-serif !important;
     color: var(--ink);
     background-color: var(--bg-base);
     background-attachment: fixed;
     transition: background-color .25s ease, color .25s ease;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     min-height: 100vh;
     /* Subtle grid background for developer aesthetic */
     background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: center center;
+  }
+
+  /* Universal font inheritance across all devices */
+  *,
+  *::before,
+  *::after {
+    font-family: inherit;
+  }
+
+  /* Form elements must explicitly use IBM Plex Sans Thai to prevent system font override on iOS/Safari/Android/Windows */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: var(--font-ibm-plex-sans-thai), "IBM Plex Sans Thai", sans-serif !important;
+    touch-action: manipulation;
+  }
+
+  /* Code elements strictly JetBrains Mono */
+  code,
+  pre,
+  kbd,
+  samp,
+  .mono,
+  .font-mono,
+  .font-mono-code {
+    font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace !important;
   }
   
   ::selection { background: var(--primary-dim); color: var(--primary); }
